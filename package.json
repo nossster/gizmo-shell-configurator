@@ -1,0 +1,22 @@
+{
+  "name": "gizmo-shell-configurator",
+  "version": "1.0.0",
+  "description": "SPA configurator for Gizmo Client UI themes with live preview and CSS override export.",
+  "main": "app.js",
+  "scripts": {
+    "check": "node --check app.js",
+    "test": "node --check app.js"
+  },
+  "keywords": [
+    "gizmo",
+    "theme",
+    "css",
+    "configurator",
+    "spa"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "playwright": "^1.61.1"
+  }
+}

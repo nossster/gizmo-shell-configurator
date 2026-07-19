@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gizmo Shell Configurator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="panel controls-panel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">SPA configurator</p>
+            <h1>Gizmo Shell Configurator</h1>
+            <p class="muted">
+              Визуальный конфигуратор оболочки Gizmo.Client.UI с live preview и экспортом CSS override.
+            </p>
+            <p id="applyState" class="apply-state apply-state--header">Preview синхронизирован</p>
+          </div>
+          <div class="header-actions">
+            <button id="applyThemeBtn" class="primary-button" type="button">Применить</button>
+            <button id="resetThemeBtn" class="ghost-button" type="button">Сбросить</button>
+          </div>
+        </div>
+
+        <section class="control-group">
+          <div class="group-title-row">
+            <h2>Пресеты</h2>
+          </div>
+          <div class="preset-grid" id="presetGrid"></div>
+        </section>
+
+        <section class="control-group">
+          <div class="group-title-row">
+            <h2>Настройки темы</h2>
+          </div>
+          <div class="settings-tabs" id="settingsTabs">
+            <button class="settings-tab active" data-settings-tab="colors" type="button">Цвета</button>
+            <button class="settings-tab" data-settings-tab="fonts" type="button">Шрифты</button>
+            <button class="settings-tab" data-settings-tab="effects" type="button">Эффекты</button>
+          </div>
+
+          <div class="settings-tab-panel active" data-settings-panel="colors">
+            <p class="muted muted--compact">Элементы с одинаковым типом фона привязаны к одной общей цветовой опции.</p>
+            <div class="control-grid" id="colorControls"></div>
+          </div>
+
+          <div class="settings-tab-panel" data-settings-panel="fonts">
+            <p class="muted muted--compact">Шрифт интерфейса, заголовков и базовый размер текста для preview и экспортируемого CSS.</p>
+            <div class="control-grid" id="fontControls"></div>
+          </div>
+
+          <div class="settings-tab-panel" data-settings-panel="effects">
+            <p class="muted muted--compact">Радиусы, blur и тени для всей оболочки.</p>
+            <div class="range-grid" id="rangeControls"></div>
+          </div>
+        </section>
+
+        <section class="control-group">
+          <div class="group-title-row">
+            <h2>Режим preview</h2>
+          </div>
+          <div class="preview-mode-tabs" id="previewModeTabs">
+            <button data-mode="home" class="preview-mode-tab active" type="button">Home</button>
+            <button data-mode="login" class="preview-mode-tab" type="button">Login</button>
+          </div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <section class="panel preview-panel">
+          <div class="panel__header preview-panel__header">
+            <div>
+              <p class="eyebrow">Live preview</p>
+              <h2>Макет оболочки Gizmo.Client.UI</h2>
+              <p class="muted">
+                Preview максимально приближен к структуре header / quick launch / ads / shop / profile / login shell.
+              </p>
+            </div>
+            <div class="preview-status">
+              <span class="status-dot"></span>
+              <span id="previewStatusText">Preview синхронизирован</span>
+            </div>
+          </div>
+
+          <div class="preview-stage">
+            <div id="previewRoot" class="preview-root" client-theme="true">
+              <div class="preview-background"></div>
+              <div class="giz-container preview-screens-shell">
+
+              <div class="preview-app preview-screen preview-screen--home active" data-screen="home">
+                <div class="giz-app__header preview-header-compact reference-shell-header live-shell-header">
+                  <div class="giz-header">
+                    <div class="giz-header__modules-menu reference-shell-nav live-top-nav">
+                      <div class="giz-header__modules-menu-item"><a class="module-link active"><span class="module-icon">🏠</span><span class="module-link__label">HOME</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🎮</span><span class="module-link__label">APPS</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🛒</span><span class="module-link__label">SHOP</span></a></div>
+                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search nonemtpy"><span class="icon">⌕</span><input value="" readonly /></div></div>
+                    </div>
+                    <div class="giz-header__user-menu reference-header-userbar live-header-userbar">
+                      <div class="giz-header__user-menu-item reference-status-pill live-header-pill"><div class="giz-header__user-menu-item__icon">⏱</div><div>Тариф</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div class="giz-header__user-menu-item__icon">🕒</div><div>25:01</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div class="giz-header__user-menu-item__icon">🪙</div><div>100</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div>₽100.00</div></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">🙈</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">⎋</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">▦</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">🔔</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">❔</button></div>
+                      <div class="giz-header__user-menu-item giz-user-dropdown open reference-user-dropdown-anchor live-user-anchor">
+                        <button class="giz-user-menu-button"><span class="avatar"></span><span>PC 100</span><span>▾</span></button>
+                        <div class="reference-user-menu-panel giz-dropdown-menu live-user-menu-panel">
+                          <div class="reference-user-menu-item"><span>👤</span><span>Мой профиль</span></div>
+                          <div class="reference-user-menu-item"><span>🔒</span><span>Заблокировать ПК</span></div>
+                          <div class="reference-user-menu-item"><span>↪</span><span>Выход</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="live-home-shell giz-scrollbar--v">
+                  <div class="live-home-topline">
+                    <div class="live-launch-strip giz-home__header__quick-launch">
+                      <div class="quick-launcher-switch giz-button-group live-launch-toggle">
+                        <button class="giz-button selected">🚀</button>
+                        <button class="giz-button">🕘</button>
+                      </div>
+                      <div class="live-launch-app live-launch-app--orange"></div>
+                      <div class="live-launch-app live-launch-app--cyan"></div>
+                    </div>
+                    <div class="live-news-pill giz-home__header__ads"><span class="live-news-thumb"></span><span>Blizzard временно отключила 6 супер-редких предметов в Diablo 4 из-за проблемы с дропом из сундуков Helltide.</span></div>
+                  </div>
+
+                  <div class="reference-section-title live-section-title">Объявления <span>◂</span></div>
+                  <div class="live-ads-stage">
+                    <div class="live-ad-card live-ad-card--side live-ad-card--left">
+                      <div class="live-ad-copy">
+                        <div class="live-ad-title">Crysis 4 — научно‑фантастический шутер от первого лица</div>
+                        <div class="live-ad-text">Продолжение серии Crysis. Разработчик — студия Crytek. В ролике показаны шлем нанокостюма, разрушенные здания и анонс четвёртой номерной части.</div>
+                      </div>
+                    </div>
+                    <div class="live-ad-card live-ad-card--focus live-ad-card--monster">
+                      <button class="giz-button giz-button--fill accent live-ad-action">🛒 Добавить в корзину</button>
+                    </div>
+                    <div class="live-ad-card live-ad-card--side live-ad-card--right"></div>
+                  </div>
+
+                  <div class="reference-section-title live-section-title">Популярные товары</div>
+                  <div class="live-product-row">
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--pringles-green"></div><div class="live-store-card__body"><div class="live-store-card__price">₽349.00 и 97 🪙</div><div class="live-store-card__title">Pringles со вкусом сметаны и лука</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--pringles-yellow"></div><div class="live-store-card__body"><div class="live-store-card__price">₽349.00 и 34 🪙</div><div class="live-store-card__title">Pringles с томатным вкусом</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--snickers"></div><div class="live-store-card__body"><div class="live-store-card__price">₽129.00</div><div class="live-store-card__title">Snickers</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--mars"></div><div class="live-store-card__body"><div class="live-store-card__price">₽129.00 и 47 🪙</div><div class="live-store-card__title">Mars</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--kitkat"></div><div class="live-store-card__body"><div class="live-store-card__price">₽129.00 и 52 🪙</div><div class="live-store-card__title">KitKat</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--croissant"></div><div class="live-store-card__body"><div class="live-store-card__price">₽299.00 и 27 🪙</div><div class="live-store-card__title">Круассан</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--juice"></div><div class="live-store-card__body"><div class="live-store-card__price">₽329.00 и 22 🪙</div><div class="live-store-card__title">Сок</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                    <div class="live-store-card"><div class="live-store-card__media live-product-media live-product-media--schweppes"></div><div class="live-store-card__body"><div class="live-store-card__price">₽179.00 и 24 🪙</div><div class="live-store-card__title">Schweppes</div><button class="giz-button giz-button--fill accent full">Добавить в корзину</button></div></div>
+                  </div>
+
+                  <div class="live-home-apps-block">
+                    <div class="live-home-apps-header">
+                      <div class="reference-section-title live-section-title">Популярные приложения</div>
+                      <div class="live-filter-row live-filter-row--compact">
+                        <div class="live-filter"><span>Сортировать по:</span><strong>Популярности</strong></div>
+                        <div class="live-filter"><span>Категории:</span><strong>Все игры и приложения</strong></div>
+                        <div class="live-filter"><span>Параметры:</span><strong>Выберите что-либо</strong></div>
+                      </div>
+                    </div>
+                    <div class="live-app-row">
+                      <div class="live-app-card live-app-card--storm"><div class="live-app-card__title">Against the Storm</div><div class="live-app-card__meta">Стратегии</div></div>
+                      <div class="live-app-card live-app-card--bg3"><div class="live-app-card__title">Baldur's Gate 3</div><div class="live-app-card__meta">Ролевые игры</div></div>
+                      <div class="live-app-card live-app-card--cs2"><div class="live-app-card__title">Counter‑Strike 2</div><div class="live-app-card__meta">Бесплатные</div></div>
+                      <div class="live-app-card live-app-card--sifu"><div class="live-app-card__title">SIFU</div><div class="live-app-card__meta">Экшен</div></div>
+                      <div class="live-app-card live-app-card--repo"><div class="live-app-card__title">R.E.P.O</div><div class="live-app-card__meta">Экшен</div></div>
+                      <div class="live-app-card live-app-card--squad"><div class="live-app-card__title">Squad</div><div class="live-app-card__meta">Серия игр Offworld</div></div>
+                      <div class="live-app-card live-app-card--rust"><div class="live-app-card__title">RUST</div><div class="live-app-card__meta">Экшен</div></div>
+                      <div class="live-app-card live-app-card--ac"><div class="live-app-card__title">Assetto Corsa</div><div class="live-app-card__meta">Официальная серия Assetto Corsa</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--apps" data-screen="apps">
+                <div class="giz-app__header preview-header-compact reference-shell-header live-shell-header">
+                  <div class="giz-header">
+                    <div class="giz-header__modules-menu reference-shell-nav live-top-nav">
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🏠</span><span class="module-link__label">HOME</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link active"><span class="module-icon">🎮</span><span class="module-link__label">APPS</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🛒</span><span class="module-link__label">SHOP</span></a></div>
+                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search nonemtpy"><span class="icon">⌕</span><input value="" readonly /></div></div>
+                    </div>
+                    <div class="giz-header__user-menu reference-header-userbar live-header-userbar">
+                      <div class="giz-header__user-menu-item reference-status-pill live-header-pill"><div class="giz-header__user-menu-item__icon">⏱</div><div>Тариф</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div class="giz-header__user-menu-item__icon">🕒</div><div>25:01</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div class="giz-header__user-menu-item__icon">🪙</div><div>100</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div>₽100.00</div></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">⎋</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">▦</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">🔔</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">❔</button></div>
+                      <div class="giz-header__user-menu-item giz-user-dropdown open reference-user-dropdown-anchor live-user-anchor">
+                        <button class="giz-user-menu-button"><span class="avatar"></span><span>PC 100</span><span>▾</span></button>
+                        <div class="reference-user-menu-panel giz-dropdown-menu live-user-menu-panel">
+                          <div class="reference-user-menu-item"><span>👤</span><span>Мой профиль</span></div>
+                          <div class="reference-user-menu-item"><span>🔒</span><span>Заблокировать ПК</span></div>
+                          <div class="reference-user-menu-item"><span>↪</span><span>Выход</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="live-home-shell live-home-shell--apps giz-scrollbar--v">
+                  <div class="live-home-topline">
+                    <div class="live-launch-strip">
+                      <div class="live-launch-toggle">
+                        <button class="giz-button selected">🚀</button>
+                        <button class="giz-button">🕘</button>
+                      </div>
+                      <div class="live-launch-app live-launch-app--orange"></div>
+                      <div class="live-launch-app live-launch-app--cyan"></div>
+                    </div>
+                    <div class="live-news-pill"><span class="live-news-thumb"></span><span>Ыма про формулу‑1, и у интернета есть что сказать.</span></div>
+                  </div>
+                  <div class="reference-section-title live-section-title">Объявления <span>◂</span></div>
+                  <div class="live-ads-stage live-ads-stage--apps">
+                    <div class="live-ad-card live-ad-card--poster"></div>
+                    <div class="live-ad-card live-ad-card--side live-ad-card--left live-ad-card--cry"><div class="live-ad-copy"><div class="live-ad-title">Crysis 4 — научно‑фантастический шутер</div><div class="live-ad-text">Продолжение серии Crysis и фирменный нанокостюм в центре рекламной сцены.</div><button class="giz-button giz-button--outline live-outline-action">↗ Смотреть подробности</button></div></div>
+                    <div class="live-ad-card live-ad-card--focus live-ad-card--monster live-ad-card--narrow"></div>
+                  </div>
+                  <div class="live-home-apps-header live-home-apps-header--apps">
+                    <div class="reference-section-title live-section-title">Популярные приложения</div>
+                    <div class="live-filter-row">
+                      <div class="live-filter live-filter--select"><span>Сортировать по:</span><strong>Популярности</strong></div>
+                      <div class="live-filter live-filter--select"><span>Категории:</span><strong>Все игры и приложения</strong></div>
+                      <div class="live-filter live-filter--select"><span>Параметры:</span><strong>Выберите что‑либо</strong></div>
+                    </div>
+                  </div>
+                  <div class="live-app-row live-app-row--apps-grid">
+                    <div class="live-app-card live-app-card--storm"><div class="live-app-card__title">Against the Storm</div><div class="live-app-card__meta">Стратегии</div></div>
+                    <div class="live-app-card live-app-card--bg3"><div class="live-app-card__title">Baldur's Gate 3</div><div class="live-app-card__meta">Ролевые игры</div></div>
+                    <div class="live-app-card live-app-card--cs2"><div class="live-app-card__title">Counter‑Strike 2</div><div class="live-app-card__meta">Бесплатные</div></div>
+                    <div class="live-app-card live-app-card--sifu"><div class="live-app-card__title">SIFU</div><div class="live-app-card__meta">Экшен</div></div>
+                    <div class="live-app-card live-app-card--repo"><div class="live-app-card__title">R.E.P.O</div><div class="live-app-card__meta">Экшен</div></div>
+                    <div class="live-app-card live-app-card--squad"><div class="live-app-card__title">Squad</div><div class="live-app-card__meta">Серия игр Offworld</div></div>
+                    <div class="live-app-card live-app-card--rust"><div class="live-app-card__title">RUST</div><div class="live-app-card__meta">Экшен</div></div>
+                    <div class="live-app-card live-app-card--ac"><div class="live-app-card__title">Assetto Corsa</div><div class="live-app-card__meta">Официальная серия Assetto Corsa</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--shop" data-screen="shop">
+                <div class="giz-app__header preview-header-compact reference-shell-header live-shell-header">
+                  <div class="giz-header">
+                    <div class="giz-header__modules-menu reference-shell-nav live-top-nav">
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🏠</span><span class="module-link__label">HOME</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🎮</span><span class="module-link__label">APPS</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link active"><span class="module-icon">🛒</span><span class="module-link__label">SHOP</span></a></div>
+                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search nonemtpy"><span class="icon">⌕</span><input value="" readonly /></div></div>
+                    </div>
+                    <div class="giz-header__user-menu reference-header-userbar live-header-userbar">
+                      <div class="giz-header__user-menu-item reference-status-pill live-header-pill"><div class="giz-header__user-menu-item__icon">⏱</div><div>Тариф</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div class="giz-header__user-menu-item__icon">🕒</div><div>25:01</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div class="giz-header__user-menu-item__icon">🪙</div><div>100</div></div>
+                      <div class="giz-header__user-menu-item reference-status-pill"><div>₽100.00</div></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">🙈</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">▦</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">🔔</button></div>
+                      <div class="giz-header__user-menu-item reference-icon-button"><button class="user-menu-item-button--box">❔</button></div>
+                      <div class="giz-header__user-menu-item"><button class="giz-user-menu-button"><span class="avatar"></span><span>PC 100</span><span>▾</span></button></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="reference-shop-shell giz-scrollbar--v">
+                  <div class="reference-shop-layout">
+                    <div class="reference-shop-main">
+                      <div class="reference-shop-tabs giz-shop__products__header__tab">
+                        <div class="reference-shop-tab active">Всё</div>
+                        <div class="reference-shop-tab">Снэки</div>
+                        <div class="reference-shop-tab">Еда</div>
+                        <div class="reference-shop-tab">Напитки</div>
+                        <div class="reference-shop-tab">Пакеты времени</div>
+                      </div>
+
+                      <div class="reference-section-title reference-section-title--shop">Объявления <span>◂</span></div>
+                      <div class="reference-shop-banner preview-media-banner preview-media-banner--hero live-shop-banner">
+                        <div class="reference-hero-overlay reference-hero-overlay--left"></div>
+                        <div class="reference-hero-overlay reference-hero-overlay--right"></div>
+                        <div class="reference-hero-center-mark">F</div>
+                        <div class="reference-hero-cup"></div>
+                        <div class="reference-hero-croissant"></div>
+                        <button class="giz-button giz-button--outline live-outline-action live-shop-banner__button">↗ Смотреть подробности</button>
+                      </div>
+
+                      <div class="reference-section-title">Снэки</div>
+                      <div class="reference-shop-products-row">
+                        <div class="giz-product-card preview-product-card reference-product-poster"><div class="giz-product-card__content"><div class="giz-product-card__content__image preview-card-media live-product-media live-product-media--snickers"></div><div class="giz-product-card__content__details preview-card-content"><div class="giz-product-card__title">Snickers</div><div class="giz-product-card__price">₽129.00</div><div class="preview-card-meta">Шоколадный батончик</div></div></div></div>
+                        <div class="giz-product-card preview-product-card reference-product-poster"><div class="giz-product-card__content"><div class="giz-product-card__content__image preview-card-media live-product-media live-product-media--mars"></div><div class="giz-product-card__content__details preview-card-content"><div class="giz-product-card__title">Mars</div><div class="giz-product-card__price">₽129.00 и 47 🪙</div><div class="preview-card-meta">Шоколадный батончик</div></div></div></div>
+                        <div class="giz-product-card preview-product-card reference-product-poster"><div class="giz-product-card__content"><div class="giz-product-card__content__image preview-card-media live-product-media live-product-media--kitkat"></div><div class="giz-product-card__content__details preview-card-content"><div class="giz-product-card__title">KitKat</div><div class="giz-product-card__price">₽129.00 и 52 🪙</div><div class="preview-card-meta">Шоколадный батончик</div></div></div></div>
+                        <div class="giz-product-card preview-product-card reference-product-poster"><div class="giz-product-card__content"><div class="giz-product-card__content__image preview-card-media live-product-media live-product-media--haribo-red"></div><div class="giz-product-card__content__details preview-card-content"><div class="giz-product-card__title">Haribo Happy Cola</div><div class="giz-product-card__price">₽149.00 и 91 🪙</div><div class="preview-card-meta">Жевательные конфеты</div></div></div></div>
+                        <div class="giz-product-card preview-product-card reference-product-poster"><div class="giz-product-card__content"><div class="giz-product-card__content__image preview-card-media live-product-media live-product-media--haribo-gold"></div><div class="giz-product-card__content__details preview-card-content"><div class="giz-product-card__title">Haribo Goldbears</div><div class="giz-product-card__price">₽149.00 и 27 🪙</div><div class="preview-card-meta">Жевательные конфеты</div></div></div></div>
+                        <div class="giz-product-card preview-product-card reference-product-poster"><div class="giz-product-card__content"><div class="giz-product-card__content__image preview-card-media live-product-media live-product-media--maltesers"></div><div class="giz-product-card__content__details preview-card-content"><div class="giz-product-card__title">Maltesers</div><div class="giz-product-card__price">₽199.00 и 58 🪙</div><div class="preview-card-meta">Шоколадные шарики</div></div></div></div>
+                      </div>
+                    </div>
+
+                    <aside class="reference-order-sidebar">
+                      <div class="reference-order-card reference-order-card--empty">
+                        <div class="reference-order-title">Мой заказ</div>
+                        <div class="reference-order-empty">Корзина пуста</div>
+                        <div class="reference-order-subtitle">Добавьте товары</div>
+                        <div class="reference-order-clear">🗑 Очистить</div>
+                      </div>
+                      <div class="reference-order-card">
+                        <div class="reference-order-title reference-order-title--small">Комментарий к заказу</div>
+                        <div class="reference-input-placeholder">Добавьте свой комментарий...</div>
+                      </div>
+                      <div class="reference-order-card reference-order-card--summary">
+                        <div class="reference-promo-row"><div class="reference-input-placeholder">Промокод</div><button class="giz-button giz-button--outline">Применить</button></div>
+                        <div class="reference-total-row"><span>Подытог</span><strong>0.00 ₽</strong></div>
+                        <div class="reference-total-subrow"><span>Полученные баллы</span><span>0 ◆</span></div>
+                        <button class="giz-button giz-button--fill accent full reference-checkout-button">Заказать</button>
+                      </div>
+                    </aside>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--profile" data-screen="profile">
+                <div class="giz-app__header preview-header-compact">
+                  <div class="giz-header">
+                    <div class="giz-header__modules-menu">
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span>🏠</span><span>HOME</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span>🕹️</span><span>APPS</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link"><span>🛒</span><span>SHOP</span></a></div>
+                      <div class="giz-header__modules-menu-item"><a class="module-link active"><span>👤</span><span>PROFILE</span></a></div>
+                    </div>
+                    <div class="giz-header__global-search"><div class="giz-global-search nonemtpy"><span class="icon">⌕</span><input value="Profile settings" readonly /><button class="giz-button giz-button--text giz-close-button">✕</button></div></div>
+                    <div class="giz-header__user-menu"><div class="giz-header__user-menu-item"><div>€24.90</div></div><div class="giz-header__user-menu-item"><button class="user-menu-item-button--box">🔔</button></div><div class="giz-header__user-menu-item"><button class="giz-user-menu-button"><span class="avatar"></span><span>Station 14</span><span>▾</span></button></div></div>
+                  </div>
+                </div>
+                <div class="giz-profile giz-scrollbar--v">
+                  <div class="giz-profile__body-wrapper">
+                    <div class="giz-profile__body">
+                      <div class="giz-profile-header preview-profile-header">
+                        <div class="avatar avatar--large"></div>
+                        <div class="giz-profile-header__info">
+                          <div class="giz-profile-header__info__username">Dmitrii Pominov</div>
+                          <div class="giz-profile-header__info__stats">
+                            <div class="giz-profile-header__info__stats-item"><div class="giz-profile-header__info__stats-text"><div class="giz-title">Balance</div><div class="giz-numbers">€24.90</div></div></div>
+                            <div class="giz-profile-header__info__stats-item"><div class="giz-profile-header__info__stats-text"><div class="giz-title">Points</div><div class="giz-numbers">1850</div></div></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="giz-profile-navigation">
+                        <div class="giz-profile-navigation-item"><a class="active">Purchases</a></div>
+                        <div class="giz-profile-navigation-item"><a>Products</a></div>
+                        <div class="giz-profile-navigation-item"><a>Deposits</a></div>
+                        <div class="giz-profile-navigation-item"><a>Settings</a></div>
+                      </div>
+                      <div class="profile-sections-grid">
+                        <div class="section-card profile-list-card">
+                          <div class="giz-profile-user-details__header">User details</div>
+                          <div class="list-line"><span>Email</span><strong>mail@example.com</strong></div>
+                          <div class="list-line"><span>Phone</span><strong>+64 000 000 000</strong></div>
+                          <div class="list-line"><span>Status</span><strong>Active</strong></div>
+                        </div>
+                        <div class="section-card profile-list-card">
+                          <div class="giz-profile-user-purchases__header">Recent purchases</div>
+                          <div class="list-line"><span>Weekend 5h Pack</span><strong>€11.00</strong></div>
+                          <div class="list-line"><span>Snack Combo</span><strong>€6.40</strong></div>
+                          <div class="list-line"><span>Top-up</span><strong>€20.00</strong></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--login" data-screen="login">
+                <div class="giz-main-container live-login-layout">
+                  <div class="giz-login__adv live-login-hero">
+                    <div class="login-wallpaper live-login-wallpaper"></div>
+                    <div class="live-login-pc-title">PC 100</div>
+                    <div class="live-login-bottom-meta">
+                      <div class="language-pill">🌐 RU</div>
+                      <div class="server-status"><span class="server-dot"></span><div><div class="muted-label">Gizmo Server</div><strong>1.0.0</strong></div></div>
+                    </div>
+                  </div>
+                  <div class="giz-login__login live-login-panel">
+                    <div class="live-login-register-link">Нет аккаунта клуба? <span>Зарегистрироваться</span></div>
+                    <div class="giz-login-card live-login-card live-login-card--flat">
+                      <div class="giz-login-card__body live-login-card__body">
+                        <div class="giz-login-title">Войти</div>
+                        <div class="quick-launcher-switch giz-button-group giz-login-method preview-login-switch live-login-switch"><button class="giz-button selected">ИМЯ ПОЛЬЗОВАТЕЛЯ</button><button class="giz-button">НОМЕР ТЕЛЕФОНА</button></div>
+                        <div class="live-login-warning">Для авторизации в веб‑демо можно использовать любой логин и пароль</div>
+                        <label class="live-login-label">Имя пользователя</label>
+                        <div class="giz-input-root giz-input-root--outline live-login-input"><input value="demo" readonly /></div>
+                        <div class="live-login-row"><label class="live-login-label">Пароль</label><span class="helper-link">Забыли пароль?</span></div>
+                        <div class="giz-input-root giz-input-root--outline live-login-input"><input value="••••" readonly /><span>👁</span></div>
+                        <button class="giz-button giz-button--fill accent full live-login-submit">🔒 Продолжить</button>
+                        <div class="login-divider live-login-divider"><span>или</span></div>
+                        <div class="live-qr-block">
+                          <div>
+                            <div class="live-qr-title">Войти с помощью QR‑кода</div>
+                            <p>Отсканируйте код с помощью мобильного приложения, чтобы войти</p>
+                          </div>
+                          <div class="qr-code-block live-qr-code"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+
+              <div class="preview-floating-ui" aria-hidden="true">
+                <div class="preview-popup-card preview-popup-card--dropdown giz-dropdown-menu giz-multi-select__dropdown">
+                  <div class="preview-popup-title">Dropdown preview</div>
+                  <div class="preview-popup-row"><div><div class="preview-card-title small">Profile menu</div><div class="preview-popup-meta">User popup background</div></div><div class="stat-badge">NEW</div></div>
+                  <div class="preview-popup-row"><span class="preview-popup-meta">Settings</span><span class="preview-popup-meta">›</span></div>
+                  <div class="preview-popup-row"><span class="preview-popup-meta">Logout</span><span class="preview-popup-meta">⇢</span></div>
+                </div>
+
+                <div class="preview-popup-card preview-popup-card--dialog giz-dialog">
+                  <div class="giz-dialog__content-wrapper">
+                    <div class="giz-card">
+                      <div class="giz-client-dialog giz-user-agreement-dialog">
+                        <div class="giz-client-dialog__header">
+                          <div class="giz-client-dialog__header__title">Политика конфиденциальности</div>
+                          <div class="giz-client-dialog__header__subtitle">Правила клуба</div>
+                        </div>
+                        <div class="giz-client-dialog__body user-agreement">
+                          <div class="preview-popup-row preview-popup-row--stacked">
+                            <div class="preview-popup-meta">Popup / dialog surface now mirrors <code>.giz-client-dialog</code> и <code>.giz-user-agreement-dialog</code> из Gizmo Client UI.</div>
+                            <div class="preview-popup-meta">Тёмный фон модалки и текст должны меняться вместе с импортируемой темой, а не оставаться на #22272b.</div>
+                          </div>
+                        </div>
+                        <div class="giz-client-dialog__footer">
+                          <div class="preview-card-row"><button class="giz-button giz-button--outline">Отмена</button><button class="giz-button giz-button--fill accent">Продолжить</button></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="preview-popup-card preview-popup-card--audit">
+                  <div class="preview-popup-title">Popup / tooltip audit</div>
+                  <div class="preview-popup-surface-grid">
+                    <div class="preview-popup-surface giz-global-search-dropdown">
+                      <div class="preview-popup-surface-label">.giz-global-search-dropdown</div>
+                      <div class="giz-global-search-dropdown__body">
+                        <div class="giz-global-search-section">
+                          <div class="giz-global-search-section__header">
+                            <span>Поиск</span>
+                            <span class="giz-global-search-section__header__more">Все результаты</span>
+                          </div>
+                          <div class="giz-global-search-section__body preview-search-grid">
+                            <div class="giz-global-search-result-card">
+                              <div class="giz-global-search-result-card__image"></div>
+                              <div class="giz-global-search-result-card__category">APP</div>
+                              <div class="giz-global-search-result-card__title">Counter-Strike 2</div>
+                            </div>
+                            <div class="giz-global-search-result-card">
+                              <div class="giz-global-search-result-card__image"></div>
+                              <div class="giz-global-search-result-card__category">SHOP</div>
+                              <div class="giz-global-search-result-card__title">Weekend Pack</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="preview-popup-surface giz-menu-notifications">
+                      <div class="giz-menu-notifications__header">Уведомления <span>2 новых</span></div>
+                      <div class="giz-menu-notifications__body">
+                        <div class="giz-menu-notification-item">
+                          <div class="giz-menu-notification-item__text">Скидка на пакет выходного дня</div>
+                          <div class="giz-menu-notification-item__icon">●</div>
+                          <div class="giz-menu-notification-item__details"><span class="giz-menu-notification-item__details__time">сейчас</span><span class="giz-menu-notification-item__details__action">Открыть</span></div>
+                        </div>
+                      </div>
+                      <div class="giz-menu-notifications__footer"><span class="giz-menu-notifications__footer__action">Все уведомления</span></div>
+                    </div>
+
+                    <div class="preview-popup-surface giz-user-links">
+                      <div class="preview-popup-surface-label">.giz-user-links</div>
+                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon">⚙️</span><span>Настройки аккаунта</span></div>
+                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon">🪪</span><span>Личные данные</span></div>
+                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon">🚪</span><span>Выход</span></div>
+                    </div>
+
+                    <div class="preview-popup-surface giz-active-apps">
+                      <div class="giz-active-apps__header">Активные приложения</div>
+                      <div class="giz-active-apps__body">
+                        <div class="giz-active-app-card">
+                          <div class="giz-active-app-card__info">
+                            <div class="giz-active-app-card__info__category">GAME</div>
+                            <div class="giz-active-app-card__info__title">GTA V</div>
+                          </div>
+                          <div class="preview-active-app-actions giz-combo-button">
+                            <button class="giz-button giz-button--fill primary left-button">Играть</button>
+                            <button class="giz-button giz-button--fill primary right-button">⋯</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="preview-popup-surface preview-popup-surface--tooltip-demo">
+                      <div class="preview-popup-surface-label">Tooltip arrows</div>
+                      <div class="preview-tooltip-stack">
+                        <div class="preview-tooltip-anchor">
+                          <div class="giz-client-tooltip giz-client-tooltip--open giz-client-tooltip--top">Client tooltip<span class="giz-client-tooltip-pin"></span></div>
+                        </div>
+                        <div class="preview-tooltip-anchor">
+                          <div class="giz-tooltip giz-tooltip--bottom">Combo tooltip</div>
+                        </div>
+                        <div class="preview-tooltip-anchor giz-password-tooltip-root">
+                          <div class="giz-password-tooltip">
+                            <div class="giz-password-tooltip__body">
+                              <div class="giz-password-tooltip__body__title">Пароль</div>
+                              <div class="giz-password-tooltip__body__messages">Минимум 8 символов</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="preview-inactive-button-demo">
+                        <button class="giz-button preview-button-inactive">Неактивная кнопка</button>
+                        <button class="giz-button giz-button--fill accent disabled">Disabled fill</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="panel export-panel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Export</p>
+            <h2>CSS override</h2>
+            <p class="muted">Генерируется готовый CSS-файл для загрузки в Gizmo Client custom CSS.</p>
+          </div>
+        </div>
+
+        <section class="control-group export-actions-group">
+          <div class="action-row">
+            <button id="copyCssBtn" class="primary-button" type="button">Копировать CSS</button>
+            <button id="downloadCssBtn" class="ghost-button" type="button">Скачать CSS</button>
+          </div>
+          <div class="action-row compact">
+            <label class="filename-field">
+              <span>Имя файла</span>
+              <input id="fileNameInput" type="text" value="gizmo-shell-custom.css" />
+            </label>
+          </div>
+        </section>
+
+        <section class="control-group import-preview-group">
+          <div class="group-title-row">
+            <h2>Примерка внешнего CSS</h2>
+          </div>
+          <p class="muted muted--compact">Импортирует CSS-файл поверх текущего preview, чтобы быстро примерить готовую тему.</p>
+          <div class="action-row action-row--stacked">
+            <button id="importCssBtn" class="ghost-button" type="button">Импортировать CSS</button>
+            <button id="clearImportedCssBtn" class="ghost-button" type="button" disabled>Убрать импорт</button>
+          </div>
+          <input id="importCssInput" type="file" accept=".css,text/css" hidden />
+          <p id="importCssStatus" class="apply-state">CSS не импортирован</p>
+        </section>
+
+        <section class="control-group">
+          <div class="group-title-row">
+            <h2>Generated CSS</h2>
+          </div>
+          <textarea id="cssOutput" class="css-output" spellcheck="false"></textarea>
+        </section>
+      </aside>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs and temporary outputs
+*.log
+playwright-console.log
+_generated-current-export.css
+
+# Archives
+*.zip
+
+# Generated screenshots / audits
+preview-*.png
+screenshot-*.png
+live-client-*.png
+preview-*.json
+live-client-*.json
+
+# Python / OS noise
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
