@@ -6,7 +6,7 @@
     <title>Gizmo Shell Configurator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&family=Noto+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -32,6 +32,22 @@
             <h2>Пресеты</h2>
           </div>
           <div class="preset-grid" id="presetGrid"></div>
+        </section>
+
+        <section class="control-group">
+          <div class="group-title-row">
+            <h2>Reference shell</h2>
+          </div>
+          <div class="reference-theme-card">
+            <div class="reference-theme-card__header">
+              <strong>Original Gizmo baseline</strong>
+              <span class="reference-theme-card__badge">Rubik + Noto Sans</span>
+            </div>
+            <p class="muted muted--compact">
+              Базовый пресет теперь ориентирован на оригинальный shell: фон #0C0F11, поверхности #22272B,
+              синий акцент #3F8CFF и более плотная геометрия карточек, табов и popup-компонентов.
+            </p>
+          </div>
         </section>
 
         <section class="control-group">
@@ -66,8 +82,14 @@
           </div>
           <div class="preview-mode-tabs" id="previewModeTabs">
             <button data-mode="home" class="preview-mode-tab active" type="button">Home</button>
+            <button data-mode="apps" class="preview-mode-tab" type="button">Apps</button>
+            <button data-mode="shop" class="preview-mode-tab" type="button">Shop</button>
+            <button data-mode="profile" class="preview-mode-tab" type="button">Profile</button>
             <button data-mode="login" class="preview-mode-tab" type="button">Login</button>
           </div>
+          <p id="previewModeHint" class="muted muted--compact preview-mode-hint">
+            Home: header, quick launch, баннеры и popups для тонкой подстройки shell.
+          </p>
         </section>
       </aside>
 
@@ -307,18 +329,24 @@
                       </div>
                     </div>
 
-                    <aside class="reference-order-sidebar">
-                      <div class="reference-order-card reference-order-card--empty">
-                        <div class="reference-order-title">Мой заказ</div>
-                        <div class="reference-order-empty">Корзина пуста</div>
-                        <div class="reference-order-subtitle">Добавьте товары</div>
-                        <div class="reference-order-clear">🗑 Очистить</div>
+                    <aside class="reference-order-sidebar giz-order">
+                      <div class="reference-order-card reference-order-card--empty giz-order__items">
+                        <div class="reference-order-title giz-order__items__header">Мой заказ</div>
+                        <div class="giz-order__items__body">
+                          <div class="giz-empty-state">
+                            <div class="giz-empty-state__title reference-order-empty">Корзина пуста</div>
+                            <div class="giz-empty-state__text reference-order-subtitle">Добавьте товары</div>
+                          </div>
+                        </div>
+                        <div class="giz-order__items__footer">
+                          <div class="reference-order-clear">🗑 Очистить</div>
+                        </div>
                       </div>
-                      <div class="reference-order-card">
-                        <div class="reference-order-title reference-order-title--small">Комментарий к заказу</div>
+                      <div class="reference-order-card giz-order__notes">
+                        <div class="reference-order-title reference-order-title--small giz-order__notes__header">Комментарий к заказу</div>
                         <div class="reference-input-placeholder">Добавьте свой комментарий...</div>
                       </div>
-                      <div class="reference-order-card reference-order-card--summary">
+                      <div class="reference-order-card reference-order-card--summary giz-order__totals">
                         <div class="reference-promo-row"><div class="reference-input-placeholder">Промокод</div><button class="giz-button giz-button--outline">Применить</button></div>
                         <div class="reference-total-row"><span>Подытог</span><strong>0.00 ₽</strong></div>
                         <div class="reference-total-subrow"><span>Полученные баллы</span><span>0 ◆</span></div>
@@ -549,6 +577,26 @@
           </div>
         </div>
 
+        <section class="control-group export-summary-group">
+          <div class="group-title-row">
+            <h2>Профиль экспорта</h2>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <span>Палитра</span>
+              <strong id="themeSignature">Original Gizmo baseline</strong>
+            </div>
+            <div class="summary-card">
+              <span>Шрифты</span>
+              <strong id="fontSignature">Rubik / Noto Sans</strong>
+            </div>
+            <div class="summary-card">
+              <span>Активный экран</span>
+              <strong id="previewModeLabel">Home</strong>
+            </div>
+          </div>
+        </section>
+
         <section class="control-group export-actions-group">
           <div class="action-row">
             <button id="copyCssBtn" class="primary-button" type="button">Копировать CSS</button>
@@ -578,8 +626,11 @@
         <section class="control-group">
           <div class="group-title-row">
             <h2>Generated CSS</h2>
+            <button id="toggleCssOutputBtn" class="inline-chip-button" type="button">Показать код</button>
           </div>
-          <textarea id="cssOutput" class="css-output" spellcheck="false"></textarea>
+          <div id="cssOutputContainer" class="css-output-container is-collapsed">
+            <textarea id="cssOutput" class="css-output" spellcheck="false"></textarea>
+          </div>
         </section>
       </aside>
     </div>

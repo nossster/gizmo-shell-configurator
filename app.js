@@ -1,46 +1,79 @@
 const DEFAULT_THEME = {
-  shellBg: '#0f1117',
-  shellBgElevated: '#171b24',
-  shellBgElevated2: '#1d2330',
-  shellBgGlass: '#1a2130',
-  shellBgSoft: '#2a3345',
-  shellBorder: '#3a455c',
-  shellBorderStrong: '#55627c',
-  shellText: '#f4f7fb',
-  shellTextSoft: '#b8c2d6',
-  shellTextGhost: '#7f8aa0',
-  shellAccent: '#7c9cff',
-  shellAccentHover: '#9ab2ff',
-  shellAccentDeep: '#4f72e9',
-  shellSuccess: '#2fcb8f',
-  shellWarning: '#ffcb57',
-  shellDanger: '#ff667a',
-  appCardBg: '#22272b',
-  productCardBg: '#22272b',
-  popupBg: '#20262f',
-  buttonInactiveBg: '#323536',
-  uiFontFamily: "'Inter', system-ui, sans-serif",
-  displayFontFamily: "'Inter', system-ui, sans-serif",
+  shellBg: '#0C0F11',
+  shellBgElevated: '#22272B',
+  shellBgElevated2: '#1A1D21',
+  shellBgGlass: 'rgba(255, 255, 255, 0.01)',
+  shellBgSoft: 'rgba(250, 250, 250, 0.16)',
+  shellBorder: 'rgba(246, 251, 253, 0.06)',
+  shellBorderStrong: 'rgba(255, 255, 255, 0.12)',
+  shellText: '#FAFAFA',
+  shellTextSoft: 'rgba(255, 255, 255, 0.60)',
+  shellTextGhost: 'rgba(255, 255, 255, 0.32)',
+  shellAccent: '#3F8CFF',
+  shellAccentHover: '#57BCFF',
+  shellAccentDeep: '#0078D2',
+  shellSuccess: '#10AE79',
+  shellWarning: '#E68200',
+  shellDanger: '#F73B3B',
+  appCardBg: '#22272B',
+  productCardBg: '#22272B',
+  popupBg: '#22272B',
+  buttonInactiveBg: '#373839',
+  uiFontFamily: "'Noto Sans', 'Segoe UI', sans-serif",
+  displayFontFamily: "'Rubik', 'Segoe UI', sans-serif",
   baseFontSize: 16,
   headingFontWeight: 700,
   shellShadowOpacity: 0.30,
-  shellShadowStrongOpacity: 0.42,
-  shellBlur: 10,
+  shellShadowStrongOpacity: 0.37,
+  shellBlur: 6,
   shellRadiusS: 8,
-  shellRadiusM: 12,
+  shellRadiusM: 8,
   shellRadiusL: 16,
-  shellRadiusXL: 24,
+  shellRadiusXL: 16,
   headerHeight: 64,
   panelBorderWidth: 1,
 };
 
 const PRESETS = {
-  'dark-blue': {
-    label: 'Dark · Default Blue',
+  'original-gizmo': {
+    label: 'Reference · Original Gizmo',
+    description: 'Базовая палитра, шрифты и плотность, приближенные к Gizmo.Client.UI.',
     values: { ...DEFAULT_THEME },
+  },
+  'dark-blue': {
+    label: 'Dark · Midnight Blue',
+    description: 'Более мягкая modern-версия shell с усиленным glass-эффектом.',
+    values: {
+      ...DEFAULT_THEME,
+      shellBg: '#0F1117',
+      shellBgElevated: '#171B24',
+      shellBgElevated2: '#1D2330',
+      shellBgGlass: '#1A2130',
+      shellBgSoft: '#2A3345',
+      shellBorder: '#3A455C',
+      shellBorderStrong: '#55627C',
+      shellText: '#F4F7FB',
+      shellTextSoft: '#B8C2D6',
+      shellTextGhost: '#7F8AA0',
+      shellAccent: '#7C9CFF',
+      shellAccentHover: '#9AB2FF',
+      shellAccentDeep: '#4F72E9',
+      shellSuccess: '#2FCB8F',
+      shellWarning: '#FFCB57',
+      shellDanger: '#FF667A',
+      popupBg: '#20262F',
+      buttonInactiveBg: '#323536',
+      uiFontFamily: "'Inter', system-ui, sans-serif",
+      displayFontFamily: "'Inter', system-ui, sans-serif",
+      shellShadowStrongOpacity: 0.42,
+      shellBlur: 10,
+      shellRadiusM: 12,
+      shellRadiusXL: 24,
+    },
   },
   'dark-pink': {
     label: 'Dark · Pink Neon',
+    description: 'Контрастный неоновый вариант для кастомных клубных тем.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#120812',
@@ -66,6 +99,7 @@ const PRESETS = {
   },
   'dark-ember': {
     label: 'Dark · Ember Red',
+    description: 'Тёплая тёмная тема с красно-янтарным акцентом.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#0d0d10',
@@ -90,6 +124,7 @@ const PRESETS = {
   },
   'dark-emerald': {
     label: 'Dark · Emerald Glass',
+    description: 'Зелёная glass-тема для мягких accent-решений.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#081311',
@@ -115,6 +150,7 @@ const PRESETS = {
   },
   'dark-violet': {
     label: 'Dark · Violet Pulse',
+    description: 'Тёмная фиолетовая тема с усиленными карточными поверхностями.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#0d1020',
@@ -141,6 +177,7 @@ const PRESETS = {
   },
   'light-sky': {
     label: 'Light · Sky Glass',
+    description: 'Светлая версия shell для дневных сценариев.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#eef3fa',
@@ -167,6 +204,7 @@ const PRESETS = {
   },
   'light-mint': {
     label: 'Light · Mint Studio',
+    description: 'Светлая mint-палитра для спокойных UI-поверхностей.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#eef8f6',
@@ -193,6 +231,7 @@ const PRESETS = {
   },
   'light-rose': {
     label: 'Light · Rose Quartz',
+    description: 'Светлая розовая тема для акцентных storefront-витрин.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#fcf1f6',
@@ -219,6 +258,7 @@ const PRESETS = {
   },
   'light-sand': {
     label: 'Light · Sand Gold',
+    description: 'Тёплая песочная тема с золотистыми CTA.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#f7f2e8',
@@ -245,6 +285,7 @@ const PRESETS = {
   },
   'light-lilac': {
     label: 'Light · Lilac Frost',
+    description: 'Светлая лиловая тема с мягким контрастом.',
     values: {
       ...DEFAULT_THEME,
       shellBg: '#f3f1ff',
@@ -295,6 +336,14 @@ const COLOR_FIELDS = [
 ];
 
 const COLOR_FIELD_KEYS = new Set(COLOR_FIELDS.map(([key]) => key));
+const ALPHA_COLOR_KEYS = new Set([
+  'shellBgGlass',
+  'shellBgSoft',
+  'shellBorder',
+  'shellBorderStrong',
+  'shellTextSoft',
+  'shellTextGhost',
+]);
 
 const RANGE_FIELDS = [
   ['shellRadiusS', 'Radius S', 0, 24, 1, 'px'],
@@ -310,12 +359,13 @@ const RANGE_FIELDS = [
 
 const FONT_SELECT_FIELDS = [
   ['uiFontFamily', 'Шрифт интерфейса', [
+    ["'Noto Sans', 'Segoe UI', sans-serif", 'Noto Sans'],
     ["'Inter', system-ui, sans-serif", 'Inter'],
     ["'Roboto', 'Segoe UI', sans-serif", 'Roboto'],
-    ["'Montserrat', 'Segoe UI', sans-serif", 'Montserrat'],
     ["'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", 'Segoe UI'],
   ]],
   ['displayFontFamily', 'Шрифт заголовков', [
+    ["'Rubik', 'Segoe UI', sans-serif", 'Rubik'],
     ["'Inter', system-ui, sans-serif", 'Inter'],
     ["'Montserrat', 'Segoe UI', sans-serif", 'Montserrat'],
     ["'Roboto', 'Segoe UI', sans-serif", 'Roboto'],
@@ -331,12 +381,38 @@ const FONT_RANGE_FIELDS = [
 let draftTheme = structuredClone(DEFAULT_THEME);
 let appliedTheme = structuredClone(DEFAULT_THEME);
 let activePreviewMode = 'home';
-const ALLOWED_PREVIEW_MODES = new Set(['home', 'login']);
+const ALLOWED_PREVIEW_MODES = new Set(['home', 'apps', 'shop', 'profile', 'login']);
+const PREVIEW_MODE_META = {
+  home: {
+    label: 'Home',
+    description: 'Header, quick launch, баннеры, карточки и popup-паттерны главной shell-страницы.',
+  },
+  apps: {
+    label: 'Apps',
+    description: 'Сетка app cards, фильтры и пустые/активные состояния каталога приложений.',
+  },
+  shop: {
+    label: 'Shop',
+    description: 'Витрина продуктов, tabs, sidebar заказа и плотность shop-layout.',
+  },
+  profile: {
+    label: 'Profile',
+    description: 'Профиль, навигация разделов, списки покупок и карточки деталей пользователя.',
+  },
+  login: {
+    label: 'Login',
+    description: 'Логин-экран, hero-панель, поля ввода и QR/helper-блоки.',
+  },
+};
 let activeSettingsTab = 'colors';
 let hasPendingChanges = false;
+let activePresetKey = 'original-gizmo';
+let isCssOutputCollapsed = true;
+const THEME_KEYS = Object.keys(DEFAULT_THEME);
 
 const previewRoot = document.getElementById('previewRoot');
 const cssOutput = document.getElementById('cssOutput');
+const cssOutputContainer = document.getElementById('cssOutputContainer');
 const fileNameInput = document.getElementById('fileNameInput');
 const presetGrid = document.getElementById('presetGrid');
 const colorControls = document.getElementById('colorControls');
@@ -344,16 +420,21 @@ const fontControls = document.getElementById('fontControls');
 const rangeControls = document.getElementById('rangeControls');
 const settingsTabs = document.getElementById('settingsTabs');
 const previewModeTabs = document.getElementById('previewModeTabs');
+const previewModeHint = document.getElementById('previewModeHint');
 const resetThemeBtn = document.getElementById('resetThemeBtn');
 const applyThemeBtn = document.getElementById('applyThemeBtn');
 const applyState = document.getElementById('applyState');
 const previewStatusText = document.getElementById('previewStatusText');
 const copyCssBtn = document.getElementById('copyCssBtn');
 const downloadCssBtn = document.getElementById('downloadCssBtn');
+const toggleCssOutputBtn = document.getElementById('toggleCssOutputBtn');
 const importCssBtn = document.getElementById('importCssBtn');
 const clearImportedCssBtn = document.getElementById('clearImportedCssBtn');
 const importCssInput = document.getElementById('importCssInput');
 const importCssStatus = document.getElementById('importCssStatus');
+const themeSignature = document.getElementById('themeSignature');
+const fontSignature = document.getElementById('fontSignature');
+const previewModeLabel = document.getElementById('previewModeLabel');
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -373,6 +454,18 @@ const PREVIEW_STYLE_HINTS = [
   ['.preview-screen--home .live-ad-card--monster', 'Главный баннер / ads focus card'],
   ['.preview-screen--home .live-store-card', 'Карточка товара / .giz-product-card'],
   ['.preview-screen--home .live-app-card', 'Карточка приложения / .giz-app-card'],
+  ['.preview-screen--apps .preview-shell-search', 'App search / global search variant'],
+  ['.preview-screen--apps .reference-filter-tabs', 'Tabs / .giz-client-tab-item'],
+  ['.preview-screen--apps .reference-app-row', 'Apps row / .giz-app-card'],
+  ['.preview-screen--shop .reference-shop-tabs', 'Shop tabs / .giz-client-tab-item'],
+  ['.preview-screen--shop .reference-shop-banner', 'Hero offer / product highlight'],
+  ['.preview-screen--shop .reference-order-sidebar.giz-order', 'Order sidebar / .giz-order'],
+  ['.preview-screen--shop .giz-order__items', 'Order items / .giz-order__items'],
+  ['.preview-screen--shop .giz-order__notes', 'Order notes / .giz-order__notes'],
+  ['.preview-screen--shop .giz-order__totals', 'Order totals / .giz-order__totals'],
+  ['.preview-screen--profile .preview-profile-header', 'Profile header / summary'],
+  ['.preview-screen--profile .giz-profile-navigation', 'Profile navigation / .giz-profile-navigation'],
+  ['.preview-screen--profile .profile-sections-grid', 'Profile cards / profile details grid'],
   ['.preview-screen--login .live-login-hero', 'Login hero / .giz-login__adv'],
   ['.preview-screen--login .live-login-panel', 'Login panel / .giz-login__login'],
   ['.preview-screen--login .live-login-switch', 'Переключатель способа входа / .giz-login-method'],
@@ -419,19 +512,95 @@ const IMPORTED_THEME_VARIABLE_MAP = {
   '--shell-blur': 'shellBlur',
 };
 
+function getPresetDisplayName(key) {
+  const preset = PRESETS[key];
+  if (!preset) return 'Custom override';
+  return preset.label.replace(/^Reference ·\s*|^Dark ·\s*|^Light ·\s*/, '');
+}
+
+function getPresetToneLabel(key) {
+  const preset = PRESETS[key];
+  if (!preset) return 'Custom';
+  if (preset.label.startsWith('Reference')) return 'Reference';
+  return preset.label.startsWith('Light') ? 'Light' : 'Dark';
+}
+
+function formatFontFamilyLabel(value) {
+  return String(value)
+    .split(',')[0]
+    .replace(/^['"]|['"]$/g, '')
+    .trim();
+}
+
+function themesMatch(left, right) {
+  return THEME_KEYS.every((key) => String(left[key]) === String(right[key]));
+}
+
+function findMatchingPresetKey(themeValues) {
+  for (const [key, preset] of Object.entries(PRESETS)) {
+    if (themesMatch(themeValues, preset.values)) return key;
+  }
+
+  return null;
+}
+
+function syncPresetButtons() {
+  activePresetKey = findMatchingPresetKey(appliedTheme) ?? 'custom';
+  document.querySelectorAll('.preset-card').forEach((button) => {
+    button.classList.toggle('active', button.dataset.preset === activePresetKey);
+  });
+}
+
+function updatePreviewModeHint() {
+  const meta = PREVIEW_MODE_META[activePreviewMode] ?? PREVIEW_MODE_META.home;
+  if (previewModeHint) {
+    previewModeHint.textContent = `${meta.label}: ${meta.description}`;
+  }
+  if (previewModeLabel) {
+    previewModeLabel.textContent = meta.label;
+  }
+}
+
+function updateExportSummary() {
+  if (themeSignature) {
+    const matchedPreset = findMatchingPresetKey(appliedTheme);
+    themeSignature.textContent = matchedPreset
+      ? getPresetDisplayName(matchedPreset)
+      : importedPreviewStyle.textContent.trim().length > 0
+        ? 'Imported CSS + custom'
+        : 'Custom override';
+  }
+
+  if (fontSignature) {
+    fontSignature.textContent = `${formatFontFamilyLabel(appliedTheme.displayFontFamily)} / ${formatFontFamilyLabel(appliedTheme.uiFontFamily)}`;
+  }
+
+  updatePreviewModeHint();
+}
+
+function updateCssOutputVisibility() {
+  if (cssOutputContainer) {
+    cssOutputContainer.classList.toggle('is-collapsed', isCssOutputCollapsed);
+  }
+  if (toggleCssOutputBtn) {
+    toggleCssOutputBtn.textContent = isCssOutputCollapsed ? 'Показать код' : 'Скрыть код';
+  }
+}
+
 function createPresetButtons() {
   Object.entries(PRESETS).forEach(([key, preset]) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'preset-card';
+    button.className = `preset-card${key === 'original-gizmo' ? ' preset-card--featured' : ''}`;
     button.dataset.preset = key;
-    const tone = preset.label.startsWith('Light') ? 'Light' : 'Dark';
-    const presetName = preset.label.replace(/^Dark ·\s*|^Light ·\s*/, '');
+    const tone = getPresetToneLabel(key);
+    const presetName = getPresetDisplayName(key);
     button.innerHTML = `
       <span class="preset-card__swatch" style="background: linear-gradient(135deg, ${preset.values.shellAccent}, ${preset.values.shellAccentDeep});"></span>
       <span class="preset-card__text">
         <span class="preset-card__label">${presetName}</span>
         <span class="preset-card__meta">${tone} preset</span>
+        <span class="preset-card__description">${preset.description ?? ''}</span>
       </span>
     `;
     button.addEventListener('click', () => {
@@ -555,7 +724,11 @@ function createFontControls() {
   fontControls.addEventListener('change', updateFontDraft);
 }
 
-function normalizeColorToken(value) {
+function formatAlphaValue(value) {
+  return Number(value.toFixed(3)).toString();
+}
+
+function normalizeColorToken(value, { allowAlpha = false } = {}) {
   if (typeof value !== 'string') return null;
 
   const trimmed = value.trim();
@@ -565,18 +738,25 @@ function normalizeColorToken(value) {
     return `#${trimmed.slice(1).split('').map((char) => char + char).join('')}`.toUpperCase();
   }
 
-  const rgbMatch = trimmed.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*[\d.]+\s*)?\)$/i);
+  const rgbMatch = trimmed.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+)\s*)?\)$/i);
   if (!rgbMatch) return null;
 
   const channels = rgbMatch.slice(1, 4).map((part) => Math.max(0, Math.min(255, Math.round(Number(part)))));
   if (channels.some((channel) => Number.isNaN(channel))) return null;
+
+  const alphaRaw = rgbMatch[4];
+  if (allowAlpha && alphaRaw !== undefined) {
+    const alpha = Math.max(0, Math.min(1, Number(alphaRaw)));
+    if (Number.isNaN(alpha)) return null;
+    return `rgba(${channels.join(', ')}, ${formatAlphaValue(alpha)})`;
+  }
 
   return `#${channels.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
 }
 
 function normalizeThemeColorValue(key, value) {
   if (!COLOR_FIELD_KEYS.has(key)) return String(value).trim();
-  return normalizeColorToken(value);
+  return normalizeColorToken(value, { allowAlpha: ALPHA_COLOR_KEYS.has(key) });
 }
 
 function syncColorPicker(key, value) {
@@ -590,7 +770,7 @@ function syncColorText(key, value) {
   const input = document.querySelector(`[data-color-text="${key}"]`);
   if (!(input instanceof HTMLInputElement)) return;
   input.value = COLOR_FIELD_KEYS.has(key)
-    ? normalizeColorToken(value) ?? String(value)
+    ? normalizeThemeColorValue(key, value) ?? String(value)
     : String(value);
 }
 
@@ -659,6 +839,7 @@ function setPreviewMode(mode) {
   document.querySelectorAll('.preview-screen').forEach((screen) => {
     screen.classList.toggle('active', screen.dataset.screen === mode);
   });
+  updatePreviewModeHint();
 }
 
 function applyPreviewStyleHints() {
@@ -752,6 +933,9 @@ function generateCss(themeValues) {
   --shell-radius-m: ${themeValues.shellRadiusM}px;
   --shell-radius-l: ${themeValues.shellRadiusL}px;
   --shell-radius-xl: ${themeValues.shellRadiusXL}px;
+  --shell-header-height: ${themeValues.headerHeight}px;
+  --shell-panel-border-width: ${themeValues.panelBorderWidth}px;
+  --shell-blur: ${themeValues.shellBlur}px;
 }
 
 body {
@@ -782,16 +966,16 @@ body {
     linear-gradient(180deg, ${hexToRgba(themeValues.shellBg, 0.18)} 0%, ${hexToRgba(themeValues.shellBg, 0.84)} 58%, ${hexToRgba(themeValues.shellBg, 0.98)} 100%),
     radial-gradient(circle at top left, ${hexToRgba(themeValues.shellAccent, 0.16)}, transparent 35%),
     radial-gradient(circle at top right, ${hexToRgba(themeValues.shellAccentDeep, 0.14)}, transparent 32%) !important;
-  backdrop-filter: blur(${themeValues.shellBlur / 16}rem);
+  backdrop-filter: blur(var(--shell-blur));
 }
 
 [client-theme] .giz-container .giz-app__header {
   background: ${themeValues.popupBg};
   background-color: ${themeValues.popupBg};
-  border-bottom: ${themeValues.panelBorderWidth}px solid var(--shell-border);
+  border-bottom: var(--shell-panel-border-width) solid var(--shell-border);
   box-shadow: var(--shell-shadow);
-  backdrop-filter: blur(${themeValues.shellBlur}px);
-  height: ${themeValues.headerHeight}px;
+  backdrop-filter: blur(var(--shell-blur));
+  height: var(--shell-header-height);
 }
 
 [client-theme] .giz-home-apps,
@@ -914,8 +1098,8 @@ body {
 [client-theme] .user-menu-item-button--box,
 [client-theme] .giz-app__header,
 [client-theme] .giz-container .giz-app__header,
-[client-theme] .giz-home__header__quick-launch,
-[client-theme] .giz-home__header__ads,
+[client-theme] .giz-home-apps__header__quick-launch,
+[client-theme] .giz-home-apps__header__ads,
 [client-theme] .giz-shop__products__header__tab,
 [client-theme] .giz-profile-navigation,
 [client-theme] .giz-order__items,
@@ -928,6 +1112,65 @@ body {
   border-radius: ${themeValues.shellRadiusL / 10}rem;
   box-shadow: var(--shell-shadow);
   backdrop-filter: blur(${themeValues.shellBlur}px);
+}
+
+[client-theme] .giz-home-apps__header__quick-launch,
+[client-theme] .giz-home-apps__header__ads,
+[client-theme] .giz-shop__products__header__tab,
+[client-theme] .giz-profile-navigation,
+[client-theme] .giz-order__items,
+[client-theme] .giz-order__notes,
+[client-theme] .giz-order__totals,
+[client-theme] .giz-login-card,
+[client-theme] .giz-drawer-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep popup hosts above surrounding content: backdrop-filter creates a new
+   stacking context, so header/shop filter containers need an explicit layer. */
+[client-theme] .giz-container .giz-app__body {
+  position: relative;
+  z-index: 1;
+}
+
+[client-theme] .giz-container .giz-app__header,
+[client-theme] .giz-shop__products__header,
+[client-theme] .giz-shop__products__header__tab,
+[client-theme] .giz-header__global-search,
+[client-theme] .giz-header__user-menu,
+[client-theme] .giz-user-dropdown,
+[client-theme] .giz-notifications-dropdown,
+[client-theme] .giz-active-apps-dropdown,
+[client-theme] .giz-user-online-deposit-dropdown,
+[client-theme] .giz-global-search {
+  position: relative;
+}
+
+[client-theme] .giz-container .giz-app__header,
+[client-theme] .giz-shop__products__header,
+[client-theme] .giz-shop__products__header__tab {
+  isolation: isolate;
+  z-index: 40;
+}
+
+[client-theme] .giz-header__global-search,
+[client-theme] .giz-header__user-menu,
+[client-theme] .giz-user-dropdown,
+[client-theme] .giz-notifications-dropdown,
+[client-theme] .giz-active-apps-dropdown,
+[client-theme] .giz-user-online-deposit-dropdown,
+[client-theme] .giz-global-search {
+  z-index: 50;
+}
+
+[client-theme] .giz-dropdown-menu,
+[client-theme] .giz-user-dropdown .giz-dropdown-menu,
+[client-theme] .giz-multi-select__dropdown,
+[client-theme] .giz-select__dropdown,
+[client-theme] .giz-combo-button__dropdown,
+[client-theme] .giz-global-search-dropdown {
+  z-index: 1000;
 }
 
 [client-theme] .giz-app__header,
@@ -1040,11 +1283,10 @@ body {
   background-color: ${themeValues.productCardBg};
 }
 
-[client-theme] .giz-dropdown-menu,
-[client-theme] .giz-user-dropdown .giz-dropdown-menu,
 [client-theme] .giz-multi-select__dropdown,
 [client-theme] .giz-select__dropdown,
 [client-theme] .giz-global-search-dropdown,
+[client-theme] .giz-dropdown-menu__content,
 [client-theme] .giz-dialog > .giz-card,
 [client-theme] .giz-dialog .giz-card,
 [client-theme] .giz-dialog__content-wrapper > .giz-card,
@@ -1062,8 +1304,7 @@ body {
   background-color: ${themeValues.popupBg};
 }
 
-[client-theme] .giz-dropdown-menu > *,
-[client-theme] .giz-user-dropdown .giz-dropdown-menu > *,
+[client-theme] .giz-dropdown-menu__content,
 [client-theme] .giz-multi-select__dropdown,
 [client-theme] .giz-select__dropdown,
 [client-theme] .giz-global-search-dropdown,
@@ -1117,8 +1358,7 @@ body {
     linear-gradient(180deg, ${themeValues.popupBg} 0%, ${themeValues.shellBgElevated} 100%);
 }
 
-[client-theme] .giz-dropdown-menu > *,
-[client-theme] .giz-user-dropdown .giz-dropdown-menu > * {
+[client-theme] .giz-dropdown-menu__content {
   border-radius: ${themeValues.shellRadiusL / 10}rem;
 }
 
@@ -1262,6 +1502,8 @@ function applyDraftTheme() {
   hasPendingChanges = false;
   renderPreview();
   renderCssOutput();
+  syncPresetButtons();
+  updateExportSummary();
   updateApplyState();
 }
 
@@ -1351,12 +1593,15 @@ async function importPreviewCss(file) {
     syncControlValues();
     renderPreview();
     renderCssOutput();
+    syncPresetButtons();
+    updateExportSummary();
     updateApplyState();
   }
 
   importedCssFileName = file.name;
   importedPreviewStyle.textContent = scopeImportedCss(rawCss);
   updateImportedCssState();
+  updateExportSummary();
 }
 
 function clearImportedPreviewCss() {
@@ -1369,6 +1614,8 @@ function clearImportedPreviewCss() {
     syncControlValues();
     renderPreview();
     renderCssOutput();
+    syncPresetButtons();
+    updateExportSummary();
     updateApplyState();
   }
 
@@ -1376,6 +1623,7 @@ function clearImportedPreviewCss() {
   importedPreviewStyle.textContent = '';
   if (importCssInput instanceof HTMLInputElement) importCssInput.value = '';
   updateImportedCssState();
+  updateExportSummary();
 }
 
 function downloadCss() {
@@ -1448,6 +1696,14 @@ importCssInput.addEventListener('change', async (event) => {
 });
 
 resetThemeBtn.addEventListener('click', () => {
+  if (importedPreviewStyle.textContent.trim().length > 0) {
+    importedCssFileName = '';
+    importedPreviewStyle.textContent = '';
+    draftThemeBeforeImport = null;
+    appliedThemeBeforeImport = null;
+    if (importCssInput instanceof HTMLInputElement) importCssInput.value = '';
+    updateImportedCssState();
+  }
   draftTheme = structuredClone(DEFAULT_THEME);
   renderAll(true, true);
 });
@@ -1456,6 +1712,10 @@ applyThemeBtn.addEventListener('click', applyDraftTheme);
 
 copyCssBtn.addEventListener('click', copyCss);
 downloadCssBtn.addEventListener('click', downloadCss);
+toggleCssOutputBtn?.addEventListener('click', () => {
+  isCssOutputCollapsed = !isCssOutputCollapsed;
+  updateCssOutputVisibility();
+});
 
 createPresetButtons();
 createColorControls();
@@ -1465,4 +1725,5 @@ applyPreviewStyleHints();
 setSettingsTab(activeSettingsTab);
 setPreviewMode(activePreviewMode);
 updateImportedCssState();
+updateCssOutputVisibility();
 renderAll(true, true);
