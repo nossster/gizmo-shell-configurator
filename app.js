@@ -1231,13 +1231,51 @@ body {
   box-shadow: 0 8px 22px ${hexToRgba(themeValues.shellAccentDeep, 0.24)};
 }
 
+[client-theme] .giz-user-time-products-order--current,
+[client-theme] .giz-header-user-balance,
+[client-theme] .giz-header__user-menu-item.giz-header-user-balance {
+  background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%);
+  background-color: var(--shell-accent);
+  border: ${themeValues.panelBorderWidth}px solid ${hexToRgba(themeValues.shellAccentHover, 0.44)};
+  color: #ffffff;
+  box-shadow: 0 8px 22px ${hexToRgba(themeValues.shellAccentDeep, 0.24)};
+}
+
+[client-theme] .giz-user-time-products-order--current .giz-icon,
+[client-theme] .giz-user-time-products-order--current .giz-header__user-menu-item__icon,
+[client-theme] .giz-header-user-balance .giz-icon,
+[client-theme] .giz-header-user-balance .giz-header__user-menu-item__icon,
+[client-theme] .giz-header__user-menu-item.giz-header-user-balance .giz-icon,
+[client-theme] .giz-header__user-menu-item.giz-header-user-balance .giz-header__user-menu-item__icon {
+  color: #ffffff;
+}
+
 [client-theme] .giz-login-method.giz-button-group .giz-button.selected,
 [client-theme] .giz-login-method.giz-button-group .giz-button.active,
 [client-theme] .giz-recovery-method.giz-button-group .giz-button.selected,
 [client-theme] .giz-recovery-method.giz-button-group .giz-button.active {
-  background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%);
+  background: linear-gradient(135deg, ${themeValues.shellAccent} 0%, ${themeValues.shellAccentDeep} 100%);
   color: #ffffff;
   box-shadow: 0 8px 22px ${hexToRgba(themeValues.shellAccentDeep, 0.24)};
+}
+
+.giz-user-time-products-order--current,
+.giz-header-user-balance,
+.giz-header__user-menu-item.giz-header-user-balance {
+  background: linear-gradient(135deg, ${themeValues.shellAccent} 0%, ${themeValues.shellAccentDeep} 100%);
+  background-color: ${themeValues.shellAccent};
+  border: ${themeValues.panelBorderWidth}px solid ${hexToRgba(themeValues.shellAccentHover, 0.44)};
+  color: #ffffff;
+  box-shadow: 0 8px 22px ${hexToRgba(themeValues.shellAccentDeep, 0.24)};
+}
+
+.giz-user-time-products-order--current .giz-icon,
+.giz-user-time-products-order--current .giz-header__user-menu-item__icon,
+.giz-header-user-balance .giz-icon,
+.giz-header-user-balance .giz-header__user-menu-item__icon,
+.giz-header__user-menu-item.giz-header-user-balance .giz-icon,
+.giz-header__user-menu-item.giz-header-user-balance .giz-header__user-menu-item__icon {
+  color: #ffffff;
 }
 
 [client-theme] .giz-main-container .giz-login__login .quick-launcher-switch.giz-button-group .giz-button.selected,
@@ -1410,7 +1448,8 @@ body {
 
 .giz-client-tooltip,
 .giz-tooltip,
-.giz-dock-item-tooltip {
+.giz-dock-item-tooltip,
+.giz-user-balance-tooltip {
   background: ${themeValues.popupBg};
   background-color: ${themeValues.popupBg};
   color: ${themeValues.shellText};
@@ -1420,7 +1459,8 @@ body {
 }
 
 .giz-client-tooltip,
-.giz-tooltip {
+.giz-tooltip,
+.giz-user-balance-tooltip {
   border-radius: ${themeValues.shellRadiusM / 10}rem;
 }
 
@@ -1483,7 +1523,18 @@ body {
   border-color: ${themeValues.popupBg} transparent transparent transparent;
 }
 
+[client-theme] .giz-user-balance-tooltip--top .giz-client-tooltip-pin,
+[client-theme] .giz-user-balance-tooltip--top .giz-user-balance-tooltip-pin {
+  border-color: ${themeValues.popupBg} transparent transparent transparent;
+}
+
 .giz-client-tooltip--top .giz-client-tooltip-pin {
+  border-color: ${themeValues.popupBg} transparent transparent transparent;
+}
+
+.giz-user-balance-tooltip--top .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--top .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--top::after {
   border-color: ${themeValues.popupBg} transparent transparent transparent;
 }
 
@@ -1491,7 +1542,18 @@ body {
   border-color: transparent transparent ${themeValues.popupBg} transparent;
 }
 
+[client-theme] .giz-user-balance-tooltip--bottom .giz-client-tooltip-pin,
+[client-theme] .giz-user-balance-tooltip--bottom .giz-user-balance-tooltip-pin {
+  border-color: transparent transparent ${themeValues.popupBg} transparent;
+}
+
 .giz-client-tooltip--bottom .giz-client-tooltip-pin {
+  border-color: transparent transparent ${themeValues.popupBg} transparent;
+}
+
+.giz-user-balance-tooltip--bottom .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--bottom .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--bottom::after {
   border-color: transparent transparent ${themeValues.popupBg} transparent;
 }
 
@@ -1499,7 +1561,18 @@ body {
   border-color: transparent transparent transparent ${themeValues.popupBg};
 }
 
+[client-theme] .giz-user-balance-tooltip--left .giz-client-tooltip-pin,
+[client-theme] .giz-user-balance-tooltip--left .giz-user-balance-tooltip-pin {
+  border-color: transparent transparent transparent ${themeValues.popupBg};
+}
+
 .giz-client-tooltip--left .giz-client-tooltip-pin {
+  border-color: transparent transparent transparent ${themeValues.popupBg};
+}
+
+.giz-user-balance-tooltip--left .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--left .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--left::after {
   border-color: transparent transparent transparent ${themeValues.popupBg};
 }
 
@@ -1507,7 +1580,18 @@ body {
   border-color: transparent ${themeValues.popupBg} transparent transparent;
 }
 
+[client-theme] .giz-user-balance-tooltip--right .giz-client-tooltip-pin,
+[client-theme] .giz-user-balance-tooltip--right .giz-user-balance-tooltip-pin {
+  border-color: transparent ${themeValues.popupBg} transparent transparent;
+}
+
 .giz-client-tooltip--right .giz-client-tooltip-pin {
+  border-color: transparent ${themeValues.popupBg} transparent transparent;
+}
+
+.giz-user-balance-tooltip--right .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--right .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--right::after {
   border-color: transparent ${themeValues.popupBg} transparent transparent;
 }
 

@@ -1555,6 +1555,25 @@ input {
   box-shadow: 0 0 0.35rem 0.08rem var(--shell-accent);
 }
 
+.giz-user-time-products-order--current,
+.giz-header-user-balance,
+.giz-header__user-menu-item.giz-header-user-balance {
+  background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%);
+  background-color: var(--shell-accent);
+  border: var(--shell-panel-border-width) solid color-mix(in srgb, var(--shell-accent-hover) 44%, transparent);
+  color: #ffffff;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--shell-accent-deep) 24%, transparent);
+}
+
+.giz-user-time-products-order--current .giz-icon,
+.giz-user-time-products-order--current .giz-header__user-menu-item__icon,
+.giz-header-user-balance .giz-icon,
+.giz-header-user-balance .giz-header__user-menu-item__icon,
+.giz-header__user-menu-item.giz-header-user-balance .giz-icon,
+.giz-header__user-menu-item.giz-header-user-balance .giz-header__user-menu-item__icon {
+  color: #ffffff;
+}
+
 .giz-global-search {
   box-shadow: var(--shell-shadow);
   backdrop-filter: blur(var(--shell-blur));
@@ -1589,6 +1608,39 @@ input {
 .giz-dropdown-menu__content,
 .giz-global-search-dropdown__body {
   background: var(--shell-popup-bg);
+}
+
+.giz-user-balance-tooltip {
+  background: var(--shell-popup-bg);
+  color: var(--shell-text);
+  border: var(--shell-panel-border-width) solid var(--shell-border-strong);
+  box-shadow: var(--shell-shadow-strong);
+  backdrop-filter: blur(var(--shell-blur));
+  border-radius: var(--shell-radius-m);
+}
+
+.giz-user-balance-tooltip--top .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--top .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--top::after {
+  border-color: var(--shell-popup-bg) transparent transparent transparent;
+}
+
+.giz-user-balance-tooltip--bottom .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--bottom .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--bottom::after {
+  border-color: transparent transparent var(--shell-popup-bg) transparent;
+}
+
+.giz-user-balance-tooltip--left .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--left .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--left::after {
+  border-color: transparent transparent transparent var(--shell-popup-bg);
+}
+
+.giz-user-balance-tooltip--right .giz-client-tooltip-pin,
+.giz-user-balance-tooltip--right .giz-user-balance-tooltip-pin,
+.giz-user-balance-tooltip--right::after {
+  border-color: transparent var(--shell-popup-bg) transparent transparent;
 }
 
 .giz-global-search-section__header,
