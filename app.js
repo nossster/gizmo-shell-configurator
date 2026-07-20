@@ -1346,6 +1346,36 @@ body {
   color: var(--shell-accent);
 }
 
+[client-theme] .giz-badge.giz-badge--small .giz-badge__wrapper .giz-badge__badge,
+[client-theme] .giz-badge.giz-badge--corner > .giz-badge__wrapper > .giz-badge__badge,
+[client-theme] .giz-badge .giz-badge__badge,
+[client-theme] .giz-badge__badge {
+  background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%);
+  background-color: var(--shell-accent);
+  color: #ffffff;
+  border-color: ${hexToRgba(themeValues.shellAccentHover, 0.44)};
+}
+
+[client-theme] .giz-badge.giz-badge--small .giz-badge__wrapper .giz-badge__badge,
+[client-theme] .giz-badge.giz-badge--corner > .giz-badge__wrapper > .giz-badge__badge {
+  box-shadow: 0 0 0.5rem 0.2rem ${hexToRgba(themeValues.shellAccent, 0.32)};
+}
+
+.giz-badge.giz-badge--small .giz-badge__wrapper .giz-badge__badge,
+.giz-badge.giz-badge--corner > .giz-badge__wrapper > .giz-badge__badge,
+.giz-badge .giz-badge__badge,
+.giz-badge__badge {
+  background: linear-gradient(135deg, ${themeValues.shellAccent} 0%, ${themeValues.shellAccentDeep} 100%);
+  background-color: ${themeValues.shellAccent};
+  color: #ffffff;
+  border-color: ${hexToRgba(themeValues.shellAccentHover, 0.44)};
+}
+
+.giz-badge.giz-badge--small .giz-badge__wrapper .giz-badge__badge,
+.giz-badge.giz-badge--corner > .giz-badge__wrapper > .giz-badge__badge {
+  box-shadow: 0 0 0.5rem 0.2rem ${hexToRgba(themeValues.shellAccent, 0.32)};
+}
+
 [client-theme] .giz-alert--info,
 [client-theme] .giz-dialog .giz-alert--info,
 [client-theme] .giz-user-online-deposit .giz-button-group .giz-button:not(.selected):not(.active),

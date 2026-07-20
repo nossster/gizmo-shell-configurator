@@ -1541,6 +1541,20 @@ input {
   color: var(--shell-accent);
 }
 
+.giz-badge.giz-badge--small .giz-badge__wrapper .giz-badge__badge,
+.giz-badge.giz-badge--corner > .giz-badge__wrapper > .giz-badge__badge,
+.giz-badge .giz-badge__badge,
+.giz-badge__badge {
+  background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%);
+  background-color: var(--shell-accent);
+  color: #ffffff;
+}
+
+.giz-badge.giz-badge--small .giz-badge__wrapper .giz-badge__badge,
+.giz-badge.giz-badge--corner > .giz-badge__wrapper > .giz-badge__badge {
+  box-shadow: 0 0 0.35rem 0.08rem var(--shell-accent);
+}
+
 .giz-global-search {
   box-shadow: var(--shell-shadow);
   backdrop-filter: blur(var(--shell-blur));
