@@ -1323,6 +1323,77 @@ body {
   backdrop-filter: blur(${themeValues.shellBlur}px);
 }
 
+[client-theme] .giz-header__user-menu-item {
+  background: transparent;
+  background-color: transparent;
+  border: ${themeValues.panelBorderWidth}px solid transparent;
+  color: var(--shell-text-soft);
+  box-shadow: none;
+}
+
+[client-theme] .giz-header__user-menu-item .giz-user-menu-button,
+[client-theme] .giz-header__user-menu-item .user-menu-item-button,
+[client-theme] .giz-header__user-menu-item .user-menu-item-button--box {
+  background: transparent;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  color: inherit;
+}
+
+[client-theme] .giz-header__user-menu-item .giz-icon,
+[client-theme] .giz-header__user-menu-item__icon {
+  color: var(--shell-accent);
+}
+
+[client-theme] .giz-alert--info,
+[client-theme] .giz-dialog .giz-alert--info,
+[client-theme] .giz-user-online-deposit .giz-button-group .giz-button:not(.selected):not(.active),
+[client-theme] .giz-user-online-deposit-dialog .giz-button-group .giz-button:not(.selected):not(.active) {
+  background: var(--shell-bg-soft);
+  background-color: var(--shell-bg-soft);
+  border: ${themeValues.panelBorderWidth}px solid var(--shell-border);
+  color: var(--shell-text);
+  box-shadow: inset 0 0 0 1px ${hexToRgba(themeValues.shellAccentDeep, 0.08)};
+}
+
+.giz-alert--info,
+.giz-dialog .giz-alert--info,
+.giz-user-online-deposit .giz-button-group .giz-button:not(.selected):not(.active),
+.giz-user-online-deposit-dialog .giz-button-group .giz-button:not(.selected):not(.active) {
+  background: ${themeValues.shellBgSoft};
+  background-color: ${themeValues.shellBgSoft};
+  border: ${themeValues.panelBorderWidth}px solid ${themeValues.shellBorder};
+  color: ${themeValues.shellText};
+  box-shadow: inset 0 0 0 1px ${hexToRgba(themeValues.shellAccentDeep, 0.08)};
+}
+
+[client-theme] .giz-alert--info .giz-alert__icon,
+[client-theme] .giz-alert--info .giz-icon {
+  color: var(--shell-accent);
+}
+
+.giz-alert--info .giz-alert__icon,
+.giz-alert--info .giz-icon {
+  color: ${themeValues.shellAccent};
+}
+
+.giz-client-tooltip,
+.giz-tooltip,
+.giz-dock-item-tooltip {
+  background: ${themeValues.popupBg};
+  background-color: ${themeValues.popupBg};
+  color: ${themeValues.shellText};
+  border: ${themeValues.panelBorderWidth}px solid ${themeValues.shellBorderStrong};
+  box-shadow: 0 18px 48px rgba(0, 0, 0, ${Math.min(themeValues.shellShadowStrongOpacity + 0.08, 0.88)});
+  backdrop-filter: blur(${themeValues.shellBlur}px);
+}
+
+.giz-client-tooltip,
+.giz-tooltip {
+  border-radius: ${themeValues.shellRadiusM / 10}rem;
+}
+
 [client-theme] .giz-select__dropdown .giz-list-item.active,
 [client-theme] .giz-select__dropdown .giz-list-item.selected,
 [client-theme] .giz-multi-select__dropdown .giz-multi-select-item.selected,
@@ -1351,8 +1422,20 @@ body {
   border-radius: ${themeValues.shellRadiusXL / 10}rem;
 }
 
+.giz-dialog > .giz-card,
+.giz-dialog .giz-card {
+  border-radius: ${themeValues.shellRadiusXL / 10}rem;
+}
+
 [client-theme] .giz-dialog > .giz-card::before,
 [client-theme] .giz-dialog .giz-card::before {
+  background:
+    radial-gradient(circle at top, ${hexToRgba(themeValues.shellAccent, 0.12)}, transparent 34%),
+    linear-gradient(180deg, ${themeValues.popupBg} 0%, ${themeValues.shellBgElevated} 100%);
+}
+
+.giz-dialog > .giz-card::before,
+.giz-dialog .giz-card::before {
   background:
     radial-gradient(circle at top, ${hexToRgba(themeValues.shellAccent, 0.12)}, transparent 34%),
     linear-gradient(180deg, ${themeValues.popupBg} 0%, ${themeValues.shellBgElevated} 100%);
@@ -1370,7 +1453,15 @@ body {
   border-color: ${themeValues.popupBg} transparent transparent transparent;
 }
 
+.giz-client-tooltip--top .giz-client-tooltip-pin {
+  border-color: ${themeValues.popupBg} transparent transparent transparent;
+}
+
 [client-theme] .giz-client-tooltip--bottom .giz-client-tooltip-pin {
+  border-color: transparent transparent ${themeValues.popupBg} transparent;
+}
+
+.giz-client-tooltip--bottom .giz-client-tooltip-pin {
   border-color: transparent transparent ${themeValues.popupBg} transparent;
 }
 
@@ -1378,7 +1469,15 @@ body {
   border-color: transparent transparent transparent ${themeValues.popupBg};
 }
 
+.giz-client-tooltip--left .giz-client-tooltip-pin {
+  border-color: transparent transparent transparent ${themeValues.popupBg};
+}
+
 [client-theme] .giz-client-tooltip--right .giz-client-tooltip-pin {
+  border-color: transparent ${themeValues.popupBg} transparent transparent;
+}
+
+.giz-client-tooltip--right .giz-client-tooltip-pin {
   border-color: transparent ${themeValues.popupBg} transparent transparent;
 }
 
@@ -1386,7 +1485,15 @@ body {
   border-color: ${themeValues.popupBg} transparent transparent transparent;
 }
 
+.giz-tooltip--top::after {
+  border-color: ${themeValues.popupBg} transparent transparent transparent;
+}
+
 [client-theme] .giz-tooltip--bottom::after {
+  border-color: transparent transparent ${themeValues.popupBg} transparent;
+}
+
+.giz-tooltip--bottom::after {
   border-color: transparent transparent ${themeValues.popupBg} transparent;
 }
 
@@ -1410,9 +1517,18 @@ body {
   background: linear-gradient(180deg, ${hexToRgba(themeValues.shellBg, 0.82)} 0%, ${hexToRgba(themeValues.shellBg, 0.60)} 100%);
 }
 
+.giz-dialog {
+  background: linear-gradient(180deg, ${hexToRgba(themeValues.shellBg, 0.82)} 0%, ${hexToRgba(themeValues.shellBg, 0.60)} 100%);
+}
+
 [client-theme] .giz-dialog > .giz-card,
 [client-theme] .giz-dialog .giz-card {
   border-color: var(--shell-border-strong);
+}
+
+.giz-dialog > .giz-card,
+.giz-dialog .giz-card {
+  border-color: ${themeValues.shellBorderStrong};
 }
 
 [client-theme] .giz-login__login {

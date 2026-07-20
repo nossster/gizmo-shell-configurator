@@ -1015,6 +1015,10 @@ input {
   align-items: center;
   gap: 10px;
   color: var(--shell-text-soft);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .user-menu-item-button--box {
@@ -1022,6 +1026,10 @@ input {
   height: 42px;
   display: grid;
   place-items: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .avatar {
@@ -1519,9 +1527,10 @@ input {
   gap: 8px;
   padding: 0 12px;
   border-radius: 12px;
-  background: var(--shell-bg-soft);
-  border: 1px solid var(--shell-border);
+  background: transparent;
+  border: 1px solid transparent;
   color: var(--shell-text-soft);
+  box-shadow: none;
 }
 
 .giz-header__user-menu-item__icon {
@@ -2680,13 +2689,15 @@ input {
 }
 
 .live-header-pill {
-  background: var(--shell-bg-soft);
-  border: var(--shell-panel-border-width) solid var(--shell-border);
+  background: transparent;
+  border: var(--shell-panel-border-width) solid transparent;
+  box-shadow: none;
 }
 
 .live-user-anchor .giz-user-menu-button {
-  background: var(--shell-bg-elevated-2);
-  border: var(--shell-panel-border-width) solid var(--shell-border);
+  background: transparent;
+  border: var(--shell-panel-border-width) solid transparent;
+  box-shadow: none;
 }
 
 .live-user-menu-panel {
