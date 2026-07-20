@@ -994,6 +994,20 @@ input {
   backdrop-filter: blur(var(--shell-blur));
 }
 
+.giz-user-history__body .giz-data-grid,
+.giz-data-grid > thead th {
+  background: var(--shell-bg) !important;
+  background-color: var(--shell-bg) !important;
+  background-image: none !important;
+}
+
+.giz-data-grid,
+.giz-data-grid th,
+.giz-data-grid td,
+.giz-icon--medium {
+  color: var(--shell-accent) !important;
+}
+
 .giz-login-title,
 .giz-nav-title,
 .giz-section__header,
