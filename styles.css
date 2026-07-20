@@ -3559,3 +3559,317 @@ input {
     height: auto;
   }
 }
+
+/* Preview layout rebuild: show every block without clipping or overlap */
+
+.preview-stage {
+  overflow: visible;
+}
+
+.preview-root {
+  display: grid;
+  gap: 22px;
+  min-height: auto;
+}
+
+.preview-screens-shell {
+  position: relative;
+  z-index: 2;
+}
+
+.preview-app {
+  min-height: auto;
+  display: none;
+  align-content: start;
+  gap: 18px;
+}
+
+.preview-screen.active {
+  display: grid;
+}
+
+.preview-app .giz-app__header {
+  height: auto;
+}
+
+.reference-shell-header .giz-header,
+.preview-screen--profile .giz-header {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  height: auto;
+  padding: 16px 18px;
+}
+
+.reference-shell-header .giz-header__modules-menu,
+.reference-shell-header .giz-header__user-menu,
+.preview-screen--profile .giz-header__modules-menu,
+.preview-screen--profile .giz-header__user-menu {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.reference-shell-header .giz-header__global-search,
+.preview-screen--profile .giz-header__global-search {
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+}
+
+.preview-header-compact .giz-global-search {
+  width: 100%;
+}
+
+.live-home-shell,
+.reference-shop-shell,
+.giz-profile {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+  overflow: visible;
+}
+
+.live-home-topline {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.live-launch-strip,
+.live-news-pill {
+  min-height: 100%;
+}
+
+.live-ads-stage,
+.live-ads-stage--apps {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.live-ad-card {
+  min-height: 280px;
+  display: grid;
+  align-content: end;
+  gap: 14px;
+  padding: 24px;
+}
+
+.live-ad-card--left,
+.live-ad-card--right,
+.live-ad-card--narrow {
+  transform: none;
+}
+
+.live-ad-copy {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+}
+
+.live-ad-card--monster .live-ad-action,
+.live-shop-banner__button {
+  position: static;
+  left: auto;
+  bottom: auto;
+  width: min(100%, 280px);
+  min-width: 0;
+  margin-top: auto;
+}
+
+.live-product-row,
+.live-app-row,
+.reference-home-products-row,
+.reference-shop-products-row {
+  grid-auto-flow: row;
+  grid-auto-columns: initial;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  overflow: visible;
+}
+
+.live-app-row--apps-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.live-home-apps-block,
+.live-home-apps-header,
+.live-home-apps-header--apps {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.live-filter-row,
+.live-filter-row--compact {
+  grid-auto-flow: row;
+  grid-auto-columns: initial;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.reference-shop-shell {
+  padding-top: 18px;
+}
+
+.reference-shop-layout {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  height: auto;
+}
+
+.reference-shop-main,
+.reference-shop-products-row {
+  overflow: visible;
+}
+
+.reference-shop-tabs {
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  padding: 14px 18px;
+  border-radius: 16px;
+}
+
+.reference-order-sidebar {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: none;
+  align-items: stretch;
+}
+
+.reference-order-card {
+  height: 100%;
+}
+
+.reference-order-card--empty {
+  min-height: 260px;
+}
+
+.giz-profile {
+  overflow: visible;
+}
+
+.giz-profile__body-wrapper,
+.giz-profile__body {
+  display: grid;
+  gap: 18px;
+}
+
+.preview-profile-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.giz-profile-header__info__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-sections-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.giz-main-container,
+.live-login-layout {
+  min-height: auto;
+}
+
+.live-login-layout {
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 18px;
+  padding: 18px;
+}
+
+.live-login-hero,
+.live-login-panel {
+  min-height: 0;
+  border-radius: var(--shell-radius-xl);
+  overflow: hidden;
+}
+
+.live-login-hero {
+  min-height: 380px;
+}
+
+.live-login-panel {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 28px;
+}
+
+.live-login-register-link {
+  position: static;
+  justify-self: end;
+}
+
+.live-login-card--flat {
+  margin-top: 0;
+}
+
+.live-login-card__body {
+  max-width: none;
+}
+
+.live-qr-block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.preview-floating-ui {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  z-index: 2;
+  width: auto;
+  margin: 0 18px 18px;
+}
+
+.preview-root[data-active-mode='home'] .preview-floating-ui {
+  width: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.preview-root[data-active-mode='home'] .preview-floating-ui::before {
+  content: 'Popup lab';
+  grid-column: 1 / -1;
+  color: var(--shell-text);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.preview-popup-card--dialog,
+.preview-popup-card--audit {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1440px) {
+  .preview-root[data-active-mode='home'] .preview-floating-ui,
+  .reference-order-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1200px) {
+  .live-home-topline,
+  .live-ads-stage,
+  .live-ads-stage--apps,
+  .profile-sections-grid,
+  .live-login-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-profile-header {
+    grid-template-columns: 1fr;
+  }
+
+  .giz-profile-header__info__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .live-qr-block {
+    grid-template-columns: 1fr;
+  }
+}
