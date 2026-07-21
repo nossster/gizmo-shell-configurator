@@ -15,6 +15,10 @@ const DEFAULT_THEME = {
   shellSuccess: '#10AE79',
   shellWarning: '#E68200',
   shellDanger: '#F73B3B',
+  userLinksHoverColor: '#0f7cfe',
+  timelineItemColor: '#ffc700',
+  timeProductExpirationTextColor: '#ffffff',
+  timeProductExpirationBg: 'rgba(255, 199, 0, 0.32)',
   appCardBg: '#22272B',
   productCardBg: '#22272B',
   popupBg: '#22272B',
@@ -40,9 +44,6 @@ const PRESETS = {
     description: 'Базовый тёмный shell в духе оригинального Gizmo с более плотным gamer-контрастом.',
     values: {
       ...DEFAULT_THEME,
-      shellShadowOpacity: 0.34,
-      shellShadowStrongOpacity: 0.44,
-      shellBlur: 8,
     },
   },
   'dark-blue': {
@@ -387,37 +388,91 @@ const PRESETS = {
   },
 };
 
-const COLOR_FIELDS = [
-  ['shellBg', 'Основной фон'],
-  ['shellBgElevated', 'Фон панелей'],
-  ['shellBgElevated2', 'Фон header / акцентных панелей'],
-  ['shellBgGlass', 'Glass'],
-  ['shellBgSoft', 'Мягкий фон кнопок / чипов'],
-  ['shellBorder', 'Border'],
-  ['shellBorderStrong', 'Border strong'],
-  ['shellText', 'Text'],
-  ['shellTextSoft', 'Text soft'],
-  ['shellTextGhost', 'Text ghost'],
-  ['shellAccent', 'Заливка выбранного / Quick Launch'],
-  ['shellAccentHover', 'Hover / текст выбранного'],
-  ['shellAccentDeep', 'Градиент выбранного (deep)'],
-  ['shellSuccess', 'Success'],
-  ['shellWarning', 'Warning'],
-  ['shellDanger', 'Danger'],
-  ['appCardBg', 'Фон карточек приложений'],
-  ['productCardBg', 'Фон карточек продуктов'],
-  ['popupBg', 'Фон popup / modal'],
-  ['buttonInactiveBg', 'Фон неактивных / disabled кнопок'],
+function deriveThemeColors(themeValues) {
+  const resolved = { ...themeValues };
+  const textSoftAlpha = getColorAlpha(resolved.shellTextSoft);
+  const warningAlpha = getColorAlpha(resolved.shellWarning);
+
+  resolved.shellBgGlass = setColorAlpha(resolved.shellBgElevated2, 0.82) ?? resolved.shellBgElevated2;
+  resolved.shellBgSoft = mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.18) ?? resolved.shellBgElevated2;
+  resolved.shellBorderStrong = mixColorTokens(resolved.shellBorder, resolved.shellAccentHover, 0.35) ?? resolved.shellBorder;
+  resolved.shellTextGhost = setColorAlpha(resolved.shellTextSoft, textSoftAlpha * 0.54) ?? resolved.shellTextSoft;
+  resolved.userLinksHoverColor = resolved.shellAccentHover;
+  resolved.timelineItemColor = resolved.shellWarning;
+  resolved.timeProductExpirationTextColor = '#FFFFFF';
+  resolved.timeProductExpirationBg = setColorAlpha(resolved.shellWarning, warningAlpha * 0.32) ?? resolved.shellWarning;
+  resolved.appCardBg = resolved.shellBgElevated;
+  resolved.productCardBg = resolved.shellBgElevated2;
+  resolved.buttonInactiveBg = mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.24) ?? resolved.shellBgElevated2;
+
+  return resolved;
+}
+
+Object.assign(DEFAULT_THEME, deriveThemeColors(DEFAULT_THEME));
+Object.values(PRESETS).forEach((preset) => {
+  preset.values = deriveThemeColors(preset.values);
+});
+
+const COLOR_FIELD_GROUPS = [
+  {
+    id: 'backgrounds',
+    title: 'Основа интерфейса',
+    description: 'Четыре уровня поверхностей. Карточки, glass и мягкие состояния рассчитываются автоматически.',
+    fields: [
+      ['shellBg', 'Основной фон'],
+      ['shellBgElevated', 'Панели и карточки'],
+      ['shellBgElevated2', 'Header и поднятые поверхности'],
+      ['popupBg', 'Popup и модальные окна'],
+    ],
+  },
+  {
+    id: 'text',
+    title: 'Текст',
+    description: 'Два уровня контраста. Placeholder и ghost-текст выводятся из вторичного цвета.',
+    fields: [
+      ['shellText', 'Основной текст'],
+      ['shellTextSoft', 'Вторичный текст'],
+    ],
+  },
+  {
+    id: 'accents',
+    title: 'Акцент',
+    description: 'Ручной градиент и контрастный цвет для активных иконок, ссылок и hover-состояний.',
+    fields: [
+      ['shellAccent', 'Начало градиента'],
+      ['shellAccentDeep', 'Глубокий цвет градиента'],
+      ['shellAccentHover', 'Контрастный акцент'],
+    ],
+  },
+  {
+    id: 'borders',
+    title: 'Границы',
+    description: 'Один базовый контур; усиленный вариант автоматически смешивается с акцентом.',
+    fields: [
+      ['shellBorder', 'Основная граница'],
+    ],
+  },
+  {
+    id: 'states',
+    title: 'Статусы',
+    description: 'Три независимых семантических цвета. Timeline и expiration используют Warning.',
+    fields: [
+      ['shellSuccess', 'Успешное состояние'],
+      ['shellWarning', 'Предупреждение'],
+      ['shellDanger', 'Ошибка или опасность'],
+    ],
+  },
 ];
 
+const COLOR_FIELDS = COLOR_FIELD_GROUPS.flatMap(({ fields }) => fields);
+
 const COLOR_FIELD_KEYS = new Set(COLOR_FIELDS.map(([key]) => key));
-const ALPHA_COLOR_KEYS = new Set([
-  'shellBgGlass',
-  'shellBgSoft',
-  'shellBorder',
-  'shellBorderStrong',
-  'shellTextSoft',
-  'shellTextGhost',
+const ALL_COLOR_FIELD_KEYS = new Set([
+  'shellBg', 'shellBgElevated', 'shellBgElevated2', 'shellBgGlass', 'shellBgSoft',
+  'shellBorder', 'shellBorderStrong', 'shellText', 'shellTextSoft', 'shellTextGhost',
+  'shellAccent', 'shellAccentHover', 'shellAccentDeep', 'shellSuccess', 'shellWarning',
+  'shellDanger', 'userLinksHoverColor', 'timelineItemColor', 'timeProductExpirationTextColor',
+  'timeProductExpirationBg', 'appCardBg', 'productCardBg', 'popupBg', 'buttonInactiveBg',
 ]);
 
 const RANGE_FIELDS = [
@@ -456,7 +511,18 @@ const FONT_RANGE_FIELDS = [
 let draftTheme = structuredClone(DEFAULT_THEME);
 let appliedTheme = structuredClone(DEFAULT_THEME);
 let activePreviewMode = 'home';
-const ALLOWED_PREVIEW_MODES = new Set(['home', 'apps', 'shop', 'profile', 'login']);
+const ALLOWED_PREVIEW_MODES = new Set([
+  'home',
+  'apps',
+  'shop',
+  'product',
+  'profile',
+  'profile-products',
+  'profile-purchases',
+  'login',
+  'password-recovery',
+  'registration',
+]);
 const PREVIEW_MODE_META = {
   home: {
     label: 'Home',
@@ -470,13 +536,33 @@ const PREVIEW_MODE_META = {
     label: 'Shop',
     description: 'Витрина продуктов, tabs, sidebar заказа и плотность shop-layout.',
   },
+  product: {
+    label: 'Product',
+    description: 'Карточка товара, описание, похожие товары и общий sidebar заказа.',
+  },
   profile: {
     label: 'Profile',
     description: 'Профиль, навигация разделов, списки покупок и карточки деталей пользователя.',
   },
+  'profile-products': {
+    label: 'Available time',
+    description: 'Профиль пользователя: вкладка доступных пакетов времени и empty/loading state.',
+  },
+  'profile-purchases': {
+    label: 'Purchases',
+    description: 'История покупок, статусы заказа и оплаты, таблица и пагинация.',
+  },
   login: {
     label: 'Login',
     description: 'Логин-экран, hero-панель, поля ввода и QR/helper-блоки.',
+  },
+  'password-recovery': {
+    label: 'Password recovery',
+    description: 'Восстановление пароля по номеру телефона с возвратом к авторизации.',
+  },
+  registration: {
+    label: 'Registration',
+    description: 'Соглашение, чекбокс принятия условий и форма регистрации клуба.',
   },
 };
 let activeSettingsTab = 'colors';
@@ -547,6 +633,12 @@ const PREVIEW_STYLE_HINTS = [
   ['.preview-screen--login .live-login-input', 'Поле ввода / .giz-input-root'],
   ['.preview-screen--login .live-login-submit', 'Primary button / .giz-button--fill'],
   ['.preview-screen--login .live-qr-block', 'QR card / login helper block'],
+  ['.preview-screen--product .product-details-preview__hero', 'Product detail / product hero'],
+  ['.preview-screen--product .reference-order-sidebar', 'Product order / .giz-order'],
+  ['.preview-screen--profile-products .time-package-card', 'Доступное время / time package'],
+  ['.preview-screen--profile-purchases .purchases-table', 'Покупки / .giz-data-grid'],
+  ['.preview-screen--password-recovery .live-login-panel', 'Восстановление пароля / auth panel'],
+  ['.preview-screen--registration .agreement-preview', 'Регистрация / agreement panel'],
 ];
 
 let importedCssFileName = '';
@@ -570,6 +662,10 @@ const IMPORTED_THEME_VARIABLE_MAP = {
   '--shell-success': 'shellSuccess',
   '--shell-warning': 'shellWarning',
   '--shell-danger': 'shellDanger',
+  '--shell-user-links-hover': 'userLinksHoverColor',
+  '--shell-timeline-item': 'timelineItemColor',
+  '--shell-time-product-expiration-text': 'timeProductExpirationTextColor',
+  '--shell-time-product-expiration-bg': 'timeProductExpirationBg',
   '--shell-app-card-bg': 'appCardBg',
   '--shell-product-card-bg': 'productCardBg',
   '--shell-popup-bg': 'popupBg',
@@ -687,17 +783,50 @@ function createPresetButtons() {
 }
 
 function createColorControls() {
-  COLOR_FIELDS.forEach(([key, label]) => {
-    const wrapper = document.createElement('label');
-    wrapper.className = 'control-field';
-    wrapper.innerHTML = `
-      <span>${label}</span>
-      <div class="color-input-row">
-        <input data-color-picker="${key}" type="color" />
-        <input data-color-text="${key}" type="text" spellcheck="false" autocapitalize="characters" />
+  COLOR_FIELD_GROUPS.forEach(({ id, title, description, fields }) => {
+    const section = document.createElement('section');
+    section.className = 'color-settings-group';
+    section.setAttribute('aria-labelledby', `color-group-${id}`);
+    section.innerHTML = `
+      <div class="color-settings-group__header">
+        <div>
+          <h3 id="color-group-${id}">${title}</h3>
+          <p>${description}</p>
+        </div>
+        <span class="color-settings-group__count" aria-label="${fields.length} настроек">${fields.length}</span>
       </div>
+      <div class="color-settings-group__fields"></div>
     `;
-    colorControls.appendChild(wrapper);
+
+    const fieldGrid = section.querySelector('.color-settings-group__fields');
+    fields.forEach(([key, label]) => {
+      if (key === 'shellAccentDeep') return;
+
+      if (key === 'shellAccent') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'control-field gradient-color-control';
+        wrapper.innerHTML = `
+          <div class="gradient-color-control__header">
+            <span>Акцентный градиент</span>
+            <small>2 цветовые точки</small>
+          </div>
+          <div class="gradient-color-control__preview" data-gradient-preview role="img" aria-label="Предпросмотр акцентного градиента"></div>
+          <div class="gradient-color-control__stops">
+            <div>${createColorInputMarkup('shellAccent', 'Начальный цвет')}</div>
+            <div>${createColorInputMarkup('shellAccentDeep', 'Конечный цвет')}</div>
+          </div>
+        `;
+        fieldGrid.appendChild(wrapper);
+        return;
+      }
+
+      const wrapper = document.createElement('label');
+      wrapper.className = 'control-field';
+      wrapper.innerHTML = createColorInputMarkup(key, label);
+      fieldGrid.appendChild(wrapper);
+    });
+
+    colorControls.appendChild(section);
   });
 
   colorControls.addEventListener('input', (event) => {
@@ -706,11 +835,16 @@ function createColorControls() {
 
     const pickerKey = target.dataset.colorPicker;
     const textKey = target.dataset.colorText;
+    const alphaKey = target.dataset.colorAlpha;
 
     if (pickerKey) {
-      const normalized = normalizeColorToken(target.value) ?? target.value;
+      const currentAlpha = getColorAlpha(draftTheme[pickerKey]);
+      const normalized = setColorAlpha(target.value, currentAlpha) ?? target.value;
       draftTheme[pickerKey] = normalized;
+      draftTheme = deriveThemeColors(draftTheme);
       syncColorText(pickerKey, normalized);
+      syncColorAlpha(pickerKey, normalized);
+      syncGradientPreview();
       markPendingChanges();
     }
 
@@ -718,11 +852,43 @@ function createColorControls() {
       const normalized = normalizeThemeColorValue(textKey, target.value);
       if (!normalized) return;
       draftTheme[textKey] = normalized;
+      draftTheme = deriveThemeColors(draftTheme);
       syncColorText(textKey, normalized);
       syncColorPicker(textKey, normalized);
+      syncColorAlpha(textKey, normalized);
+      syncGradientPreview();
+      markPendingChanges();
+    }
+
+    if (alphaKey) {
+      const normalized = setColorAlpha(draftTheme[alphaKey], Number(target.value) / 100);
+      if (!normalized) return;
+      draftTheme[alphaKey] = normalized;
+      draftTheme = deriveThemeColors(draftTheme);
+      syncColorText(alphaKey, normalized);
+      syncColorPicker(alphaKey, normalized);
+      syncColorAlpha(alphaKey, normalized);
+      syncGradientPreview();
       markPendingChanges();
     }
   });
+}
+
+function createColorInputMarkup(key, label) {
+  return `
+    <span>${label}</span>
+    <div class="color-input-row">
+      <span class="color-picker-shell">
+        <input data-color-picker="${key}" type="color" aria-label="${label}: выбор цвета" />
+      </span>
+      <input data-color-text="${key}" type="text" spellcheck="false" autocapitalize="characters" aria-label="${label}: значение цвета" />
+    </div>
+    <div class="color-alpha-row">
+      <span>Прозрачность</span>
+      <input id="color-alpha-${key}" data-color-alpha="${key}" type="range" min="0" max="100" step="1" aria-label="${label}: прозрачность" />
+      <output data-color-alpha-value="${key}" for="color-alpha-${key}">100%</output>
+    </div>
+  `;
 }
 
 function createRangeControls() {
@@ -829,16 +995,92 @@ function normalizeColorToken(value, { allowAlpha = false } = {}) {
   return `#${channels.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
 }
 
+function parseColorToken(value) {
+  const normalized = normalizeColorToken(value, { allowAlpha: true });
+  if (!normalized) return null;
+
+  if (isHexColor(normalized)) {
+    return {
+      r: parseInt(normalized.slice(1, 3), 16),
+      g: parseInt(normalized.slice(3, 5), 16),
+      b: parseInt(normalized.slice(5, 7), 16),
+      alpha: 1,
+    };
+  }
+
+  const match = normalized.match(/^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)$/i);
+  if (!match) return null;
+  return {
+    r: Number(match[1]),
+    g: Number(match[2]),
+    b: Number(match[3]),
+    alpha: Number(match[4]),
+  };
+}
+
+function colorChannelsToHex({ r, g, b }) {
+  return `#${[r, g, b].map((channel) => channel.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+}
+
+function mixColorTokens(startColor, endColor, endWeight) {
+  const start = parseColorToken(startColor);
+  const end = parseColorToken(endColor);
+  if (!start || !end) return null;
+
+  const weight = Math.max(0, Math.min(1, Number(endWeight)));
+  if (Number.isNaN(weight)) return null;
+  const mixChannel = (startValue, endValue) => Math.round(startValue * (1 - weight) + endValue * weight);
+  const mixed = {
+    r: mixChannel(start.r, end.r),
+    g: mixChannel(start.g, end.g),
+    b: mixChannel(start.b, end.b),
+  };
+  const alpha = start.alpha * (1 - weight) + end.alpha * weight;
+
+  return setColorAlpha(colorChannelsToHex(mixed), alpha);
+}
+
+function getColorAlpha(value) {
+  return parseColorToken(value)?.alpha ?? 1;
+}
+
+function setColorAlpha(value, alpha) {
+  const parsed = parseColorToken(value);
+  if (!parsed) return null;
+  const normalizedAlpha = Math.max(0, Math.min(1, Number(alpha)));
+  if (Number.isNaN(normalizedAlpha)) return null;
+  if (normalizedAlpha >= 1) return colorChannelsToHex(parsed);
+  return `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${formatAlphaValue(normalizedAlpha)})`;
+}
+
 function normalizeThemeColorValue(key, value) {
-  if (!COLOR_FIELD_KEYS.has(key)) return String(value).trim();
-  return normalizeColorToken(value, { allowAlpha: ALPHA_COLOR_KEYS.has(key) });
+  if (!ALL_COLOR_FIELD_KEYS.has(key)) return String(value).trim();
+  return normalizeColorToken(value, { allowAlpha: true });
 }
 
 function syncColorPicker(key, value) {
   const picker = document.querySelector(`[data-color-picker="${key}"]`);
   if (!(picker instanceof HTMLInputElement)) return;
-  const normalized = normalizeColorToken(value);
-  if (normalized && isHexColor(normalized)) picker.value = normalized;
+  const parsed = parseColorToken(value);
+  if (parsed) picker.value = colorChannelsToHex(parsed);
+}
+
+function syncColorAlpha(key, value) {
+  const alpha = getColorAlpha(value);
+  const percentage = Math.round(alpha * 100);
+  const input = document.querySelector(`[data-color-alpha="${key}"]`);
+  const output = document.querySelector(`[data-color-alpha-value="${key}"]`);
+  const picker = document.querySelector(`[data-color-picker="${key}"]`);
+  if (input instanceof HTMLInputElement) input.value = String(percentage);
+  if (output instanceof HTMLOutputElement) output.value = `${percentage}%`;
+  if (picker instanceof HTMLInputElement) picker.style.opacity = String(alpha);
+}
+
+function syncGradientPreview() {
+  const preview = document.querySelector('[data-gradient-preview]');
+  if (!(preview instanceof HTMLElement)) return;
+  preview.style.setProperty('--gradient-start', draftTheme.shellAccent);
+  preview.style.setProperty('--gradient-end', draftTheme.shellAccentDeep);
 }
 
 function syncColorText(key, value) {
@@ -853,7 +1095,9 @@ function syncControlValues() {
   COLOR_FIELDS.forEach(([key]) => {
     syncColorText(key, draftTheme[key]);
     syncColorPicker(key, draftTheme[key]);
+    syncColorAlpha(key, draftTheme[key]);
   });
+  syncGradientPreview();
 
   FONT_SELECT_FIELDS.forEach(([key]) => {
     const select = document.querySelector(`[data-font-select="${key}"]`);
@@ -945,6 +1189,10 @@ function previewVars(themeValues) {
     --shell-success: ${themeValues.shellSuccess};
     --shell-warning: ${themeValues.shellWarning};
     --shell-danger: ${themeValues.shellDanger};
+    --shell-user-links-hover: ${themeValues.userLinksHoverColor};
+    --shell-timeline-item: ${themeValues.timelineItemColor};
+    --shell-time-product-expiration-text: ${themeValues.timeProductExpirationTextColor};
+    --shell-time-product-expiration-bg: ${themeValues.timeProductExpirationBg};
     --shell-app-card-bg: ${themeValues.appCardBg};
     --shell-product-card-bg: ${themeValues.productCardBg};
     --shell-popup-bg: ${themeValues.popupBg};
@@ -970,11 +1218,64 @@ function previewVars(themeValues) {
   `;
 }
 
+function colorTokenToWindowsAbgrDword(color) {
+  const parsed = parseColorToken(color);
+  if (!parsed) return 'ff000000';
+  const toHexByte = (channel) => channel.toString(16).padStart(2, '0');
+  return `ff${toHexByte(parsed.b)}${toHexByte(parsed.g)}${toHexByte(parsed.r)}`;
+}
+
+function colorTokenToWindowsAccentPalette(color) {
+  const parsed = parseColorToken(color) ?? { r: 0, g: 0, b: 0 };
+  const toHexByte = (channel) => channel.toString(16).padStart(2, '0');
+  const slot = `${toHexByte(parsed.r)},${toHexByte(parsed.g)},${toHexByte(parsed.b)},00`;
+  return Array.from({ length: 8 }, () => slot).join(',');
+}
+
+function generateWindowsTaskbarRegistryComment(themeValues) {
+  const parsed = parseColorToken(themeValues.shellBg);
+  const sourceColor = parsed ? colorChannelsToHex(parsed) : String(themeValues.shellBg);
+  const windowsColor = colorTokenToWindowsAbgrDword(themeValues.shellBg);
+  const windowsPalette = colorTokenToWindowsAccentPalette(themeValues.shellBg);
+
+  return `/*
+WINDOWS TASKBAR COLOR REGISTRY SCRIPT
+Color source: --shell-bg (${sourceColor})
+
+Copy the lines between BEGIN and END into gizmo-taskbar-color.reg,
+then run the file for the current Windows user.
+
+--- BEGIN gizmo-taskbar-color.reg ---
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Accent]
+"AccentColorMenu"=dword:${windowsColor}
+"StartColorMenu"=dword:${windowsColor}
+"AccentPalette"=hex:${windowsPalette}
+
+[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\DWM]
+"AccentColor"=dword:${windowsColor}
+"ColorPrevalence"=dword:00000001
+
+[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize]
+"ColorPrevalence"=dword:00000001
+--- END gizmo-taskbar-color.reg ---
+
+Apply by signing out or restarting Windows Explorer from Task Manager.
+Windows 11: taskbar accent requires Dark mode and
+"Show accent color on Start and taskbar" enabled.
+This script also aligns Windows accent surfaces with --shell-bg.
+*/`;
+}
+
 function generateCss(themeValues) {
+  themeValues = deriveThemeColors(themeValues);
   return `/*
   Generated by Gizmo Shell Configurator
   Target: Gizmo.Client.UI custom CSS shell override
 */
+
+${generateWindowsTaskbarRegistryComment(themeValues)}
 
 [client-theme] {
   --shell-bg: ${themeValues.shellBg};
@@ -993,6 +1294,10 @@ function generateCss(themeValues) {
   --shell-success: ${themeValues.shellSuccess};
   --shell-warning: ${themeValues.shellWarning};
   --shell-danger: ${themeValues.shellDanger};
+  --shell-user-links-hover: ${themeValues.userLinksHoverColor};
+  --shell-timeline-item: ${themeValues.timelineItemColor};
+  --shell-time-product-expiration-text: ${themeValues.timeProductExpirationTextColor};
+  --shell-time-product-expiration-bg: ${themeValues.timeProductExpirationBg};
   --shell-app-card-bg: ${themeValues.appCardBg};
   --shell-product-card-bg: ${themeValues.productCardBg};
   --shell-popup-bg: ${themeValues.popupBg};
@@ -1038,15 +1343,15 @@ body {
 
 [client-theme] .giz-background::after {
   background:
-    linear-gradient(180deg, ${hexToRgba(themeValues.shellBg, 0.18)} 0%, ${hexToRgba(themeValues.shellBg, 0.84)} 58%, ${hexToRgba(themeValues.shellBg, 0.98)} 100%),
-    radial-gradient(circle at top left, ${hexToRgba(themeValues.shellAccent, 0.16)}, transparent 35%),
-    radial-gradient(circle at top right, ${hexToRgba(themeValues.shellAccentDeep, 0.14)}, transparent 32%) !important;
+    linear-gradient(180deg, ${hexToRgba(themeValues.shellBg, 0.08)} 0%, ${hexToRgba(themeValues.shellBg, 0.42)} 58%, ${hexToRgba(themeValues.shellBg, 0.72)} 100%),
+    radial-gradient(circle at top left, ${hexToRgba(themeValues.shellAccent, 0.12)}, transparent 35%),
+    radial-gradient(circle at top right, ${hexToRgba(themeValues.shellAccentDeep, 0.10)}, transparent 32%) !important;
   backdrop-filter: blur(var(--shell-blur));
 }
 
 [client-theme] .giz-container .giz-app__header {
-  background: ${themeValues.popupBg};
-  background-color: ${themeValues.popupBg};
+  background: ${themeValues.shellBgElevated2};
+  background-color: ${themeValues.shellBgElevated2};
   border-bottom: var(--shell-panel-border-width) solid var(--shell-border);
   box-shadow: var(--shell-shadow);
   backdrop-filter: blur(var(--shell-blur));
@@ -1057,19 +1362,28 @@ body {
 [client-theme] .giz-shop,
 [client-theme] .giz-profile,
 [client-theme] .giz-main-container,
+[client-theme] .giz-app__body,
 [client-theme] .giz-apps__body,
 [client-theme] .giz-home__body,
-[client-theme] .giz-shop__products__body,
-[client-theme] .giz-user-history__body .giz-data-grid,
+[client-theme] .giz-shop__products__body {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+[client-theme] .giz-data-grid,
+[client-theme] .giz-data-grid > thead td,
 [client-theme] .giz-data-grid > thead th {
-  background: var(--shell-bg) !important;
-  background-color: var(--shell-bg) !important;
-  background-image: none !important;
+  background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%) !important;
+  background-color: var(--shell-accent) !important;
+  color: #ffffff !important;
 }
 
 [client-theme] .giz-data-grid,
 [client-theme] .giz-data-grid th,
-[client-theme] .giz-data-grid td,
+[client-theme] .giz-data-grid td {
+  color: #ffffff !important;
+}
+
 [client-theme] .giz-icon--medium {
   color: var(--shell-accent) !important;
 }
@@ -1098,6 +1412,13 @@ body {
   color: var(--shell-text-soft);
 }
 
+[client-theme] .giz-header__modules-menu-item > a {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none !important;
+}
+
 [client-theme] .giz-header__modules-menu-item > a .giz-icon--large,
 [client-theme] .giz-client-tab-item.active svg,
 [client-theme] .giz-profile-navigation-item > a.active svg {
@@ -1110,6 +1431,12 @@ body {
 [client-theme] .giz-login-forgot-password > a,
 [client-theme] .giz-login-card__header .giz-login-new-user > a {
   color: var(--shell-accent-hover);
+}
+
+[client-theme] .giz-header__modules-menu-item > a.active {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 [client-theme] .giz-header__modules-menu-item > a.active .giz-icon--large,
@@ -1261,9 +1588,27 @@ body {
 
 [client-theme] .giz-app__header,
 [client-theme] .giz-container .giz-app__header {
-  background: ${themeValues.popupBg};
-  background-color: ${themeValues.popupBg};
+  background: ${themeValues.shellBgElevated2};
+  background-color: ${themeValues.shellBgElevated2};
   border-bottom: ${themeValues.panelBorderWidth}px solid var(--shell-border);
+}
+
+[client-theme] .giz-app__header:has(+ .giz-home__body),
+[client-theme] .giz-container .giz-app__header:has(+ .giz-home__body) {
+  background-color: ${themeValues.shellBgElevated2};
+  background-image: none;
+}
+
+[client-theme] .giz-app__header:has(+ .giz-apps__body),
+[client-theme] .giz-container .giz-app__header:has(+ .giz-apps__body) {
+  background-color: ${themeValues.shellBgElevated2};
+  background-image: none;
+}
+
+[client-theme] .giz-app__header:has(+ .giz-shop__products__body),
+[client-theme] .giz-container .giz-app__header:has(+ .giz-shop__products__body) {
+  background-color: ${themeValues.shellBgElevated2};
+  background-image: none;
 }
 
 [client-theme] .quick-launcher-switch {
@@ -1573,6 +1918,74 @@ body {
   box-shadow: 0 8px 22px ${hexToRgba(themeValues.shellAccentDeep, 0.24)};
 }
 
+[client-theme] .giz-user-links-item:hover .giz-user-links-item__icon svg {
+  color: var(--shell-user-links-hover);
+}
+
+[client-theme] .giz-user-links-item:hover {
+  color: var(--shell-user-links-hover);
+}
+
+[client-theme] .giz-product-details__product__info__image .giz-default-image {
+  overflow: hidden;
+}
+
+[client-theme] .giz-product-details__product__info__image .giz-default-image img {
+  filter: brightness(0) saturate(100%) drop-shadow(400px 0 0 var(--shell-accent));
+  transform: translateX(-400px);
+}
+
+[client-theme] .giz-product-time-image__time__number {
+  color: var(--shell-accent);
+}
+
+[client-theme] .giz-profile-section-item__icon,
+[client-theme] .giz-profile-section-item__icon svg {
+  color: var(--shell-accent);
+}
+
+[client-theme] .giz-profile-section-item__icon svg [fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+[client-theme] .giz-profile-section-item__icon svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+[client-theme] .giz-profile-section-item__info__text {
+  color: var(--shell-text);
+}
+
+[client-theme] .giz-profile-section__header {
+  color: var(--shell-text);
+}
+
+[client-theme] .giz-timeline-item {
+  color: var(--shell-timeline-item);
+}
+
+[client-theme] .giz-timeline-item::before {
+  background-color: var(--shell-timeline-item);
+  border-color: var(--shell-timeline-item);
+}
+
+[client-theme] .giz-timeline-item::after {
+  border-left-color: var(--shell-timeline-item);
+}
+
+[client-theme] .giz-time-product-expiration {
+  padding: 0.1rem 0.4rem;
+  color: var(--shell-time-product-expiration-text);
+  background: var(--shell-time-product-expiration-bg);
+  border-radius: 0.4rem;
+  margin-bottom: 0.8rem;
+  text-align: right;
+  font-weight: 500;
+  font-size: 1.2rem;
+  line-height: 1.8rem;
+  letter-spacing: initial;
+}
+
 [client-theme] .giz-dialog > .giz-card,
 [client-theme] .giz-dialog .giz-card {
   border-radius: ${themeValues.shellRadiusXL / 10}rem;
@@ -1588,6 +2001,14 @@ body {
   background:
     radial-gradient(circle at top, ${hexToRgba(themeValues.shellAccent, 0.12)}, transparent 34%),
     linear-gradient(180deg, ${themeValues.popupBg} 0%, ${themeValues.shellBgElevated} 100%);
+}
+
+[client-theme] .giz-data-grid > tbody > tr:not(.giz-data-grid-row-detail),
+[client-theme] .giz-data-grid > tbody > tr:not(.giz-data-grid-row-detail):hover {
+  background:
+    radial-gradient(circle at top, ${hexToRgba(themeValues.shellAccent, 0.12)}, transparent 34%),
+    linear-gradient(180deg, ${themeValues.popupBg} 0%, ${themeValues.shellBgElevated} 100%) !important;
+  background-color: ${themeValues.popupBg} !important;
 }
 
 .giz-dialog > .giz-card::before,
@@ -1734,7 +2155,33 @@ body {
 [client-theme] .giz-login__login {
   background:
     radial-gradient(circle at top, ${hexToRgba(themeValues.shellAccent, 0.10)}, transparent 34%),
-    linear-gradient(180deg, ${themeValues.shellBgElevated} 0%, ${themeValues.shellBg} 100%);
+    linear-gradient(180deg, ${themeValues.shellBgElevated} 0%, ${themeValues.shellBg} 100%) !important;
+  background-color: ${themeValues.shellBg} !important;
+  color: var(--shell-text);
+}
+
+[client-theme] .giz-login__login .giz-login-card,
+[client-theme] .giz-login__login .giz-login-card__header,
+[client-theme] .giz-login__login .giz-login-card__body,
+[client-theme] .giz-login__login .giz-login-card__footer {
+  color: var(--shell-text);
+}
+
+[client-theme] .giz-login__login .giz-alternative-login__separator,
+[client-theme] .giz-login__login .giz-alternative-login__separator > span {
+  background: var(--shell-bg) !important;
+  background-color: var(--shell-bg) !important;
+  color: var(--shell-text-soft);
+}
+
+[client-theme] .giz-login__login .giz-login-new-user,
+[client-theme] .giz-login__login .giz-alternative-login__qr-description__subtitle {
+  color: var(--shell-text-soft);
+}
+
+[client-theme] .giz-login__login .giz-login-new-user > a,
+[client-theme] .giz-login__login .giz-login-forgot-password > a {
+  color: var(--shell-accent-hover);
 }
 
 [client-theme] .giz-button--fill.primary:not(.disabled),
@@ -1814,6 +2261,7 @@ function renderCssOutput() {
 }
 
 function applyDraftTheme() {
+  draftTheme = deriveThemeColors(draftTheme);
   appliedTheme = structuredClone(draftTheme);
   hasPendingChanges = false;
   renderPreview();
@@ -1837,11 +2285,10 @@ function isHexColor(value) {
 }
 
 function hexToRgba(color, alpha) {
-  if (!isHexColor(color)) return color;
-  const r = parseInt(color.slice(1, 3), 16);
-  const g = parseInt(color.slice(3, 5), 16);
-  const b = parseInt(color.slice(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  const parsed = parseColorToken(color);
+  if (!parsed) return color;
+  const combinedAlpha = Math.max(0, Math.min(1, parsed.alpha * Number(alpha)));
+  return `rgba(${parsed.r}, ${parsed.g}, ${parsed.b}, ${formatAlphaValue(combinedAlpha)})`;
 }
 
 function updateImportedCssState() {
@@ -1864,8 +2311,8 @@ function scopeImportedCss(cssText) {
 }
 
 function normalizeImportedThemeValue(key, value) {
-  if (COLOR_FIELD_KEYS.has(key)) {
-    return normalizeColorToken(value) ?? String(value).trim();
+  if (ALL_COLOR_FIELD_KEYS.has(key)) {
+    return normalizeThemeColorValue(key, value) ?? String(value).trim();
   }
 
   if (['baseFontSize', 'headingFontWeight', 'shellRadiusS', 'shellRadiusM', 'shellRadiusL', 'shellRadiusXL', 'headerHeight', 'panelBorderWidth', 'shellBlur'].includes(key)) {
@@ -1903,8 +2350,8 @@ async function importPreviewCss(file) {
   }
 
   if (Object.keys(importedThemeOverrides).length > 0) {
-    draftTheme = { ...draftTheme, ...importedThemeOverrides };
-    appliedTheme = { ...appliedTheme, ...importedThemeOverrides };
+    draftTheme = deriveThemeColors({ ...draftTheme, ...importedThemeOverrides });
+    appliedTheme = deriveThemeColors({ ...appliedTheme, ...importedThemeOverrides });
     hasPendingChanges = false;
     syncControlValues();
     renderPreview();
@@ -1972,6 +2419,262 @@ async function copyCss() {
   }
 }
 
+function previewIcon(icon, className = 'giz-preview-icon') {
+  return `<svg class="${className}" aria-hidden="true"><use href="#icon-${icon}"></use></svg>`;
+}
+
+function renderPreviewShellHeader(activeNav) {
+  const navItems = [
+    ['home', 'home', 'HOME'],
+    ['apps', 'gamepad', 'APPS'],
+    ['shop', 'cart', 'SHOP'],
+  ];
+
+  return `
+    <div class="giz-app__header preview-header-compact reference-shell-header live-shell-header">
+      <div class="giz-header">
+        <nav class="giz-header__modules-menu reference-shell-nav live-top-nav" aria-label="Основная навигация">
+          ${navItems.map(([mode, icon, label]) => `<button class="module-link preview-shared-module-link${activeNav === mode ? ' active' : ''}" type="button" data-preview-target="${mode}">${previewIcon(icon, 'module-icon giz-preview-icon')}<span class="module-link__label">${label}</span></button>`).join('')}
+          <button class="reference-header-search user-menu-item-button--box" type="button" aria-label="Поиск">${previewIcon('search')}</button>
+        </nav>
+        <div class="giz-header__user-menu reference-header-userbar live-header-userbar">
+          <div class="giz-header__user-menu-item reference-status-pill reference-status-pill--tariff live-header-pill">${previewIcon('stopwatch')}<span>Тариф</span></div>
+          <div class="giz-header__user-menu-item reference-status-pill">${previewIcon('clock')}<span>25:01</span></div>
+          <div class="giz-header__user-menu-item reference-status-pill">${previewIcon('coin')}<span>100</span></div>
+          <div class="giz-header__user-menu-item reference-status-pill"><span>₽100.00</span></div>
+          <button class="reference-action-button user-menu-item-button--box" type="button" aria-label="Скрыть баланс">${previewIcon('eye-off')}</button>
+          <button class="reference-action-button user-menu-item-button--box" type="button" aria-label="Приложения">${previewIcon('grid')}</button>
+          <button class="reference-action-button user-menu-item-button--box" type="button" aria-label="Уведомления">${previewIcon('bell')}</button>
+          <button class="reference-action-button user-menu-item-button--box" type="button" aria-label="Помощь">${previewIcon('help')}</button>
+          <div class="giz-user-dropdown reference-user-dropdown-anchor live-user-anchor">
+            <button class="giz-user-menu-button" type="button" data-preview-action="toggle-user-menu">${previewIcon('user')}<span>PC 100</span>${previewIcon('chevron')}</button>
+            <div class="reference-user-menu-panel giz-dropdown-menu live-user-menu-panel">
+              <button class="reference-user-menu-item" type="button" data-preview-target="profile">${previewIcon('user')}<span>Мой профиль</span></button>
+              <button class="reference-user-menu-item" type="button">${previewIcon('lock')}<span>Заблокировать ПК</span></button>
+              <button class="reference-user-menu-item" type="button" data-preview-target="login">${previewIcon('exit')}<span>Выход</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderPreviewProfileSummary() {
+  return `
+    <section class="giz-profile-header preview-profile-header">
+      <div class="avatar avatar--large">${previewIcon('user', 'giz-preview-icon avatar-icon')}</div>
+      <div class="giz-profile-header__info">
+        <h2 class="giz-profile-header__info__username">Username</h2>
+        <div class="giz-profile-header__info__stats">
+          <div class="giz-profile-header__info__stats-item">${previewIcon('package')}<div><span class="giz-title">Баланс</span><strong class="giz-numbers">₽100.00</strong></div></div>
+          <div class="giz-profile-header__info__stats-item">${previewIcon('cart')}<div><span class="giz-title">Кредит</span><strong class="giz-numbers">₽4.00</strong></div></div>
+          <div class="giz-profile-header__info__stats-item">${previewIcon('coin')}<div><span class="giz-title">Баллы</span><strong class="giz-numbers">100</strong></div></div>
+          <div class="giz-profile-header__info__stats-item">${previewIcon('clock')}<div><span class="giz-title">Время</span><strong class="giz-numbers">25:01</strong></div></div>
+        </div>
+      </div>
+    </section>`;
+}
+
+function renderPreviewProfileNav(activeProfile) {
+  const items = [
+    ['profile', 'user', 'Данные о пользователе'],
+    ['profile-products', 'clock', 'Доступное время'],
+    ['profile-purchases', 'cart', 'Покупки'],
+  ];
+  return `<nav class="giz-profile-navigation" aria-label="Разделы профиля">${items.map(([mode, icon, label]) => `<button class="giz-profile-navigation-item${mode === activeProfile ? ' active' : ''}" type="button" data-preview-target="${mode}">${previewIcon(icon)}<span>${label}</span></button>`).join('')}</nav>`;
+}
+
+function renderPreviewOrderSidebar() {
+  return `
+    <aside class="reference-order-sidebar giz-order">
+      <div class="reference-order-card reference-order-card--empty giz-order__items">
+        <div class="reference-order-title giz-order__items__header">Мой заказ <span class="preview-cart-badge">0</span></div>
+        <div class="giz-order__items__body"><div class="giz-empty-state"><strong class="giz-empty-state__title reference-order-empty">Корзина пуста</strong><span class="giz-empty-state__text reference-order-subtitle">Добавьте товары</span></div></div>
+        <button class="reference-order-clear" type="button" data-preview-action="clear-cart">${previewIcon('trash')}<span>Очистить</span></button>
+      </div>
+      <div class="reference-order-card giz-order__notes"><div class="reference-order-title reference-order-title--small">Комментарий к заказу</div><textarea class="reference-input-placeholder" placeholder="Добавьте свой комментарий..."></textarea></div>
+      <div class="reference-order-card reference-order-card--summary giz-order__totals"><div class="reference-total-row"><span>Общая сумма</span><strong class="preview-order-total">₽0.00</strong></div><div class="reference-total-subrow"><span>Полученные баллы</span><span>0 ${previewIcon('coin', 'giz-preview-icon inline-icon')}</span></div><button class="giz-button giz-button--fill accent full reference-checkout-button" type="button" disabled>Заказать</button></div>
+    </aside>`;
+}
+
+function hydratePreviewPartials() {
+  [
+    ['home', 'home'],
+    ['apps', 'apps'],
+    ['shop', 'shop'],
+  ].forEach(([screenName, activeNav]) => {
+    const header = document.querySelector(`.preview-screen--${screenName} > .giz-app__header`);
+    if (header) header.outerHTML = renderPreviewShellHeader(activeNav);
+  });
+
+  const profileScreen = document.querySelector('.preview-screen--profile');
+  if (profileScreen) {
+    profileScreen.innerHTML = `
+      ${renderPreviewShellHeader('profile')}
+      <div class="giz-profile giz-scrollbar--v profile-route-preview">
+        ${renderPreviewProfileSummary()}
+        ${renderPreviewProfileNav('profile')}
+        <section class="profile-route-panel profile-details-preview">
+          <h2>Основная информация</h2>
+          <div class="profile-info-line">${previewIcon('user')}<div><strong>Username</strong><span>First Name</span></div></div>
+          <h2>Контактная информация</h2>
+          <div class="profile-info-line">${previewIcon('mail')}<div><span>E-mail адрес</span><strong>test@test.test</strong></div></div>
+          <div class="profile-info-line">${previewIcon('phone')}<div><span>Телефон</span><strong>1234567890</strong></div></div>
+          <h2>Безопасность</h2>
+          <button class="profile-info-line profile-info-line--button" type="button">${previewIcon('lock')}<span>Обновить пароль</span>${previewIcon('edit')}</button>
+        </section>
+      </div>`;
+  }
+
+  document.querySelectorAll('[data-preview-shell-header]').forEach((element) => {
+    element.innerHTML = renderPreviewShellHeader(element.dataset.activeNav || 'home');
+  });
+  document.querySelectorAll('[data-preview-profile-summary]').forEach((element) => {
+    element.innerHTML = renderPreviewProfileSummary();
+  });
+  document.querySelectorAll('[data-preview-profile-nav]').forEach((element) => {
+    element.innerHTML = renderPreviewProfileNav(element.dataset.activeProfile || 'profile');
+  });
+  document.querySelectorAll('[data-preview-order-sidebar]').forEach((element) => {
+    element.outerHTML = renderPreviewOrderSidebar();
+  });
+
+  document.querySelectorAll('.giz-user-dropdown.open').forEach((element) => element.classList.remove('open'));
+  document.querySelectorAll('.live-product-media, .preview-card-media').forEach((element) => {
+    if (!element.querySelector('svg')) element.insertAdjacentHTML('afterbegin', previewIcon('package', 'preview-placeholder-icon'));
+  });
+  document.querySelectorAll('.live-app-card').forEach((element) => {
+    if (!element.querySelector('svg')) element.insertAdjacentHTML('afterbegin', previewIcon('gamepad', 'preview-placeholder-icon preview-placeholder-icon--app'));
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('role', 'button');
+    element.setAttribute('aria-expanded', 'false');
+    element.setAttribute('data-preview-action', 'toggle-app-details');
+    const title = element.querySelector('.live-app-card__title')?.textContent.trim() || 'Приложение';
+    if (!element.querySelector('.app-card-details')) {
+      element.insertAdjacentHTML('beforeend', `
+        <div class="app-card-details" aria-hidden="true">
+          <div class="app-card-details__eyebrow">Комплект приложения</div>
+          <strong>${title}</strong>
+          <div class="app-card-details__timeline">
+            <span>${previewIcon('clock')}<b>1 час</b><small>Доступное время</small></span>
+            <span>${previewIcon('coin')}<b>₽100.00</b><small>Стоимость пакета</small></span>
+          </div>
+          <button class="giz-button giz-button--fill accent" type="button" data-preview-action="launch-app">Запустить</button>
+        </div>`);
+    }
+  });
+  document.querySelectorAll('.live-ad-card').forEach((element, index) => {
+    if (!element.textContent.trim()) element.innerHTML = `<div class="no-image-placeholder">${previewIcon('bell', 'preview-placeholder-icon')}<span>Объявление клуба</span></div>`;
+    else if (index > 0 && !element.querySelector('svg')) element.insertAdjacentHTML('afterbegin', `<div class="no-image-placeholder no-image-placeholder--compact">${previewIcon('bell', 'preview-placeholder-icon')}</div>`);
+  });
+  const loginHero = document.querySelector('.preview-screen--login .live-login-hero');
+  if (loginHero && !loginHero.querySelector('.auth-hero-mark')) loginHero.insertAdjacentHTML('beforeend', previewIcon('lock', 'auth-hero-mark'));
+
+  document.querySelectorAll('.preview-screen--login .module-link').forEach((element) => element.setAttribute('type', 'button'));
+  document.querySelector('.preview-screen--login .helper-link')?.setAttribute('data-preview-target', 'password-recovery');
+  document.querySelector('.preview-screen--login .live-login-register-link span')?.setAttribute('data-preview-target', 'registration');
+  document.querySelector('.preview-screen--login .live-login-submit')?.setAttribute('data-preview-target', 'home');
+  document.querySelectorAll('.preview-screen--shop .preview-product-card').forEach((element) => element.setAttribute('data-preview-target', 'product'));
+  document.querySelectorAll('.preview-screen--home .live-store-card .giz-button, .preview-screen--shop .giz-button--fill').forEach((element) => element.setAttribute('data-preview-action', 'add-cart'));
+  document.querySelectorAll('.preview-screen--home .module-link, .preview-screen--apps .module-link, .preview-screen--shop .module-link').forEach((element) => {
+    const label = element.textContent.trim().toLowerCase();
+    if (label.includes('home')) element.setAttribute('data-preview-target', 'home');
+    if (label.includes('apps')) element.setAttribute('data-preview-target', 'apps');
+    if (label.includes('shop')) element.setAttribute('data-preview-target', 'shop');
+  });
+  document.querySelectorAll('.live-user-anchor .giz-user-menu-button').forEach((element) => element.setAttribute('data-preview-action', 'toggle-user-menu'));
+}
+
+function replacePreviewGlyphsWithSvg() {
+  const glyphMap = new Map([
+    ['🏠', 'home'], ['🎮', 'gamepad'], ['🕹️', 'gamepad'], ['🛒', 'cart'], ['⌕', 'search'],
+    ['⏱', 'stopwatch'], ['🕒', 'clock'], ['🕘', 'history'], ['🪙', 'coin'], ['◆', 'coin'],
+    ['🙈', 'eye-off'], ['👁', 'eye-off'], ['⎋', 'exit'], ['↪', 'exit'], ['🚪', 'exit'],
+    ['▦', 'grid'], ['🔔', 'bell'], ['❔', 'help'], ['👤', 'user'], ['🪪', 'user'],
+    ['🔒', 'lock'], ['🚀', 'rocket'], ['🗑', 'trash'], ['🌐', 'grid'], ['⚙️', 'help'],
+  ]);
+  const walker = document.createTreeWalker(previewRoot, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) {
+    if ([...glyphMap.keys()].some((glyph) => walker.currentNode.nodeValue?.includes(glyph))) nodes.push(walker.currentNode);
+  }
+  nodes.forEach((textNode) => {
+    const parts = [textNode.nodeValue || ''];
+    glyphMap.forEach((icon, glyph) => {
+      for (let index = parts.length - 1; index >= 0; index -= 1) {
+        if (typeof parts[index] !== 'string' || !parts[index].includes(glyph)) continue;
+        const segments = parts[index].split(glyph);
+        const replacement = [];
+        segments.forEach((segment, segmentIndex) => {
+          if (segment) replacement.push(segment);
+          if (segmentIndex < segments.length - 1) replacement.push({ icon });
+        });
+        parts.splice(index, 1, ...replacement);
+      }
+    });
+    const fragment = document.createDocumentFragment();
+    parts.forEach((part) => {
+      if (typeof part === 'string') fragment.appendChild(document.createTextNode(part));
+      else {
+        const wrapper = document.createElement('span');
+        wrapper.innerHTML = previewIcon(part.icon, 'giz-preview-icon inline-icon');
+        fragment.appendChild(wrapper.firstElementChild);
+      }
+    });
+    textNode.replaceWith(fragment);
+  });
+}
+
+function updatePreviewCart(count) {
+  document.querySelectorAll('.preview-cart-badge').forEach((element) => { element.textContent = String(count); });
+  document.querySelectorAll('.preview-order-total').forEach((element) => { element.textContent = count ? `₽${(count * 129).toFixed(2)}` : '₽0.00'; });
+  document.querySelectorAll('.reference-checkout-button').forEach((button) => { button.disabled = count === 0; });
+  document.querySelectorAll('.reference-order-empty').forEach((element) => { element.textContent = count ? `${count} товар(а) в корзине` : 'Корзина пуста'; });
+}
+
+let previewCartCount = 0;
+
+previewRoot.addEventListener('click', (event) => {
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target) return;
+  const navigation = target.closest('[data-preview-target]');
+  if (navigation) {
+    setPreviewMode(navigation.dataset.previewTarget);
+    return;
+  }
+  const action = target.closest('[data-preview-action]')?.dataset.previewAction;
+  if (action === 'toggle-user-menu') target.closest('.giz-user-dropdown')?.classList.toggle('is-open');
+  if (action === 'add-cart') { previewCartCount += 1; updatePreviewCart(previewCartCount); }
+  if (action === 'clear-cart') { previewCartCount = 0; updatePreviewCart(previewCartCount); }
+  if (action === 'recovery-submit') target.closest('.giz-login-card__body')?.classList.add('preview-action-success');
+  if (action === 'registration-continue') setPreviewMode('login');
+  if (action === 'toggle-app-details') {
+    const card = target.closest('.live-app-card');
+    const expanded = !card?.classList.contains('is-details-visible');
+    document.querySelectorAll('.live-app-card.is-details-visible').forEach((element) => {
+      element.classList.remove('is-details-visible');
+      element.setAttribute('aria-expanded', 'false');
+      element.querySelector('.app-card-details')?.setAttribute('aria-hidden', 'true');
+    });
+    if (card && expanded) {
+      card.classList.add('is-details-visible');
+      card.setAttribute('aria-expanded', 'true');
+      card.querySelector('.app-card-details')?.setAttribute('aria-hidden', 'false');
+    }
+  }
+  if (action === 'launch-app') {
+    const button = target.closest('[data-preview-action="launch-app"]');
+    if (button) button.textContent = 'Запущено';
+  }
+});
+
+previewRoot.addEventListener('change', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement) || !target.matches('[data-preview-agreement]')) return;
+  const button = target.closest('.agreement-preview')?.querySelector('[data-preview-action="registration-continue"]');
+  if (button instanceof HTMLButtonElement) button.disabled = !target.checked;
+});
+
 previewModeTabs.addEventListener('click', (event) => {
   const target = event.target;
   if (!(target instanceof HTMLButtonElement)) return;
@@ -2037,6 +2740,8 @@ createPresetButtons();
 createColorControls();
 createFontControls();
 createRangeControls();
+hydratePreviewPartials();
+replacePreviewGlyphsWithSvg();
 applyPreviewStyleHints();
 setSettingsTab(activeSettingsTab);
 setPreviewMode(activePreviewMode);

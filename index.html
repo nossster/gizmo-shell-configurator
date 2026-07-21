@@ -10,6 +10,31 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <svg class="preview-svg-sprite" aria-hidden="true">
+      <symbol id="icon-home" viewBox="0 0 24 24"><path d="M6 21q-.825 0-1.412-.587Q4 19.825 4 19v-9q0-.475.213-.9.212-.425.587-.7l6-4.5q.275-.2.575-.3.3-.1.625-.1t.625.1q.3.1.575.3l6 4.5q.375.275.588.7.212.425.212.9v9q0 .825-.587 1.413Q18.825 21 18 21h-4v-7h-4v7Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-gamepad" viewBox="0 0 24 24"><path d="M4.55 19q-1.275 0-1.975-.887-.7-.888-.525-2.163l1.05-7.5q.225-1.5 1.338-2.475Q5.55 5 7.05 5h9.9q1.5 0 2.612.975 1.113.975 1.338 2.475l1.05 7.5q.175 1.275-.525 2.163-.7.887-1.975.887-.525 0-.975-.188-.45-.187-.825-.562L15.4 16H8.6l-2.25 2.25q-.375.375-.825.562-.45.188-.975.188ZM17 13q.425 0 .712-.288Q18 12.425 18 12t-.288-.713Q17.425 11 17 11t-.712.287Q16 11.575 16 12t.288.712Q16.575 13 17 13Zm-2-3q.425 0 .713-.288Q16 9.425 16 9t-.287-.713Q15.425 8 15 8t-.712.287Q14 8.575 14 9t.288.712Q14.575 10 15 10Zm-6.5 3q.325 0 .538-.213.212-.212.212-.537v-1h1q.325 0 .538-.213.212-.212.212-.537 0-.325-.212-.538-.213-.212-.538-.212h-1v-1q0-.325-.212-.538Q8.825 8 8.5 8q-.325 0-.537.212-.213.213-.213.538v1h-1q-.325 0-.537.212Q6 10.175 6 10.5q0 .325.213.537.212.213.537.213h1v1q0 .325.213.537.212.213.537.213Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-cart" viewBox="0 0 24 24"><path d="M7 22q-.825 0-1.412-.587Q5 20.825 5 20q0-.825.588-1.413Q6.175 18 7 18t1.412.587Q9 19.175 9 20q0 .825-.588 1.413Q7.825 22 7 22Zm10 0q-.825 0-1.412-.587Q15 20.825 15 20q0-.825.588-1.413Q16.175 18 17 18t1.413.587Q19 19.175 19 20q0 .825-.587 1.413Q17.825 22 17 22ZM7 17q-1.125 0-1.7-.988-.575-.987-.05-1.962L6.6 11.6 3 4H1.975q-.425 0-.7-.288Q1 3.425 1 3t.288-.713Q1.575 2 2 2h1.625q.275 0 .525.15t.375.425L5.2 4h14.75q.675 0 .925.5t-.025 1.05l-3.55 6.4q-.275.5-.725.775-.45.275-1.025.275H8.1L7 15h11.025q.425 0 .7.287.275.288.275.713t-.288.712Q18.425 17 18 17Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24"><path d="m18.9 20.3-5.6-5.6q-.75.6-1.725.95Q10.6 16 9.5 16q-2.725 0-4.612-1.887Q3 12.225 3 9.5q0-2.725 1.888-4.613Q6.775 3 9.5 3t4.613 1.887Q16 6.775 16 9.5q0 1.1-.35 2.075-.35.975-.95 1.725l5.625 5.625q.275.275.275.675t-.3.7q-.275.275-.7.275-.425 0-.7-.275ZM9.5 14q1.875 0 3.188-1.312Q14 11.375 14 9.5q0-1.875-1.312-3.188Q11.375 5 9.5 5 7.625 5 6.312 6.312 5 7.625 5 9.5q0 1.875 1.312 3.188Q7.625 14 9.5 14Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-stopwatch" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M9 2h6M12 5v2M12 13l3-3"/></symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24"><path d="M14.625 16.025q.275.275.675.275t.7-.3q.275-.275.275-.7 0-.425-.275-.7l-3-3V7.975q0-.425-.287-.7Q12.425 7 12 7t-.712.287Q11 7.575 11 8v3.975q0 .2.075.387.075.188.225.338ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-coin" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v5c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 11v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></symbol>
+      <symbol id="icon-eye-off" viewBox="0 0 24 24"><path d="m19.3 16.5-3.2-3.2q.2-.425.3-.862.1-.438.1-.938 0-1.875-1.312-3.188Q13.875 7 12 7q-.5 0-.938.1-.437.1-.862.3L7.65 4.85q1.025-.425 2.1-.638Q10.825 4 12 4q3.575 0 6.425 1.887 2.85 1.888 4.275 4.913.075.125.1.312.025.188.025.388t-.037.387q-.038.188-.088.313-.575 1.275-1.437 2.375-.863 1.1-1.963 1.925Zm-.2 5.4-3.5-3.45q-.875.275-1.762.413Q12.95 19 12 19q-3.575 0-6.425-1.887Q2.725 15.225 1.3 12.2q-.075-.125-.1-.313-.025-.187-.025-.387t.025-.375q.025-.175.1-.3Q1.825 9.7 2.55 8.75 3.275 7.8 4.15 7L2.075 4.9Q1.8 4.625 1.8 4.212q0-.412.3-.712.275-.275.7-.275.425 0 .7.275l17 17q.275.275.288.688.012.412-.288.712-.275.275-.7.275-.425 0-.7-.275ZM12 16q.275 0 .512-.025.238-.025.513-.1l-5.4-5.4q-.075.275-.1.513-.025.237-.025.512 0 1.875 1.312 3.188Q10.125 16 12 16Zm2.65-4.15-3-3q1.425-.225 2.325.8.9 1.025.675 2.2Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-exit" viewBox="0 0 24 24"><path d="M16.325 16.275C16.1417 16.0583 16.05 15.8123 16.05 15.537C16.05 15.2623 16.1417 15.0333 16.325 14.85L18.175 13H11C10.7167 13 10.4793 12.904 10.288 12.712C10.096 12.5207 10 12.2833 10 12C10 11.7167 10.096 11.479 10.288 11.287C10.4793 11.0957 10.7167 11 11 11H18.175L16.325 9.15C16.125 8.95 16.025 8.71267 16.025 8.438C16.025 8.16267 16.125 7.925 16.325 7.725C16.5083 7.525 16.7377 7.425 17.013 7.425C17.2877 7.425 17.5167 7.51667 17.7 7.7L21.3 11.3C21.4 11.4 21.471 11.5083 21.513 11.625C21.5543 11.7417 21.575 11.8667 21.575 12C21.575 12.1333 21.5543 12.2583 21.513 12.375C21.471 12.4917 21.4 12.6 21.3 12.7L17.7 16.3C17.4833 16.5167 17.246 16.6123 16.988 16.587C16.7293 16.5623 16.5083 16.4583 16.325 16.275ZM6 21C5.45 21 4.979 20.8043 4.587 20.413C4.19567 20.021 4 19.55 4 19V5C4 4.45 4.19567 3.979 4.587 3.587C4.979 3.19567 5.45 3 6 3H12C12.2833 3 12.521 3.09567 12.713 3.287C12.9043 3.479 13 3.71667 13 4C13 4.28333 12.9043 4.52067 12.713 4.712C12.521 4.904 12.2833 5 12 5H6V19H12C12.2833 19 12.521 19.096 12.713 19.288C12.9043 19.4793 13 19.7167 13 20C13 20.2833 12.9043 20.5207 12.713 20.712C12.521 20.904 12.2833 21 12 21H6Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-grid" viewBox="0 0 24 24"><path d="M5 11q-.825 0-1.413-.588Q3 9.825 3 9V5q0-.825.587-1.413Q4.175 3 5 3h4q.825 0 1.413.587Q11 4.175 11 5v4q0 .825-.587 1.412Q9.825 11 9 11Zm0 10q-.825 0-1.413-.587Q3 19.825 3 19v-4q0-.825.587-1.413Q4.175 13 5 13h4q.825 0 1.413.587Q11 14.175 11 15v4q0 .825-.587 1.413Q9.825 21 9 21Zm10-10q-.825 0-1.412-.588Q13 9.825 13 9V5q0-.825.588-1.413Q14.175 3 15 3h4q.825 0 1.413.587Q21 4.175 21 5v4q0 .825-.587 1.412Q19.825 11 19 11Zm0 10q-.825 0-1.412-.587Q13 19.825 13 19v-4q0-.825.588-1.413Q14.175 13 15 13h4q.825 0 1.413.587Q21 14.175 21 15v4q0 .825-.587 1.413Q19.825 21 19 21Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M5 19q-.425 0-.713-.288Q4 18.425 4 18t.287-.712Q4.575 17 5 17h1v-7q0-2.075 1.25-3.688Q8.5 4.7 10.5 4.2v-.7q0-.625.438-1.062Q11.375 2 12 2t1.062.438q.438.437.438 1.062v.7q2 .5 3.25 2.112Q18 7.925 18 10v7h1q.425 0 .712.288.288.287.288.712t-.288.712Q19.425 19 19 19Zm7 3q-.825 0-1.412-.587Q10 20.825 10 20h4q0 .825-.587 1.413Q12.825 22 12 22Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-help" viewBox="0 0 24 24"><path d="M11.95 18q.525 0 .887-.363.363-.362.363-.887t-.363-.887q-.362-.363-.887-.363t-.888.363q-.362.362-.362.887t.362.887q.363.363.888.363Zm.15-10.3q.7 0 1.125.387.425.388.425 1.013 0 .425-.287.862-.288.438-.813.913-.75.65-1.1 1.25-.35.6-.35 1.2 0 .35.263.587.262.238.612.238t.625-.25q.275-.25.35-.625.075-.425.338-.787.262-.363.862-.938.775-.725 1.088-1.325.312-.6.312-1.325 0-1.275-.962-2.088Q13.625 6 12.1 6q-1.05 0-1.862.4-.813.4-1.263 1.225-.175.325-.125.637.05.313.35.513.325.2.713.125.387-.075.637-.425.275-.375.663-.575.387-.2.887-.2ZM12 22q-2.05 0-3.875-.788-1.825-.787-3.187-2.137-1.363-1.35-2.15-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.15-3.175 1.362-1.35 3.187-2.138Q9.95 2 12 2q2.1 0 3.925.787 1.825.788 3.175 2.138 1.35 1.35 2.125 3.175Q22 9.925 22 12t-.775 3.9q-.775 1.825-2.125 3.175-1.35 1.35-3.175 2.137Q14.1 22 12 22Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-user" viewBox="0 0 24 24"><path d="M5.85 17.1q1.275-.975 2.85-1.538Q10.275 15 12 15q1.725 0 3.3.562 1.575.563 2.85 1.538.875-1.025 1.363-2.325Q20 13.475 20 12q0-3.325-2.337-5.663Q15.325 4 12 4T6.338 6.337Q4 8.675 4 12q0 1.475.488 2.775.487 1.3 1.362 2.325ZM12 13q-1.475 0-2.488-1.012Q8.5 10.975 8.5 9.5t1.012-2.488Q10.525 6 12 6t2.488 1.012Q15.5 8.025 15.5 9.5t-1.012 2.488Q13.475 13 12 13Zm0 9q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+      <symbol id="icon-rocket" viewBox="0 0 24 24"><path d="M14 4c3-2 6-1 6-1s1 3-1 6l-5 5-4-4zM9 11l-4 1-2 3 6 1M13 15l-1 4-3 2-1-6M6 18l-2 2"/><circle cx="16" cy="7" r="1.5"/></symbol>
+      <symbol id="icon-history" viewBox="0 0 24 24"><path d="M4 5v5h5M5.5 9A8 8 0 1 1 4 14M12 8v5l3 2"/></symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></symbol>
+      <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+      <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M7 3h3l1 5-2 1c1 3 3 5 6 6l1-2 5 1v3c0 2-2 4-4 4A14 14 0 0 1 3 7c0-2 2-4 4-4Z"/></symbol>
+      <symbol id="icon-edit" viewBox="0 0 24 24"><path d="m4 16-1 5 5-1L19 9l-4-4zM13 7l4 4"/></symbol>
+      <symbol id="icon-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+      <symbol id="icon-package" viewBox="0 0 24 24"><path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 8-4V7M12 11v10"/></symbol>
+    </svg>
     <div class="app-shell">
       <aside class="panel controls-panel">
         <div class="panel__header">
@@ -36,32 +61,16 @@
 
         <section class="control-group">
           <div class="group-title-row">
-            <h2>Reference shell</h2>
-          </div>
-          <div class="reference-theme-card">
-            <div class="reference-theme-card__header">
-              <strong>Original Gizmo baseline</strong>
-              <span class="reference-theme-card__badge">Rubik + Noto Sans</span>
-            </div>
-            <p class="muted muted--compact">
-              Базовый пресет теперь ориентирован на оригинальный shell: фон #0C0F11, поверхности #22272B,
-              синий акцент #3F8CFF и более плотная геометрия карточек, табов и popup-компонентов.
-            </p>
-          </div>
-        </section>
-
-        <section class="control-group">
-          <div class="group-title-row">
             <h2>Настройки темы</h2>
           </div>
           <div class="settings-tabs" id="settingsTabs">
-            <button class="settings-tab active" data-settings-tab="colors" type="button">Цвета</button>
+            <button class="settings-tab active" data-settings-tab="colors" type="button">Цвета · 13</button>
             <button class="settings-tab" data-settings-tab="fonts" type="button">Шрифты</button>
             <button class="settings-tab" data-settings-tab="effects" type="button">Эффекты</button>
           </div>
 
           <div class="settings-tab-panel active" data-settings-panel="colors">
-            <p class="muted muted--compact">Элементы с одинаковым типом фона привязаны к одной общей цветовой опции.</p>
+            <p class="muted muted--compact">13 основных цветов управляют всей темой. Близкие поверхности, состояния и полупрозрачные варианты рассчитываются автоматически.</p>
             <div class="control-grid" id="colorControls"></div>
           </div>
 
@@ -84,8 +93,13 @@
             <button data-mode="home" class="preview-mode-tab active" type="button">Home</button>
             <button data-mode="apps" class="preview-mode-tab" type="button">Apps</button>
             <button data-mode="shop" class="preview-mode-tab" type="button">Shop</button>
+            <button data-mode="product" class="preview-mode-tab" type="button">Product</button>
             <button data-mode="profile" class="preview-mode-tab" type="button">Profile</button>
+            <button data-mode="profile-products" class="preview-mode-tab" type="button">Time</button>
+            <button data-mode="profile-purchases" class="preview-mode-tab" type="button">Purchases</button>
             <button data-mode="login" class="preview-mode-tab" type="button">Login</button>
+            <button data-mode="password-recovery" class="preview-mode-tab" type="button">Recovery</button>
+            <button data-mode="registration" class="preview-mode-tab" type="button">Registration</button>
           </div>
           <p id="previewModeHint" class="muted muted--compact preview-mode-hint">
             Home: header, quick launch, баннеры и popups для тонкой подстройки shell.
@@ -121,7 +135,7 @@
                       <div class="giz-header__modules-menu-item"><a class="module-link active"><span class="module-icon">🏠</span><span class="module-link__label">HOME</span></a></div>
                       <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🎮</span><span class="module-link__label">APPS</span></a></div>
                       <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🛒</span><span class="module-link__label">SHOP</span></a></div>
-                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search nonemtpy"><span class="icon">⌕</span><input value="" readonly /></div></div>
+                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search"><span class="icon">⌕</span><input value="" readonly /></div></div>
                     </div>
                     <div class="giz-header__user-menu reference-header-userbar live-header-userbar">
                       <div class="giz-header__user-menu-item reference-status-pill live-header-pill"><div class="giz-header__user-menu-item__icon">⏱</div><div>Тариф</div></div>
@@ -214,7 +228,7 @@
                       <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🏠</span><span class="module-link__label">HOME</span></a></div>
                       <div class="giz-header__modules-menu-item"><a class="module-link active"><span class="module-icon">🎮</span><span class="module-link__label">APPS</span></a></div>
                       <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🛒</span><span class="module-link__label">SHOP</span></a></div>
-                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search nonemtpy"><span class="icon">⌕</span><input value="" readonly /></div></div>
+                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search"><span class="icon">⌕</span><input value="" readonly /></div></div>
                     </div>
                     <div class="giz-header__user-menu reference-header-userbar live-header-userbar">
                       <div class="giz-header__user-menu-item reference-status-pill live-header-pill"><div class="giz-header__user-menu-item__icon">⏱</div><div>Тариф</div></div>
@@ -282,7 +296,7 @@
                       <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🏠</span><span class="module-link__label">HOME</span></a></div>
                       <div class="giz-header__modules-menu-item"><a class="module-link"><span class="module-icon">🎮</span><span class="module-link__label">APPS</span></a></div>
                       <div class="giz-header__modules-menu-item"><a class="module-link active"><span class="module-icon">🛒</span><span class="module-link__label">SHOP</span></a></div>
-                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search nonemtpy"><span class="icon">⌕</span><input value="" readonly /></div></div>
+                      <div class="giz-header__global-search reference-header-search"><div class="giz-global-search"><span class="icon">⌕</span><input value="" readonly /></div></div>
                     </div>
                     <div class="giz-header__user-menu reference-header-userbar live-header-userbar">
                       <div class="giz-header__user-menu-item reference-status-pill live-header-pill"><div class="giz-header__user-menu-item__icon">⏱</div><div>Тариф</div></div>
@@ -443,6 +457,125 @@
                   </div>
                 </div>
               </div>
+
+              <div class="preview-app preview-screen preview-screen--product" data-screen="product">
+                <div data-preview-shell-header data-active-nav="shop"></div>
+                <div class="reference-shop-shell giz-scrollbar--v">
+                  <div class="reference-shop-layout">
+                    <main class="reference-shop-main product-details-preview">
+                      <button class="giz-button giz-button--text preview-back-button" type="button" data-preview-target="shop">
+                        <svg class="giz-preview-icon"><use href="#icon-back"></use></svg><span>Назад</span>
+                      </button>
+                      <section class="product-details-preview__hero section-card">
+                        <div class="product-details-preview__media" aria-hidden="true">
+                          <svg class="product-details-preview__symbol"><use href="#icon-package"></use></svg>
+                        </div>
+                        <div class="product-details-preview__content">
+                          <span class="preview-kicker">Снэки</span>
+                          <h2>Snickers</h2>
+                          <p>Шоколадный батончик Snickers — сочетание нуги, карамели, арахиса и молочного шоколада. Сытный и быстрый перекус.</p>
+                          <div class="product-details-preview__footer">
+                            <strong>₽129.00</strong>
+                            <button class="giz-button giz-button--fill accent" type="button" data-preview-action="add-cart">Добавить в корзину</button>
+                          </div>
+                        </div>
+                      </section>
+                      <h3 class="reference-section-title">Похожие товары</h3>
+                      <div class="reference-shop-products-row">
+                        <button class="giz-product-card preview-product-card no-image-card" type="button" data-preview-action="add-cart"><svg class="no-image-card__icon"><use href="#icon-package"></use></svg><span>Pringles</span><strong>₽349.00</strong><small>Добавить в корзину</small></button>
+                        <button class="giz-product-card preview-product-card no-image-card" type="button" data-preview-action="add-cart"><svg class="no-image-card__icon"><use href="#icon-package"></use></svg><span>Mars</span><strong>₽129.00</strong><small>Добавить в корзину</small></button>
+                        <button class="giz-product-card preview-product-card no-image-card" type="button" data-preview-action="add-cart"><svg class="no-image-card__icon"><use href="#icon-package"></use></svg><span>KitKat</span><strong>₽129.00</strong><small>Добавить в корзину</small></button>
+                      </div>
+                    </main>
+                    <aside data-preview-order-sidebar></aside>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--profile-products" data-screen="profile-products">
+                <div data-preview-shell-header data-active-nav="profile"></div>
+                <div class="giz-profile giz-scrollbar--v profile-route-preview">
+                  <div data-preview-profile-summary></div>
+                  <div data-preview-profile-nav data-active-profile="profile-products"></div>
+                  <section class="profile-route-panel section-card">
+                    <h2>Доступное время</h2>
+                    <div class="time-package-grid">
+                      <article class="time-package-card"><svg class="giz-preview-icon giz-preview-icon--large"><use href="#icon-clock"></use></svg><div><strong>25:01</strong><span>Текущая сессия</span></div><span class="status-chip status-chip--active">Активно</span></article>
+                      <article class="time-package-card"><svg class="giz-preview-icon giz-preview-icon--large"><use href="#icon-package"></use></svg><div><strong>Weekend Pack</strong><span>Осталось 05:00</span></div><button class="giz-button giz-button--outline" type="button">Подробнее</button></article>
+                    </div>
+                  </section>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--profile-purchases" data-screen="profile-purchases">
+                <div data-preview-shell-header data-active-nav="profile"></div>
+                <div class="giz-profile giz-scrollbar--v profile-route-preview">
+                  <div data-preview-profile-summary></div>
+                  <div data-preview-profile-nav data-active-profile="profile-purchases"></div>
+                  <section class="profile-route-panel">
+                    <h2>История покупок</h2>
+                    <div class="purchases-table-wrap">
+                      <table class="giz-data-grid purchases-table">
+                        <thead><tr><th>Заказ</th><th>Статус заказа</th><th>Дата</th><th>Способ оплаты</th><th>Стоимость</th><th>Статус оплаты</th></tr></thead>
+                        <tbody>
+                          <tr><td>Panini Turkey Croissant, Redbull 330ml</td><td><span class="status-chip status-chip--cancelled">Отменено</span></td><td>02.01.2020 00:00</td><td>Онлайн &amp; Баллы</td><td>₽1.96 <svg class="giz-preview-icon inline-icon"><use href="#icon-coin"></use></svg>168</td><td><span class="status-chip">Оплачено</span></td></tr>
+                          <tr><td>Redbull 330ml</td><td><span class="status-chip">Завершено</span></td><td>02.01.2020 00:00</td><td>Онлайн &amp; Баллы</td><td>₽1.93 <svg class="giz-preview-icon inline-icon"><use href="#icon-coin"></use></svg>101</td><td><span class="status-chip">Оплачено</span></td></tr>
+                          <tr><td>Panini Turkey Croissant</td><td><span class="status-chip status-chip--pending">В ожидании</span></td><td>02.01.2020 00:00</td><td>Баллы</td><td>₽1.24 <svg class="giz-preview-icon inline-icon"><use href="#icon-coin"></use></svg>107</td><td><span class="status-chip status-chip--unpaid">Не оплачено</span></td></tr>
+                          <tr><td>Snack Combo</td><td><span class="status-chip status-chip--accepted">Принято</span></td><td>02.01.2020 00:00</td><td>Онлайн</td><td>₽3.28 <svg class="giz-preview-icon inline-icon"><use href="#icon-coin"></use></svg>390</td><td><span class="status-chip">Оплачено</span></td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="table-pagination"><button type="button" aria-label="Предыдущая страница"><svg class="giz-preview-icon"><use href="#icon-back"></use></svg></button><span>1 / 2</span><button type="button" aria-label="Следующая страница"><svg class="giz-preview-icon icon-flip"><use href="#icon-back"></use></svg></button></div>
+                  </section>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--password-recovery" data-screen="password-recovery">
+                <div class="giz-main-container live-login-layout auth-secondary-preview">
+                  <div class="giz-login__adv live-login-hero no-image-auth-hero">
+                    <div class="live-login-pc-title">PC 100</div>
+                    <svg class="auth-hero-mark"><use href="#icon-lock"></use></svg>
+                    <div class="live-login-bottom-meta"><div class="language-pill">RU</div><div class="server-status"><span class="server-dot"></span><div><div class="muted-label">Gizmo Server</div><strong>1.0.0</strong></div></div></div>
+                  </div>
+                  <div class="giz-login__login live-login-panel">
+                    <button class="round-icon-button" type="button" data-preview-target="login" aria-label="Назад"><svg class="giz-preview-icon"><use href="#icon-back"></use></svg></button>
+                    <div class="live-login-register-link">Нет аккаунта клуба? <button type="button" data-preview-target="registration">Зарегистрироваться</button></div>
+                    <div class="giz-login-card live-login-card live-login-card--flat">
+                      <div class="giz-login-card__body live-login-card__body">
+                        <h2 class="giz-login-title">Забыли пароль</h2>
+                        <p>Введите номер телефона, который привязан к вашей учетной записи</p>
+                        <label class="live-login-label" for="previewRecoveryPhone">Номер телефона</label>
+                        <div class="giz-input-root giz-input-root--outline live-login-input"><input id="previewRecoveryPhone" inputmode="tel" placeholder="###-###-####" /></div>
+                        <button class="giz-button giz-button--fill accent full live-login-submit" type="button" data-preview-action="recovery-submit">Продолжить</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-app preview-screen preview-screen--registration" data-screen="registration">
+                <div class="giz-main-container live-login-layout auth-secondary-preview">
+                  <div class="giz-login__adv live-login-hero no-image-auth-hero no-image-auth-hero--registration">
+                    <div class="live-login-pc-title">PC 100</div>
+                    <svg class="auth-hero-mark"><use href="#icon-user"></use></svg>
+                    <div class="live-login-bottom-meta"><div class="language-pill">RU</div><div class="server-status"><span class="server-dot"></span><div><div class="muted-label">Gizmo Server</div><strong>1.0.0</strong></div></div></div>
+                  </div>
+                  <div class="giz-login__login live-login-panel registration-panel">
+                    <button class="round-icon-button" type="button" data-preview-target="login" aria-label="Назад"><svg class="giz-preview-icon"><use href="#icon-back"></use></svg></button>
+                    <div class="agreement-preview section-card">
+                      <h2>Политика конфиденциальности и условия использования</h2>
+                      <div class="agreement-preview__body">
+                        <h3>Пользовательское соглашение</h3>
+                        <p><strong>1. Общие положения.</strong> Настоящее соглашение регулирует использование демо-версии приложения.</p>
+                        <p><strong>2. Условия использования.</strong> Демо-версия предоставляется исключительно в ознакомительных целях.</p>
+                        <p><strong>3. Конфиденциальность.</strong> Данные пользователя обрабатываются в соответствии с политикой клуба.</p>
+                      </div>
+                      <label class="agreement-check"><input type="checkbox" data-preview-agreement /><span>Я прочитал и согласен с условиями обслуживания.</span></label>
+                      <button class="giz-button giz-button--fill accent full" type="button" data-preview-action="registration-continue" disabled>Продолжить</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               </div>
 
               <div class="preview-floating-ui" aria-hidden="true">
@@ -516,9 +649,50 @@
 
                     <div class="preview-popup-surface giz-user-links">
                       <div class="preview-popup-surface-label">.giz-user-links</div>
-                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon">⚙️</span><span>Настройки аккаунта</span></div>
-                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon">🪪</span><span>Личные данные</span></div>
-                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon">🚪</span><span>Выход</span></div>
+                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-user"></use></svg></span><span>Профиль</span></div>
+                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></span><span>Заблокировать ПК</span></div>
+                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-exit"></use></svg></span><span>Выход</span></div>
+                    </div>
+
+                    <div class="preview-popup-surface preview-popup-surface--timeline giz-timeline">
+                      <div class="preview-popup-surface-label">.giz-timeline-item / .giz-time-product-expiration</div>
+                      <div class="giz-timeline-header"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-package"></use></svg><span>Описание пакета времени</span></div>
+                      <div class="giz-timeline-item">
+                        <div class="giz-time-product-time"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-clock"></use></svg><span>60 минут игрового времени</span></div>
+                      </div>
+                      <div class="giz-timeline-item">
+                        <div class="giz-time-product-details"><span>Доступен для покупки</span><span>Ежедневно, 10:00–23:00</span></div>
+                      </div>
+                      <div class="giz-timeline-item">
+                        <div class="giz-time-product-details">
+                          <span>Истекает</span>
+                          <div class="giz-time-product-expirations"><span class="giz-time-product-expiration">через 30 дней</span></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="preview-popup-surface preview-popup-surface--selector-colors">
+                      <div class="preview-popup-surface-label">Product / Profile selectors</div>
+                      <div class="preview-selector-color-grid">
+                        <div class="giz-product-details__product__info__image preview-product-time-image">
+                          <div class="giz-default-image">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='39' fill='%2356BFDB' fill-opacity='.2'/%3E%3Cpath d='M50 18a32 32 0 1 0 32 32A32 32 0 0 0 50 18Zm0 8a24 24 0 1 1-24 24 24 24 0 0 1 24-24Zm-3 10v17l14 8 4-7-10-5V36Z' fill='%2356BFDB'/%3E%3C/svg%3E" alt="Пример изображения пакета времени" />
+                          </div>
+                          <div class="giz-product-time-image__time">
+                            <div class="giz-product-time-image__time__number">60</div>
+                            <div class="giz-product-time-image__time__text">минут</div>
+                          </div>
+                        </div>
+                        <div class="giz-profile-section preview-profile-selector-demo">
+                          <div class="giz-profile-section__header">Контактная информация</div>
+                          <div class="giz-profile-section-item">
+                            <div class="giz-profile-section-item__icon">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h16v14H4V5Zm2 2v1.2l6 4.2 6-4.2V7H6Zm12 10v-6.4l-6 4.2-6-4.2V17h12Z" fill="#FAFAFA" /></svg>
+                            </div>
+                            <div class="giz-profile-section-item__info"><div class="giz-profile-section-item__info__title">Email</div><div class="giz-profile-section-item__info__text">user@gizmo.local</div></div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div class="preview-popup-surface giz-active-apps">
