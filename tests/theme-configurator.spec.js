@@ -26,6 +26,7 @@ test.beforeEach(async ({ page }) => {
 test('compact palette derives legacy tokens and Windows taskbar color', async ({ page }) => {
   await expect(page.locator('[data-color-text]')).toHaveCount(16);
   await expect(page.locator('.color-settings-group')).toHaveCount(7);
+  await expect(page.locator('#applyThemeBtn')).toHaveCount(0);
 
   const renderedKeys = await page.locator('[data-color-text]').evaluateAll((inputs) => inputs.map((input) => input.dataset.colorText));
   expect(renderedKeys).toEqual(visibleColorKeys);
@@ -36,7 +37,7 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   await page.locator('[data-color-text="timelineItemColor"]').fill('#123456');
   await page.locator('[data-color-text="timeProductExpirationTextColor"]').fill('#ABCDEF');
   await page.locator('[data-color-text="timeProductExpirationBg"]').fill('rgba(10, 20, 30, 0.4)');
-  await page.locator('#applyThemeBtn').click();
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-time-product-expiration-bg: rgba\(10, 20, 30, 0\.4\);/);
 
   const css = await page.locator('#cssOutput').inputValue();
   expect(css).toContain('--shell-bg: #112233;');
@@ -59,6 +60,26 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(ruleCount).toBeGreaterThan(100);
 });
 
+test('color, font and effect controls update preview and CSS automatically', async ({ page }) => {
+  await page.locator('[data-color-text="shellBg"]').fill('#264057');
+  await page.locator('[data-settings-tab="fonts"]').click();
+  await page.locator('[data-font-select="uiFontFamily"]').selectOption("'Inter', system-ui, sans-serif");
+  await page.locator('[data-settings-tab="effects"]').click();
+  await page.locator('[data-range-input="shellRadiusM"]').fill('20');
+
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #264057;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-font-ui: 'Inter', system-ui, sans-serif;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-radius-m: 20px;/);
+  await expect(page.locator('#previewRoot')).toHaveAttribute('style', /--shell-bg: #264057;/);
+  await expect(page.locator('#applyState')).toHaveText('Preview синхронизирован');
+
+  await page.locator('[data-settings-tab="colors"]').click();
+  await page.locator('[data-color-text="shellBg"]').fill('#');
+  await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue('#');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #264057;/);
+  await expect(page.locator('#previewRoot')).toHaveAttribute('style', /--shell-bg: #264057;/);
+});
+
 test('all presets use the compact model and Reset selects Original Gizmo', async ({ page }) => {
   const presetButtons = page.locator('.preset-card');
   await expect(presetButtons).toHaveCount(11);
@@ -76,7 +97,7 @@ test('all presets use the compact model and Reset selects Original Gizmo', async
 
 test('generated CSS round-trips through Import without expanding the palette', async ({ page }) => {
   await page.locator('[data-color-text="shellBg"]').fill('#152637');
-  await page.locator('#applyThemeBtn').click();
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #152637;/);
   const exportedCss = await page.locator('#cssOutput').inputValue();
 
   await page.locator('#importCssInput').setInputFiles({

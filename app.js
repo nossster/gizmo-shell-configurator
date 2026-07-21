@@ -580,6 +580,7 @@ const PREVIEW_MODE_META = {
 };
 let activeSettingsTab = 'colors';
 let hasPendingChanges = false;
+let liveApplyFrame = null;
 let activePresetKey = 'original-gizmo';
 let isCssOutputCollapsed = true;
 const THEME_KEYS = Object.keys(DEFAULT_THEME);
@@ -596,7 +597,6 @@ const settingsTabs = document.getElementById('settingsTabs');
 const previewModeTabs = document.getElementById('previewModeTabs');
 const previewModeHint = document.getElementById('previewModeHint');
 const resetThemeBtn = document.getElementById('resetThemeBtn');
-const applyThemeBtn = document.getElementById('applyThemeBtn');
 const applyState = document.getElementById('applyState');
 const previewStatusText = document.getElementById('previewStatusText');
 const copyCssBtn = document.getElementById('copyCssBtn');
@@ -2243,19 +2243,15 @@ body {
 }
 
 function updateApplyState() {
-  if (applyThemeBtn instanceof HTMLButtonElement) {
-    applyThemeBtn.disabled = !hasPendingChanges;
-  }
-
   if (applyState) {
     applyState.textContent = hasPendingChanges
-      ? 'Есть неприменённые изменения'
+      ? 'Preview обновляется автоматически…'
       : 'Preview синхронизирован';
   }
 
   if (previewStatusText) {
     previewStatusText.textContent = hasPendingChanges
-      ? 'Есть неприменённые изменения'
+      ? 'Preview обновляется…'
       : 'Preview синхронизирован';
   }
 }
@@ -2263,6 +2259,12 @@ function updateApplyState() {
 function markPendingChanges() {
   hasPendingChanges = true;
   updateApplyState();
+  if (liveApplyFrame !== null) return;
+
+  liveApplyFrame = requestAnimationFrame(() => {
+    liveApplyFrame = null;
+    applyDraftTheme();
+  });
 }
 
 function renderPreview() {
@@ -2274,6 +2276,10 @@ function renderCssOutput() {
 }
 
 function applyDraftTheme() {
+  if (liveApplyFrame !== null) {
+    cancelAnimationFrame(liveApplyFrame);
+    liveApplyFrame = null;
+  }
   draftTheme = deriveThemeColors(draftTheme);
   appliedTheme = structuredClone(draftTheme);
   hasPendingChanges = false;
@@ -2739,8 +2745,6 @@ resetThemeBtn.addEventListener('click', () => {
   draftTheme = structuredClone(DEFAULT_THEME);
   renderAll(true, true);
 });
-
-applyThemeBtn.addEventListener('click', applyDraftTheme);
 
 copyCssBtn.addEventListener('click', copyCss);
 downloadCssBtn.addEventListener('click', downloadCss);
