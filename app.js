@@ -457,6 +457,16 @@ const COLOR_FIELD_GROUPS = [
     ],
   },
   {
+    id: 'timeline-expiration',
+    title: 'Timeline и Expiration',
+    description: 'Отдельные цвета компонентов, не связанные с Warning и другими статусами.',
+    fields: [
+      ['timelineItemColor', '.giz-timeline-item'],
+      ['timeProductExpirationTextColor', '.giz-time-product-expiration · текст'],
+      ['timeProductExpirationBg', '.giz-time-product-expiration · фон'],
+    ],
+  },
+  {
     id: 'states',
     title: 'Остальные статусы',
     description: 'Success и Danger настраиваются независимо от предупреждения.',

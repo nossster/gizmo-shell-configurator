@@ -12,6 +12,9 @@ const visibleColorKeys = [
   'shellAccentHover',
   'shellBorder',
   'shellWarning',
+  'timelineItemColor',
+  'timeProductExpirationTextColor',
+  'timeProductExpirationBg',
   'shellSuccess',
   'shellDanger',
 ];
@@ -21,8 +24,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('compact palette derives legacy tokens and Windows taskbar color', async ({ page }) => {
-  await expect(page.locator('[data-color-text]')).toHaveCount(13);
-  await expect(page.locator('.color-settings-group')).toHaveCount(6);
+  await expect(page.locator('[data-color-text]')).toHaveCount(16);
+  await expect(page.locator('.color-settings-group')).toHaveCount(7);
 
   const renderedKeys = await page.locator('[data-color-text]').evaluateAll((inputs) => inputs.map((input) => input.dataset.colorText));
   expect(renderedKeys).toEqual(visibleColorKeys);
@@ -30,14 +33,18 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   await page.locator('[data-color-text="shellBg"]').fill('#112233');
   await page.locator('[data-color-text="shellAccentHover"]').fill('#AABBCC');
   await page.locator('[data-color-text="shellWarning"]').fill('#FEDCBA');
+  await page.locator('[data-color-text="timelineItemColor"]').fill('#123456');
+  await page.locator('[data-color-text="timeProductExpirationTextColor"]').fill('#ABCDEF');
+  await page.locator('[data-color-text="timeProductExpirationBg"]').fill('rgba(10, 20, 30, 0.4)');
   await page.locator('#applyThemeBtn').click();
 
   const css = await page.locator('#cssOutput').inputValue();
   expect(css).toContain('--shell-bg: #112233;');
   expect(css).toContain('--shell-user-links-hover: #AABBCC;');
   expect(css).toContain('--shell-warning: #FEDCBA;');
-  expect(css).toContain('--shell-timeline-item: #ffc700;');
-  expect(css).toContain('--shell-time-product-expiration-bg: rgba(255, 199, 0, 0.32);');
+  expect(css).toContain('--shell-timeline-item: #123456;');
+  expect(css).toContain('--shell-time-product-expiration-text: #ABCDEF;');
+  expect(css).toContain('--shell-time-product-expiration-bg: rgba(10, 20, 30, 0.4);');
   expect(css).toContain('"AccentColor"=dword:ff332211');
   expect(css).toContain('[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Accent]');
   expect(css).toContain('"AccentColorMenu"=dword:ff332211');
@@ -60,7 +67,7 @@ test('all presets use the compact model and Reset selects Original Gizmo', async
     const button = presetButtons.nth(index);
     await button.click();
     await expect(button).toHaveClass(/active/);
-    await expect(page.locator('[data-color-text]')).toHaveCount(13);
+    await expect(page.locator('[data-color-text]')).toHaveCount(16);
   }
 
   await page.locator('#resetThemeBtn').click();
@@ -79,7 +86,7 @@ test('generated CSS round-trips through Import without expanding the palette', a
   });
 
   await expect(page.locator('#importCssStatus')).toContainText('roundtrip.css');
-  await expect(page.locator('[data-color-text]')).toHaveCount(13);
+  await expect(page.locator('[data-color-text]')).toHaveCount(16);
   await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue('#152637');
 });
 
