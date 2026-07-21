@@ -391,16 +391,12 @@ const PRESETS = {
 function deriveThemeColors(themeValues) {
   const resolved = { ...themeValues };
   const textSoftAlpha = getColorAlpha(resolved.shellTextSoft);
-  const warningAlpha = getColorAlpha(resolved.shellWarning);
 
   resolved.shellBgGlass = setColorAlpha(resolved.shellBgElevated2, 0.82) ?? resolved.shellBgElevated2;
   resolved.shellBgSoft = mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.18) ?? resolved.shellBgElevated2;
   resolved.shellBorderStrong = mixColorTokens(resolved.shellBorder, resolved.shellAccentHover, 0.35) ?? resolved.shellBorder;
   resolved.shellTextGhost = setColorAlpha(resolved.shellTextSoft, textSoftAlpha * 0.54) ?? resolved.shellTextSoft;
   resolved.userLinksHoverColor = resolved.shellAccentHover;
-  resolved.timelineItemColor = resolved.shellWarning;
-  resolved.timeProductExpirationTextColor = '#FFFFFF';
-  resolved.timeProductExpirationBg = setColorAlpha(resolved.shellWarning, warningAlpha * 0.32) ?? resolved.shellWarning;
   resolved.appCardBg = resolved.shellBgElevated;
   resolved.productCardBg = resolved.shellBgElevated2;
   resolved.buttonInactiveBg = mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.24) ?? resolved.shellBgElevated2;
@@ -453,12 +449,19 @@ const COLOR_FIELD_GROUPS = [
     ],
   },
   {
+    id: 'warning',
+    title: 'Предупреждение',
+    description: 'Отдельный warning-цвет. Его изменение не влияет на Timeline, Expiration и другие состояния.',
+    fields: [
+      ['shellWarning', 'Предупреждение'],
+    ],
+  },
+  {
     id: 'states',
-    title: 'Статусы',
-    description: 'Три независимых семантических цвета. Timeline и expiration используют Warning.',
+    title: 'Остальные статусы',
+    description: 'Success и Danger настраиваются независимо от предупреждения.',
     fields: [
       ['shellSuccess', 'Успешное состояние'],
-      ['shellWarning', 'Предупреждение'],
       ['shellDanger', 'Ошибка или опасность'],
     ],
   },

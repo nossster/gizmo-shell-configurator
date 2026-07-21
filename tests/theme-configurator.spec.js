@@ -11,8 +11,8 @@ const visibleColorKeys = [
   'shellAccentDeep',
   'shellAccentHover',
   'shellBorder',
-  'shellSuccess',
   'shellWarning',
+  'shellSuccess',
   'shellDanger',
 ];
 
@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
 
 test('compact palette derives legacy tokens and Windows taskbar color', async ({ page }) => {
   await expect(page.locator('[data-color-text]')).toHaveCount(13);
-  await expect(page.locator('.color-settings-group')).toHaveCount(5);
+  await expect(page.locator('.color-settings-group')).toHaveCount(6);
 
   const renderedKeys = await page.locator('[data-color-text]').evaluateAll((inputs) => inputs.map((input) => input.dataset.colorText));
   expect(renderedKeys).toEqual(visibleColorKeys);
@@ -35,8 +35,9 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   const css = await page.locator('#cssOutput').inputValue();
   expect(css).toContain('--shell-bg: #112233;');
   expect(css).toContain('--shell-user-links-hover: #AABBCC;');
-  expect(css).toContain('--shell-timeline-item: #FEDCBA;');
-  expect(css).toContain('--shell-time-product-expiration-bg: rgba(254, 220, 186, 0.32);');
+  expect(css).toContain('--shell-warning: #FEDCBA;');
+  expect(css).toContain('--shell-timeline-item: #ffc700;');
+  expect(css).toContain('--shell-time-product-expiration-bg: rgba(255, 199, 0, 0.32);');
   expect(css).toContain('"AccentColor"=dword:ff332211');
   expect(css).toContain('[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Accent]');
   expect(css).toContain('"AccentColorMenu"=dword:ff332211');
