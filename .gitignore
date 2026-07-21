@@ -10,6 +10,9 @@ node_modules/
 *.log
 playwright-console.log
 _generated-current-export.css
+test-results/
+playwright-report/
+dock-*.png
 
 # Archives
 *.zip
