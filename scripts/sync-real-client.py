@@ -24,6 +24,15 @@ DEFAULT_SOURCE = (
 )
 DEFAULT_DESTINATION = PROJECT_ROOT / "real-client"
 BASE_HREF = "/real-client/"
+PREVIEW_STYLE_ID = "gizmoConfiguratorPreviewLayout"
+PREVIEW_STYLE = f"""    <style id="{PREVIEW_STYLE_ID}">
+        @media (max-width: 1400px) {{
+            [client-theme] .giz-shop__products__body .virtual-chunk-grid {{
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }}
+        }}
+    </style>
+"""
 ROOT_FRAMEWORK_FILES = (
     "Gizmo.Web.Components.dll",
     "Gizmo.Client.UI.dll",
@@ -59,6 +68,8 @@ def validate_runtime(root: Path, *, require_patched_base: bool, require_demo_log
     expected_base = f'<base href="{BASE_HREF}" />'
     if require_patched_base and expected_base not in index_text:
         raise RuntimeError(f"Generated index.html does not contain {expected_base}")
+    if require_patched_base and f'id="{PREVIEW_STYLE_ID}"' not in index_text:
+        raise RuntimeError("Generated index.html does not contain the responsive preview layout")
 
     if require_patched_base:
         settings_text = (root / "appsettings.json").read_text(encoding="utf-8")
@@ -88,6 +99,11 @@ def patch_index(index_path: Path) -> None:
         index_text = index_text.replace(original, patched, 1)
     elif patched not in index_text:
         raise RuntimeError("Host.Web index.html has an unsupported <base href> value")
+
+    if f'id="{PREVIEW_STYLE_ID}"' not in index_text:
+        if "</head>" not in index_text:
+            raise RuntimeError("Host.Web index.html does not contain a closing </head> tag")
+        index_text = index_text.replace("</head>", f"{PREVIEW_STYLE}</head>", 1)
     index_path.write_text(index_text, encoding="utf-8")
 
 
@@ -103,6 +119,13 @@ def sanitize_appsettings(runtime: Path) -> None:
 
     for environment_settings in runtime.glob("appsettings.*.json"):
         environment_settings.unlink()
+
+
+def remove_precompressed_assets(runtime: Path) -> None:
+    """Drop publish-time duplicates unsupported by the bundled static server."""
+    for pattern in ("*.br", "*.gz"):
+        for asset in runtime.rglob(pattern):
+            asset.unlink()
 
 
 def synchronize_root_framework_alias(runtime: Path) -> None:
@@ -134,6 +157,7 @@ def synchronize(source: Path, destination: Path, *, demo_login: bool = False) ->
         shutil.copytree(source, staged)
         patch_index(staged / "index.html")
         sanitize_appsettings(staged)
+        remove_precompressed_assets(staged)
         (staged / "configurator-runtime.json").write_text(
             json.dumps(
                 {

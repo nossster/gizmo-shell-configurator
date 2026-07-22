@@ -583,9 +583,8 @@ let hasPendingChanges = false;
 let liveApplyFrame = null;
 let activePresetKey = 'original-gizmo';
 let isCssOutputCollapsed = true;
-let activePreviewSurface = 'mock';
+const activePreviewSurface = 'real';
 let realPreviewState = 'idle';
-let realPreviewSupportsDemoLogin = false;
 let realPreviewResizeObserver = null;
 const REAL_PREVIEW_VIEWPORT = Object.freeze({ width: 1280, height: 760 });
 const THEME_KEYS = Object.keys(DEFAULT_THEME);
@@ -603,7 +602,6 @@ const previewModeTabs = document.getElementById('previewModeTabs');
 const previewModeHint = document.getElementById('previewModeHint');
 const resetThemeBtn = document.getElementById('resetThemeBtn');
 const applyState = document.getElementById('applyState');
-const previewStatusText = document.getElementById('previewStatusText');
 const copyCssBtn = document.getElementById('copyCssBtn');
 const downloadCssBtn = document.getElementById('downloadCssBtn');
 const toggleCssOutputBtn = document.getElementById('toggleCssOutputBtn');
@@ -611,16 +609,15 @@ const importCssBtn = document.getElementById('importCssBtn');
 const clearImportedCssBtn = document.getElementById('clearImportedCssBtn');
 const importCssInput = document.getElementById('importCssInput');
 const importCssStatus = document.getElementById('importCssStatus');
-const themeSignature = document.getElementById('themeSignature');
-const fontSignature = document.getElementById('fontSignature');
-const previewModeLabel = document.getElementById('previewModeLabel');
-const previewSurfaceTabs = document.getElementById('previewSurfaceTabs');
-const previewSurfaceTitle = document.getElementById('previewSurfaceTitle');
-const previewSurfaceDescription = document.getElementById('previewSurfaceDescription');
 const realPreviewShell = document.getElementById('realPreviewShell');
 const realPreviewFrame = document.getElementById('realPreviewFrame');
 const realPreviewLoading = document.getElementById('realPreviewLoading');
-const realPreviewCredentials = document.getElementById('realPreviewCredentials');
+const styleMapLegend = document.getElementById('styleMapLegend');
+const styleMapStatus = document.getElementById('styleMapStatus');
+
+let pinnedStyleBindingKey = null;
+let styleMapMutationObserver = null;
+let styleMapSyncTimer = null;
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -664,6 +661,86 @@ const PREVIEW_STYLE_HINTS = [
   ['.preview-screen--profile-purchases .purchases-table', 'Покупки / .giz-data-grid'],
   ['.preview-screen--password-recovery .live-login-panel', 'Восстановление пароля / auth panel'],
   ['.preview-screen--registration .agreement-preview', 'Регистрация / agreement panel'],
+];
+
+const STYLE_BINDINGS = [
+  {
+    key: 'shellBg', variable: '--shell-bg', label: 'Основной фон',
+    targets: 'Фон приложения · Login · overlay',
+    selectors: ['#app', '.giz-main-container', '.giz-login__login', '.giz-dialog', '.giz-drawer > .giz-overlay'],
+  },
+  {
+    key: 'shellBgElevated', variable: '--shell-bg-elevated', label: 'Панели и карточки',
+    targets: 'Карточки · навигация · заказ',
+    selectors: ['.giz-login-card', '.giz-profile-navigation', '.giz-order__items', '.giz-order__notes', '.giz-order__totals', '.giz-drawer-content', '.giz-data-grid > tbody > tr'],
+  },
+  {
+    key: 'shellBgElevated2', variable: '--shell-bg-elevated-2', label: 'Header и верхний слой',
+    targets: 'Header · Login hero · raised surface',
+    selectors: ['.giz-app__header', '.giz-login__adv', '.giz-login__adv__background'],
+  },
+  {
+    key: 'popupBg', variable: '--shell-popup-bg', label: 'Popup и модальные окна',
+    targets: 'Dropdown · tooltip · dialog · input',
+    selectors: ['.giz-dropdown-menu__content', '.giz-global-search-dropdown', '.giz-dialog .giz-card', '.giz-client-dialog', '.giz-user-links', '.giz-client-tooltip', '.giz-tooltip', '.giz-input-control .giz-input-root'],
+  },
+  {
+    key: 'shellText', variable: '--shell-text', label: 'Основной текст',
+    targets: 'Заголовки · значения · основной контент',
+    selectors: ['.giz-header', '.giz-login-title', '.giz-section__header', '.giz-order__items__header', '.giz-profile-section__header', '.giz-profile-section-item__info__text'],
+  },
+  {
+    key: 'shellTextSoft', variable: '--shell-text-soft', label: 'Вторичный текст',
+    targets: 'Навигация · labels · подсказки',
+    selectors: ['.giz-header__modules-menu-item > a', '.giz-client-tab-item', '.giz-profile-navigation-item > a', '.giz-login-subtitle', '.giz-empty-state__text', '.giz-header__user-menu-item', '.giz-input-label'],
+  },
+  {
+    key: 'shellAccent', variable: '--shell-accent', label: 'Акцент · начало',
+    targets: 'Active nav · CTA · баланс · DataGrid',
+    selectors: ['.giz-header__modules-menu-item > a.active', '.giz-client-tab-item.active', '.giz-profile-navigation-item > a.active', '.giz-button--fill.accent:not(.disabled)', '.giz-button--fill.primary:not(.disabled)', '.giz-header-user-balance', '.giz-user-time-products-order--current', '.giz-data-grid'],
+  },
+  {
+    key: 'shellAccentDeep', variable: '--shell-accent-deep', label: 'Акцент · конец',
+    targets: 'Градиенты CTA · тени · glow',
+    selectors: ['.giz-button--fill.accent:not(.disabled)', '.giz-button--fill.primary:not(.disabled)', '.giz-header-user-balance', '.giz-user-time-products-order--current', '.giz-data-grid'],
+  },
+  {
+    key: 'shellAccentHover', variable: '--shell-accent-hover', label: 'Контрастный акцент',
+    targets: 'Active links · hover · focus border',
+    selectors: ['.giz-header__modules-menu-item > a.active', '.giz-client-tab-item.active', '.giz-profile-navigation-item > a.active', '.giz-login-forgot-password > a', '.giz-login-new-user > a'],
+  },
+  {
+    key: 'shellBorder', variable: '--shell-border', label: 'Основная граница',
+    targets: 'Панели · карточки · разделители',
+    selectors: ['.giz-app__header', '.giz-login-card', '.giz-profile-navigation', '.giz-order__items', '.giz-order__notes', '.giz-order__totals', '.giz-drawer-content'],
+  },
+  {
+    key: 'shellWarning', variable: '--shell-warning', label: 'Предупреждение',
+    targets: 'Semantic token · прямая связь не подтверждена',
+    selectors: [], confirmed: false,
+  },
+  {
+    key: 'timelineItemColor', variable: '--shell-timeline-item', label: 'Timeline',
+    targets: 'Линия и пункты time product', selectors: ['.giz-timeline-item'],
+  },
+  {
+    key: 'timeProductExpirationTextColor', variable: '--shell-time-product-expiration-text', label: 'Expiration · текст',
+    targets: 'Текст срока действия пакета', selectors: ['.giz-time-product-expiration'],
+  },
+  {
+    key: 'timeProductExpirationBg', variable: '--shell-time-product-expiration-bg', label: 'Expiration · фон',
+    targets: 'Подложка срока действия пакета', selectors: ['.giz-time-product-expiration'],
+  },
+  {
+    key: 'shellSuccess', variable: '--shell-success', label: 'Успешное состояние',
+    targets: 'Semantic token · прямая связь не подтверждена',
+    selectors: [], confirmed: false,
+  },
+  {
+    key: 'shellDanger', variable: '--shell-danger', label: 'Ошибка или опасность',
+    targets: 'Semantic token · прямая связь не подтверждена',
+    selectors: [], confirmed: false,
+  },
 ];
 
 let importedCssFileName = '';
@@ -753,25 +830,9 @@ function updatePreviewModeHint() {
   if (previewModeHint) {
     previewModeHint.textContent = `${meta.label}: ${meta.description}`;
   }
-  if (previewModeLabel) {
-    previewModeLabel.textContent = meta.label;
-  }
 }
 
 function updateExportSummary() {
-  if (themeSignature) {
-    const matchedPreset = findMatchingPresetKey(appliedTheme);
-    themeSignature.textContent = matchedPreset
-      ? getPresetDisplayName(matchedPreset)
-      : importedPreviewStyle.textContent.trim().length > 0
-        ? 'Imported CSS + custom'
-        : 'Custom override';
-  }
-
-  if (fontSignature) {
-    fontSignature.textContent = `${formatFontFamilyLabel(appliedTheme.displayFontFamily)} / ${formatFontFamilyLabel(appliedTheme.uiFontFamily)}`;
-  }
-
   updatePreviewModeHint();
 }
 
@@ -1185,8 +1246,10 @@ function fitRealPreview() {
   if (!availableWidth) return;
 
   const scale = Math.min(1, availableWidth / REAL_PREVIEW_VIEWPORT.width);
+  const renderedWidth = REAL_PREVIEW_VIEWPORT.width * scale;
   realPreviewFrame.style.width = `${REAL_PREVIEW_VIEWPORT.width}px`;
   realPreviewFrame.style.height = `${REAL_PREVIEW_VIEWPORT.height}px`;
+  realPreviewFrame.style.marginLeft = `${Math.max(0, Math.round((availableWidth - renderedWidth) / 2))}px`;
   realPreviewFrame.style.transform = `scale(${scale})`;
   realPreviewShell.style.height = `${Math.round(REAL_PREVIEW_VIEWPORT.height * scale)}px`;
 }
@@ -1256,6 +1319,189 @@ body,
   return true;
 }
 
+function getRealPreviewDocument() {
+  if (!(realPreviewFrame instanceof HTMLIFrameElement) || !realPreviewFrame.getAttribute('src')) return null;
+  try {
+    if (realPreviewFrame.contentWindow?.location.href === 'about:blank') return null;
+    return realPreviewFrame.contentDocument;
+  } catch {
+    return null;
+  }
+}
+
+function getStyleBindingElements(binding, frameDocument = getRealPreviewDocument()) {
+  if (!frameDocument) return [];
+  const elements = new Set();
+  binding.selectors.forEach((selector) => {
+    try {
+      frameDocument.querySelectorAll(selector).forEach((element) => elements.add(element));
+    } catch {
+      // An unsupported selector must not disable the remaining bindings.
+    }
+  });
+  return Array.from(elements);
+}
+
+function ensureStyleMapHighlightStyle(frameDocument) {
+  if (!frameDocument?.head) return;
+  let style = frameDocument.getElementById('gizmoConfiguratorStyleMap');
+  if (style?.tagName !== 'STYLE') {
+    style = frameDocument.createElement('style');
+    style.id = 'gizmoConfiguratorStyleMap';
+    frameDocument.head.appendChild(style);
+  }
+  style.textContent = `
+.gizmo-style-map-highlight {
+  outline: 3px solid color-mix(in srgb, var(--gizmo-style-map-color, #ffca28) 42%, #fff) !important;
+  outline-offset: 3px !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, .96),
+    0 0 0 6px rgba(3, 8, 18, .72),
+    0 0 24px 9px color-mix(in srgb, var(--gizmo-style-map-color, #ffca28) 62%, transparent) !important;
+  animation: gizmo-style-map-pulse 1.05s ease-in-out infinite alternate !important;
+}
+@keyframes gizmo-style-map-pulse {
+  from { outline-offset: 2px; filter: brightness(1); }
+  to { outline-offset: 6px; filter: brightness(1.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gizmo-style-map-highlight { animation: none !important; }
+}`;
+}
+
+function clearStyleBindingHighlight() {
+  const frameDocument = getRealPreviewDocument();
+  if (!frameDocument) return;
+  frameDocument.querySelectorAll('.gizmo-style-map-highlight').forEach((element) => {
+    element.classList.remove('gizmo-style-map-highlight');
+    element.style.removeProperty('--gizmo-style-map-color');
+  });
+}
+
+function setStyleMapStatus(binding, count, pinned = false) {
+  if (!styleMapStatus) return;
+  if (!binding) {
+    styleMapStatus.textContent = 'Карта готова — выберите стиль.';
+    return;
+  }
+  const countLabel = binding.confirmed === false
+    ? 'Прямая selector-привязка в текущем Host.Web не подтверждена.'
+    : count === 0
+    ? 'На текущей странице элементы не найдены.'
+    : `Подсвечено элементов: ${count}.`;
+  styleMapStatus.textContent = `${binding.label} → ${binding.targets}. ${countLabel}${pinned ? ' Подсветка закреплена.' : ''}`;
+}
+
+function highlightStyleBinding(key, { pinned = false } = {}) {
+  const binding = STYLE_BINDINGS.find((item) => item.key === key);
+  const frameDocument = getRealPreviewDocument();
+  clearStyleBindingHighlight();
+  if (!binding || !frameDocument) {
+    setStyleMapStatus(binding, 0, pinned);
+    return 0;
+  }
+
+  ensureStyleMapHighlightStyle(frameDocument);
+  const color = CSS.supports('color', draftTheme[key]) ? draftTheme[key] : '#ffca28';
+  const elements = getStyleBindingElements(binding, frameDocument);
+  elements.forEach((element) => {
+    element.style.setProperty('--gizmo-style-map-color', color);
+    element.classList.add('gizmo-style-map-highlight');
+  });
+  setStyleMapStatus(binding, elements.length, pinned);
+  return elements.length;
+}
+
+function syncStyleMapLegend() {
+  if (!styleMapLegend) return;
+  STYLE_BINDINGS.forEach((binding) => {
+    const button = styleMapLegend.querySelector(`[data-style-binding="${binding.key}"]`);
+    if (!(button instanceof HTMLButtonElement)) return;
+    const color = CSS.supports('color', draftTheme[binding.key]) ? draftTheme[binding.key] : 'transparent';
+    button.style.setProperty('--style-map-swatch', color);
+    button.classList.toggle('is-pinned', pinnedStyleBindingKey === binding.key);
+    button.setAttribute('aria-pressed', String(pinnedStyleBindingKey === binding.key));
+    const count = getStyleBindingElements(binding).length;
+    const countElement = button.querySelector('[data-style-binding-count]');
+    if (countElement) {
+      countElement.textContent = binding.confirmed === false
+        ? 'нет прямой связи'
+        : count === 0 ? '0 на странице' : `${count} найдено`;
+    }
+  });
+}
+
+function scheduleStyleMapSync() {
+  window.clearTimeout(styleMapSyncTimer);
+  styleMapSyncTimer = window.setTimeout(() => {
+    syncStyleMapLegend();
+    if (pinnedStyleBindingKey) highlightStyleBinding(pinnedStyleBindingKey, { pinned: true });
+  }, 80);
+}
+
+function observeRealPreviewBindings() {
+  styleMapMutationObserver?.disconnect();
+  const frameDocument = getRealPreviewDocument();
+  if (!frameDocument?.body) return;
+  styleMapMutationObserver = new MutationObserver(scheduleStyleMapSync);
+  styleMapMutationObserver.observe(frameDocument.body, { childList: true, subtree: true });
+  scheduleStyleMapSync();
+}
+
+function createStyleMapLegend() {
+  if (!styleMapLegend) return;
+  const fragment = document.createDocumentFragment();
+  STYLE_BINDINGS.forEach((binding) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'style-map-item';
+    button.dataset.styleBinding = binding.key;
+    button.setAttribute('aria-pressed', 'false');
+
+    const swatch = document.createElement('span');
+    swatch.className = 'style-map-item__swatch';
+    swatch.setAttribute('aria-hidden', 'true');
+    const copy = document.createElement('span');
+    copy.className = 'style-map-item__copy';
+    const label = document.createElement('strong');
+    label.textContent = binding.label;
+    const targets = document.createElement('span');
+    targets.textContent = binding.targets;
+    const meta = document.createElement('span');
+    meta.className = 'style-map-item__meta';
+    const variable = document.createElement('code');
+    variable.textContent = binding.variable;
+    const count = document.createElement('small');
+    count.dataset.styleBindingCount = '';
+    count.textContent = 'ожидание preview';
+
+    meta.append(variable, count);
+    copy.append(label, targets, meta);
+    button.append(swatch, copy);
+    button.addEventListener('mouseenter', () => {
+      if (!pinnedStyleBindingKey) highlightStyleBinding(binding.key);
+    });
+    button.addEventListener('mouseleave', () => {
+      if (!pinnedStyleBindingKey) {
+        clearStyleBindingHighlight();
+        setStyleMapStatus(null, 0);
+      }
+    });
+    button.addEventListener('click', () => {
+      pinnedStyleBindingKey = pinnedStyleBindingKey === binding.key ? null : binding.key;
+      if (pinnedStyleBindingKey) highlightStyleBinding(binding.key, { pinned: true });
+      else {
+        clearStyleBindingHighlight();
+        setStyleMapStatus(null, 0);
+      }
+      syncStyleMapLegend();
+    });
+    fragment.appendChild(button);
+  });
+  styleMapLegend.replaceChildren(fragment);
+  syncStyleMapLegend();
+}
+
 async function loadRealPreview() {
   if (!(realPreviewFrame instanceof HTMLIFrameElement) || realPreviewState === 'loading' || realPreviewState === 'ready') return;
 
@@ -1276,61 +1522,25 @@ async function loadRealPreview() {
     if (marker?.host !== 'Gizmo.Client.UI.Host.Web' || marker?.client !== 'TestClient') {
       throw new Error('Unexpected Host.Web runtime marker');
     }
-    realPreviewSupportsDemoLogin = marker.demoLogin === true;
-    if (realPreviewCredentials instanceof HTMLElement) {
-      realPreviewCredentials.hidden = activePreviewSurface !== 'real' || !realPreviewSupportsDemoLogin;
-    }
-    if (previewSurfaceDescription && activePreviewSurface === 'real') {
-      previewSurfaceDescription.textContent = realPreviewSupportsDemoLogin
-        ? 'Войдите как demo / demo и переходите по настоящим Home, Apps, Shop и Profile. Generated CSS применяется внутри Blazor preview на лету.'
-        : 'Generated CSS применяется внутри настоящего Blazor preview на лету. Для demo-входа соберите runtime через npm run build:real-client.';
-    }
     realPreviewFrame.src = source;
   } catch (error) {
     realPreviewState = 'error';
     realPreviewShell?.classList.add('is-error');
     setRealPreviewMessage(
       'Real Host.Web не найден',
-      'Сначала выполните npm run sync:real-client, затем перезагрузите страницу. Demo preview продолжает работать.',
+      'Сначала выполните npm run sync:real-client, затем перезагрузите страницу.',
     );
     updateApplyState();
     console.warn('Real Host.Web preview is unavailable:', error);
   }
 }
 
-function setPreviewSurface(surface) {
-  activePreviewSurface = surface === 'real' ? 'real' : 'mock';
-  const isReal = activePreviewSurface === 'real';
-
-  previewRoot.hidden = isReal;
-  if (realPreviewShell instanceof HTMLElement) realPreviewShell.hidden = !isReal;
-  if (realPreviewCredentials instanceof HTMLElement) {
-    realPreviewCredentials.hidden = !isReal || !realPreviewSupportsDemoLogin;
-  }
-  document.querySelectorAll('.preview-surface-tab').forEach((button) => {
-    const isActive = button.dataset.previewSurface === activePreviewSurface;
-    button.classList.toggle('active', isActive);
-    button.setAttribute('aria-selected', String(isActive));
-  });
-
-  if (previewSurfaceTitle) {
-    previewSurfaceTitle.textContent = isReal
-      ? 'Настоящий Gizmo.Client.UI.Host.Web'
-      : 'Макет оболочки Gizmo.Client.UI';
-  }
-  if (previewSurfaceDescription) {
-    previewSurfaceDescription.textContent = isReal
-      ? (realPreviewSupportsDemoLogin
-        ? 'Войдите как demo / demo и переходите по настоящим Home, Apps, Shop и Profile. Generated CSS применяется внутри Blazor preview на лету.'
-        : 'Generated CSS применяется внутри настоящего Blazor preview на лету. Для demo-входа соберите runtime через npm run build:real-client.')
-      : 'Preview максимально приближен к структуре header / quick launch / ads / shop / profile / login shell.';
-  }
-
-  if (isReal) {
-    fitRealPreview();
-    loadRealPreview();
-    applyCssToRealPreview();
-  }
+function setPreviewSurface() {
+  previewRoot.hidden = true;
+  if (realPreviewShell instanceof HTMLElement) realPreviewShell.hidden = false;
+  fitRealPreview();
+  loadRealPreview();
+  applyCssToRealPreview();
   updateApplyState();
 }
 
@@ -2436,21 +2646,6 @@ function updateApplyState() {
       : 'Preview синхронизирован';
   }
 
-  if (previewStatusText) {
-    if (activePreviewSurface === 'real') {
-      const realStatus = {
-        idle: 'Real Host.Web ещё не загружен',
-        loading: 'Real Host.Web загружается…',
-        ready: hasPendingChanges ? 'Real Host.Web обновляется…' : 'Real Host.Web синхронизирован',
-        error: 'Real Host.Web недоступен',
-      };
-      previewStatusText.textContent = realStatus[realPreviewState] ?? realStatus.idle;
-    } else {
-      previewStatusText.textContent = hasPendingChanges
-        ? 'Preview обновляется…'
-        : 'Preview синхронизирован';
-    }
-  }
 }
 
 function markPendingChanges() {
@@ -2467,6 +2662,8 @@ function markPendingChanges() {
 function renderPreview() {
   previewRoot.style.cssText = previewVars(appliedTheme);
   applyCssToRealPreview();
+  syncStyleMapLegend();
+  if (pinnedStyleBindingKey) highlightStyleBinding(pinnedStyleBindingKey, { pinned: true });
 }
 
 function renderCssOutput() {
@@ -2896,14 +3093,6 @@ previewRoot.addEventListener('change', (event) => {
   if (button instanceof HTMLButtonElement) button.disabled = !target.checked;
 });
 
-previewSurfaceTabs?.addEventListener('click', (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLButtonElement)) return;
-  const surface = target.dataset.previewSurface;
-  if (!surface) return;
-  setPreviewSurface(surface);
-});
-
 if (realPreviewShell instanceof HTMLElement && typeof ResizeObserver === 'function') {
   realPreviewResizeObserver = new ResizeObserver(fitRealPreview);
   realPreviewResizeObserver.observe(realPreviewShell);
@@ -2927,10 +3116,13 @@ realPreviewFrame?.addEventListener('load', () => {
   realPreviewShell?.classList.remove('is-error');
   realPreviewShell?.classList.add('is-ready');
   fitRealPreview();
+  observeRealPreviewBindings();
+  syncStyleMapLegend();
+  if (pinnedStyleBindingKey) highlightStyleBinding(pinnedStyleBindingKey, { pinned: true });
   updateApplyState();
 });
 
-previewModeTabs.addEventListener('click', (event) => {
+previewModeTabs?.addEventListener('click', (event) => {
   const target = event.target;
   if (!(target instanceof HTMLButtonElement)) return;
   const mode = target.dataset.mode;
@@ -2996,6 +3188,7 @@ createPresetButtons();
 createColorControls();
 createFontControls();
 createRangeControls();
+createStyleMapLegend();
 hydratePreviewPartials();
 replacePreviewGlyphsWithSvg();
 applyPreviewStyleHints();

@@ -92,6 +92,23 @@ test('color, font and effect controls update preview and CSS automatically', asy
   await expect(page.locator('#previewRoot')).toHaveAttribute('style', /--shell-bg: #264057;/);
 });
 
+test('style binding map mirrors all visible colors and updates its swatches', async ({ page }) => {
+  const styleItems = page.locator('[data-style-binding]');
+  await expect(styleItems).toHaveCount(visibleColorKeys.length);
+  const bindingKeys = await styleItems.evaluateAll((items) => items.map((item) => item.dataset.styleBinding));
+  expect(bindingKeys).toEqual(visibleColorKeys);
+
+  const backgroundBinding = page.locator('[data-style-binding="shellBg"]');
+  await expect(backgroundBinding).toContainText('Основной фон');
+  await expect(backgroundBinding).toContainText('--shell-bg');
+  await page.locator('[data-color-text="shellBg"]').fill('#345678');
+  await expect(backgroundBinding).toHaveCSS('--style-map-swatch', '#345678');
+
+  const semanticBinding = page.locator('[data-style-binding="shellWarning"]');
+  await expect(semanticBinding).toContainText('прямая связь не подтверждена');
+  await expect(semanticBinding).toContainText('нет прямой связи');
+});
+
 test('all presets use the compact model and Reset selects Original Gizmo', async ({ page }) => {
   const presetButtons = page.locator('.preset-card');
   await expect(presetButtons).toHaveCount(11);
@@ -123,17 +140,15 @@ test('generated CSS round-trips through Import without expanding the palette', a
   await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue('#152637');
 });
 
-test('all preview routes activate exactly one screen', async ({ page }) => {
-  const routeButtons = page.locator('.preview-mode-tab');
-  await expect(routeButtons).toHaveCount(10);
-
-  for (let index = 0; index < await routeButtons.count(); index += 1) {
-    const button = routeButtons.nth(index);
-    const mode = await button.getAttribute('data-mode');
-    await button.click();
-    await expect(page.locator('.preview-screen.active')).toHaveCount(1);
-    await expect(page.locator(`.preview-screen[data-screen="${mode}"]`)).toHaveClass(/active/);
-  }
+test('Real Host.Web is the only preview and auxiliary header blocks are omitted', async ({ page }) => {
+  await expect(page.locator('[data-preview-surface]')).toHaveCount(0);
+  await expect(page.locator('#previewModeTabs')).toHaveCount(0);
+  await expect(page.locator('.preview-panel > .panel__header')).toHaveCount(0);
+  await expect(page.locator('.export-panel > .panel__header')).toHaveCount(0);
+  await expect(page.locator('.export-summary-group')).toHaveCount(0);
+  await expect(page.locator('#previewRoot')).toBeHidden();
+  await expect(page.locator('#realPreviewShell')).toBeVisible();
+  await expect(page.locator('#realPreviewFrame')).toHaveAttribute('src', './real-client/');
 });
 
 test('real Host.Web receives live CSS and exports the same theme without Gizmo Server', async ({ page }) => {
@@ -146,17 +161,13 @@ test('real Host.Web receives live CSS and exports the same theme without Gizmo S
     if (message.type() === 'error') browserErrors.push(message.text());
   });
 
-  await page.locator('[data-preview-surface="real"]').click();
   const realPreview = page.frameLocator('#realPreviewFrame');
-  if (hasDemoLoginRuntime) {
-    await expect(page.locator('#realPreviewCredentials')).toBeVisible();
-    await expect(page.locator('#realPreviewCredentials')).toContainText('demo');
-  } else {
-    await expect(page.locator('#realPreviewCredentials')).toBeHidden();
-  }
   await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  if (hasDemoLoginRuntime) {
+    await expect(realPreview.locator('input[type="text"]')).toHaveValue('demo');
+    await expect(realPreview.locator('input[type="password"]')).toHaveValue('demo');
+  }
   await expect(page.locator('#realPreviewShell')).toHaveClass(/is-ready/);
-  await expect(page.locator('#previewStatusText')).toHaveText('Real Host.Web синхронизирован');
   await expect.poll(async () => realPreview.locator('body').evaluate(() => window.innerWidth)).toBe(1280);
   await expect(realPreview.locator('.giz-login__adv__background > img[src=""]')).toBeHidden();
   await expect.poll(async () => realPreview.locator('#gizmoConfiguratorTheme').first().evaluate((style) => style.textContent)).toContain('--shell-accent: #3F8CFF;');
@@ -168,6 +179,16 @@ test('real Host.Web receives live CSS and exports the same theme without Gizmo S
   await expect.poll(async () => realPreview.locator('[client-theme]').first().evaluate((element) => (
     getComputedStyle(element).getPropertyValue('--shell-accent').trim()
   ))).toBe('#FF00AA');
+
+  const backgroundBinding = page.locator('[data-style-binding="shellBg"]');
+  await backgroundBinding.click();
+  await expect(backgroundBinding).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#styleMapStatus')).toContainText('Подсветка закреплена');
+  await expect(realPreview.locator('#gizmoConfiguratorStyleMap')).toHaveCount(1);
+  expect(await realPreview.locator('.gizmo-style-map-highlight').count()).toBeGreaterThan(0);
+  await backgroundBinding.click();
+  await expect(backgroundBinding).toHaveAttribute('aria-pressed', 'false');
+  await expect(realPreview.locator('.gizmo-style-map-highlight')).toHaveCount(0);
 
   const downloadPromise = page.waitForEvent('download');
   await page.locator('#downloadCssBtn').click();
@@ -181,29 +202,51 @@ test('real Host.Web receives live CSS and exports the same theme without Gizmo S
     return;
   }
 
-  await realPreview.locator('input[type="text"]').pressSequentially('demo', { delay: 50 });
-  await realPreview.locator('input[type="password"]').pressSequentially('demo', { delay: 50 });
   await realPreview.getByRole('button', { name: 'Continue' }).click();
   await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/home');
   await expect(realPreview.locator('a[href="home"]')).toHaveClass(/active/);
+  await expect(realPreview.getByText('02:37:00', { exact: true })).toBeVisible();
+  await expect(realPreview.getByText('725', { exact: true })).toBeVisible();
   await expect.poll(async () => realPreview.locator('html').evaluate((element) => (
     getComputedStyle(element).backgroundImage
   ))).toContain('background.jpg');
   await expect(realPreview.locator('#gizmoConfiguratorPreviewBackdrop')).toHaveCount(1);
 
-  for (const route of ['apps', 'shop']) {
-    await realPreview.locator(`a[href="${route}"]`).click();
-    await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe(`/real-client/${route}`);
-    await expect(realPreview.locator(`a[href="${route}"]`)).toHaveClass(/active/);
-    await expect.poll(async () => realPreview.locator('[client-theme]').first().evaluate((element) => (
-      getComputedStyle(element).getPropertyValue('--shell-accent').trim()
-    ))).toBe('#FF00AA');
+  await realPreview.locator('a[href="apps"]').click();
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/apps');
+  await expect(realPreview.locator('a[href="apps"]')).toHaveClass(/active/);
+  await expect(realPreview.locator('.giz-app-card')).toHaveCount(4);
+  for (const title of ['CS2', 'Dota 2', 'Fortnite', 'Valorant']) {
+    await expect(realPreview.locator('.giz-app-card__title', { hasText: title })).toHaveCount(1);
   }
+
+  await realPreview.locator('a[href="shop"]').click();
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/shop');
+  await expect(realPreview.locator('a[href="shop"]')).toHaveClass(/active/);
+  await expect(realPreview.locator('.giz-product-card')).toHaveCount(5);
+  for (const title of ['Cola', 'Energy', 'Sandwich', 'Snack', '3 Hour Gaming Pass']) {
+    await expect(realPreview.locator('.giz-product-card__title', { hasText: title })).toHaveCount(1);
+  }
+  const timeProductCard = realPreview.locator('.giz-product-card', { hasText: '3 Hour Gaming Pass' });
+  await timeProductCard.hover();
+  expect((await timeProductCard.boundingBox()).width).toBeGreaterThan(150);
+  await expect(timeProductCard.locator('.giz-timeline')).toBeVisible();
+  await expect(timeProductCard.locator('.giz-timeline')).toContainText('180');
+  await expect.poll(async () => realPreview.locator('[client-theme]').first().evaluate((element) => (
+    getComputedStyle(element).getPropertyValue('--shell-accent').trim()
+  ))).toBe('#FF00AA');
 
   await realPreview.getByRole('button', { name: 'PC 100', exact: true }).click();
   await realPreview.locator('a[href="profile"]').click();
   await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/profile');
   await expect(realPreview.locator('a[href="profile"].active')).toHaveCount(1);
   await expect(realPreview.locator('body')).toContainText('User details');
+
+  await realPreview.locator('a[href="profile/purchases"]').click();
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/profile/purchases');
+  await expect(realPreview.locator('.giz-profile-user-purchases')).toBeVisible();
+  await expect(realPreview.locator('.giz-profile-user-purchases')).toContainText('3 Hour Gaming Pass');
+  await expect(realPreview.locator('.giz-profile-user-purchases')).toContainText('Cola, Sandwich');
+  await expect(realPreview.locator('.giz-profile-user-purchases')).toContainText('Energy');
   expect(browserErrors).toEqual([]);
 });

@@ -5,6 +5,8 @@ SPA-приложение для визуальной настройки обол
 ## Что умеет
 
 - визуально настраивать shell-палитру из 16 цветов;
+- показывать интерактивную карту привязок: какой стиль управляет какими реальными элементами Host.Web;
+- подсвечивать связанные элементы прямо в Real Host.Web по hover и закреплять подсветку кликом;
 - сразу применять валидные изменения к live preview и Generated CSS без кнопки «Применить»;
 - переключаться между быстрым Demo Preview и настоящим `Gizmo.Client.UI.Host.Web`;
 - входить в настоящий Host.Web через автономный `demo / demo` и переходить по `Home`, `Apps`, `Shop`, `Profile`;
@@ -99,6 +101,9 @@ npm run build:real-client
 тестовую резервацию, делает маршруты совместимыми с `/real-client/`, публикует
 Host.Web и синхронизирует runtime с marker `demoLogin: true`. Рабочая копия
 внешнего репозитория не изменяется даже при аварийном завершении сборки.
+Demo fixture заранее заполняет Login значениями `demo` / `demo` и возвращает
+ровно 4 приложения и 4 товара через настоящий `TestClient`, поэтому Apps и
+Shop используют нативные Blazor-карточки, а не HTML-моки конфигуратора.
 
 Для другого расположения исходников или уже готового publish output:
 
@@ -116,7 +121,7 @@ npm run sync:real-client -- --source /path/to/publish/wwwroot
 - JS syntax: `node --check app.js`
 - полный E2E-набор: `npm test`;
 - E2E проверяет компактную палитру, производные токены, все пресеты,
-  Export → Import, Windows ABGR DWORD, 10 preview-маршрутов и настоящий Host.Web;
+  карту привязок, Export → Import, Windows ABGR DWORD, 10 preview-маршрутов и настоящий Host.Web;
 - real-host E2E проверяет Blazor `[client-theme]`, live CSS variable,
   вход `demo / demo`, маршруты Home/Apps/Shop/Profile, preview wallpaper,
   отсутствие browser errors и содержимое скачанного CSS;

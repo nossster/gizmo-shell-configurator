@@ -41,6 +41,7 @@ PATCHES = (
             return $".{uri}";
         }""",
     ),
+
     (
         Path("Submodules/Gizmo.Client.Shared/Gizmo.Client.Shared/Code/ClientRoutes.cs"),
         """    public class ClientRoutes
@@ -91,6 +92,88 @@ PATCHES = (
         '<a tabindex="-1" href="@ClientRoutes.ToHref(ClientRoutes.PasswordRecoveryRoute)">',
     ),
     (
+        Path("Gizmo.Client.UI/Pages/Login/Login.razor.cs"),
+        """            this.SubscribeChange(ViewState);
+            this.SubscribeChange(HostQRCodeViewState);
+
+            //await InvokeVoidAsync("navigationBlock");""",
+        """            this.SubscribeChange(ViewState);
+            this.SubscribeChange(HostQRCodeViewState);
+
+            UserLoginService.SetLoginName("demo");
+            UserLoginService.SetPassword("demo");
+
+            //await InvokeVoidAsync("navigationBlock");""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        """            return Task.FromResult(new UserBalanceModel()
+            {
+
+            });""",
+        """            return Task.FromResult(new UserBalanceModel()
+            {
+                AvailableCreditedTime = 9420,
+                AvailableTime = 9420,
+                Deposits = 48.50m,
+                Points = 725,
+                TimeProduct = 9420
+            });""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/View/Services/AppsPageViewService.cs"),
+        """        public Task SetSelectedSortingOption(ApplicationSortingOption value)
+        {""",
+        """        public Task RefreshAsync(CancellationToken cancellationToken = default) =>
+            RefilterRequest(cancellationToken);
+
+        public Task SetSelectedSortingOption(ApplicationSortingOption value)
+        {""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Apps/AppsIndex.razor.cs"),
+        """        protected override void OnInitialized()
+        {
+            this.SubscribeChange(ViewState);
+
+            base.OnInitialized();
+        }""",
+        """        protected override async Task OnInitializedAsync()
+        {
+            this.SubscribeChange(ViewState);
+
+            await AppsPageService.RefreshAsync();
+            await base.OnInitializedAsync();
+        }""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Shop/ProductsIndex.razor.cs"),
+        """            _userProductGroups = productGroups.ToDictionary(key => key.ProductGroupId, value => value);
+
+            await base.OnInitializedAsync();""",
+        """            _userProductGroups = productGroups.ToDictionary(key => key.ProductGroupId, value => value);
+
+            await ShopService.UpdateUserProductGroupsAsync();
+            await ShopService.UpdateUserGroupedProductsAsync(null);
+            await base.OnInitializedAsync();""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Profile/Purchases.razor.cs"),
+        """        protected override void OnInitialized()
+        {
+            this.SubscribeChange(ViewState);
+
+            base.OnInitialized();
+        }""",
+        """        protected override async System.Threading.Tasks.Task OnInitializedAsync()
+        {
+            this.SubscribeChange(ViewState);
+
+            await PurchasesService.LoadAsync();
+            await base.OnInitializedAsync();
+        }""",
+    ),
+    (
         Path("Gizmo.Client.UI/Shared/MenuUserLinks.razor"),
         '<a href="@ClientRoutes.UserProfileRoute" class="giz-user-links-item"',
         '<a href="@ClientRoutes.ToHref(ClientRoutes.UserProfileRoute)" class="giz-user-links-item"',
@@ -110,6 +193,266 @@ PATCHES = (
     ),
 )
 
+RANGE_PATCHES = (
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "            _userApplicationCategories = Enumerable.Range(1, 5).Select(i => new UserApplicationCategoryModel()",
+        "            _userApplications = Enumerable.Range(1, 100).Select(i => new UserApplicationModel()",
+        """            _userApplicationCategories = new List<UserApplicationCategoryModel>()
+            {
+                new() { Id = 1, Name = "FPS" },
+                new() { Id = 2, Name = "MOBA" },
+                new() { Id = 3, Name = "Action" },
+                new() { Id = 4, Name = "Shooter" }
+            };""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "            _userApplications = Enumerable.Range(1, 100).Select(i => new UserApplicationModel()",
+        "            _userApplicationLinks = new List<UserApplicationLinkModel>()",
+        """            _userApplications = new List<UserApplicationModel>()
+            {
+                new()
+                {
+                    Id = 1,
+                    ApplicationCategoryId = 1,
+                    Title = "CS2",
+                    Description = "Competitive tactical action for the demo application catalog.",
+                    PublisherId = 1,
+                    AddDate = DateTime.Now.AddDays(-4),
+                    ReleaseDate = new DateTime(2023, 9, 27)
+                },
+                new()
+                {
+                    Id = 2,
+                    ApplicationCategoryId = 2,
+                    Title = "Dota 2",
+                    Description = "Team strategy title rendered by the real Gizmo application card.",
+                    PublisherId = 2,
+                    AddDate = DateTime.Now.AddDays(-3),
+                    ReleaseDate = new DateTime(2013, 7, 9)
+                },
+                new()
+                {
+                    Id = 3,
+                    ApplicationCategoryId = 3,
+                    Title = "Fortnite",
+                    Description = "Battle royale demo entry with the native hover and category UI.",
+                    PublisherId = 3,
+                    AddDate = DateTime.Now.AddDays(-2),
+                    ReleaseDate = new DateTime(2017, 7, 21)
+                },
+                new()
+                {
+                    Id = 4,
+                    ApplicationCategoryId = 4,
+                    Title = "Valorant",
+                    Description = "Tactical team shooter used for deterministic theme preview coverage.",
+                    PublisherId = 4,
+                    AddDate = DateTime.Now.AddDays(-1),
+                    ReleaseDate = new DateTime(2020, 6, 2)
+                }
+            };""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "            _userProducts = new List<UserProductModel>();",
+        "            #endregion\n\n            #region PAYMENT METHODS",
+        """            _userProducts = new List<UserProductModel>()
+            {
+                new()
+                {
+                    Id = 101,
+                    ProductGroupId = 1,
+                    ProductType = ProductType.Product,
+                    Name = "Cola",
+                    Description = "Chilled soft drink rendered by the native Gizmo product card.",
+                    Price = 3.50m,
+                    PurchaseOptions = PurchaseOptionType.And,
+                    OrderOptions = OrderOptionType.None,
+                    DisplayOrder = 1,
+                    CreatedTime = DateTime.Now.AddDays(-4)
+                },
+                new()
+                {
+                    Id = 102,
+                    ProductGroupId = 1,
+                    ProductType = ProductType.Product,
+                    Name = "Energy",
+                    Description = "Demo beverage with live price, hover and quantity controls.",
+                    Price = 4.90m,
+                    PurchaseOptions = PurchaseOptionType.And,
+                    OrderOptions = OrderOptionType.None,
+                    DisplayOrder = 2,
+                    CreatedTime = DateTime.Now.AddDays(-3)
+                },
+                new()
+                {
+                    Id = 103,
+                    ProductGroupId = 1,
+                    ProductType = ProductType.Product,
+                    Name = "Sandwich",
+                    Description = "Fresh sandwich entry for native shop-card theme coverage.",
+                    Price = 8.50m,
+                    PurchaseOptions = PurchaseOptionType.And,
+                    OrderOptions = OrderOptionType.None,
+                    DisplayOrder = 3,
+                    CreatedTime = DateTime.Now.AddDays(-2)
+                },
+                new()
+                {
+                    Id = 104,
+                    ProductGroupId = 1,
+                    ProductType = ProductType.Product,
+                    Name = "Snack",
+                    Description = "Compact snack product used to complete the four-card demo row.",
+                    Price = 2.90m,
+                    PurchaseOptions = PurchaseOptionType.And,
+                    OrderOptions = OrderOptionType.None,
+                    DisplayOrder = 4,
+                    CreatedTime = DateTime.Now.AddDays(-1)
+                },
+                new()
+                {
+                    Id = 105,
+                    ProductGroupId = 5,
+                    ProductType = ProductType.ProductTime,
+                    Name = "3 Hour Gaming Pass",
+                    Description = "Demo time product with native availability and expiration tooltip details.",
+                    Price = 12.00m,
+                    PurchaseOptions = PurchaseOptionType.And,
+                    OrderOptions = OrderOptionType.None,
+                    DisplayOrder = 5,
+                    CreatedTime = DateTime.Now,
+                    TimeProduct = new UserProductTimeModel()
+                    {
+                        Minutes = 180,
+                        ExpiresAfter = 24,
+                        ExpirationOptions = ProductTimeExpirationOptionType.ExpireAfterTime | ProductTimeExpirationOptionType.ExpiresAtLogout,
+                        ExpireFromOptions = ExpireFromOptionType.Use,
+                        ExpireAfterType = ExpireAfterType.Hour,
+                        DisallowedHostGroups = new List<int>() { 2, 3 }
+                    }
+                }
+            };""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "        public Task<PagedList<UserOrderModel>> UserOrdersGetAsync(UserOrdersFilter filters, CancellationToken cancellationToken = default)",
+        "        public Task<UserProductAvailabilityCheckResult> UserProductAvailabilityCheckAsync(UserOrderLineModelCreate userOrderLineModelCreate, CancellationToken cancellationToken = default)",
+        """        public Task<PagedList<UserOrderModel>> UserOrdersGetAsync(UserOrdersFilter filters, CancellationToken cancellationToken = default)
+        {
+            var orders = new List<UserOrderModel>()
+            {
+                new()
+                {
+                    Id = 3003,
+                    Date = DateTime.Now.AddHours(-2),
+                    Status = OrderStatus.Completed,
+                    Total = 12.00m,
+                    PointsAwardTotal = 120,
+                    UserNote = "Gaming pass activated for the current demo session.",
+                    Invoice = new UserOrderInvoiceModel()
+                    {
+                        Id = 4003,
+                        Status = InvoiceStatus.Paid,
+                        InvoicePayments = new List<UserOrderInvoicePaymentModel>()
+                        {
+                            new() { Id = 5003, PaymentMethodId = -3 }
+                        }
+                    },
+                    OrderLines = new List<UserOrderLineModel>()
+                    {
+                        new()
+                        {
+                            Id = 6003,
+                            LineType = LineType.TimeProduct,
+                            PayType = OrderLinePayType.Cash,
+                            ProductName = "3 Hour Gaming Pass",
+                            ProductId = 105,
+                            Quantity = 1,
+                            Total = 12.00m
+                        }
+                    }
+                },
+                new()
+                {
+                    Id = 3002,
+                    Date = DateTime.Now.AddDays(-1),
+                    Status = OrderStatus.Completed,
+                    Total = 12.00m,
+                    PointsAwardTotal = 60,
+                    UserNote = "Delivered to PC 100.",
+                    Invoice = new UserOrderInvoiceModel()
+                    {
+                        Id = 4002,
+                        Status = InvoiceStatus.Paid,
+                        InvoicePayments = new List<UserOrderInvoicePaymentModel>()
+                        {
+                            new() { Id = 5002, PaymentMethodId = -2 }
+                        }
+                    },
+                    OrderLines = new List<UserOrderLineModel>()
+                    {
+                        new()
+                        {
+                            Id = 6002,
+                            LineType = LineType.Product,
+                            PayType = OrderLinePayType.Cash,
+                            ProductName = "Cola",
+                            ProductId = 101,
+                            Quantity = 1,
+                            Total = 3.50m
+                        },
+                        new()
+                        {
+                            Id = 6001,
+                            LineType = LineType.Product,
+                            PayType = OrderLinePayType.Cash,
+                            ProductName = "Sandwich",
+                            ProductId = 103,
+                            Quantity = 1,
+                            Total = 8.50m
+                        }
+                    }
+                },
+                new()
+                {
+                    Id = 3001,
+                    Date = DateTime.Now.AddDays(-3),
+                    Status = OrderStatus.Completed,
+                    PointsTotal = 140,
+                    PointsAwardTotal = 15,
+                    UserNote = "Redeemed with loyalty points.",
+                    Invoice = new UserOrderInvoiceModel()
+                    {
+                        Id = 4001,
+                        Status = InvoiceStatus.Paid,
+                        InvoicePayments = Array.Empty<UserOrderInvoicePaymentModel>()
+                    },
+                    OrderLines = new List<UserOrderLineModel>()
+                    {
+                        new()
+                        {
+                            Id = 6000,
+                            LineType = LineType.Product,
+                            PayType = OrderLinePayType.Points,
+                            ProductName = "Energy",
+                            ProductId = 102,
+                            Quantity = 1,
+                            PointsTotal = 140
+                        }
+                    }
+                }
+            };
+
+            return Task.FromResult(new PagedList<UserOrderModel>(orders));
+        }
+
+""",
+    ),
+)
+
 
 def apply_fixture_patches(source_root: Path) -> None:
     for relative_path, old, new in PATCHES:
@@ -120,6 +463,19 @@ def apply_fixture_patches(source_root: Path) -> None:
         if text.count(old) != 1:
             raise RuntimeError(f"Unsupported source shape in {path}: expected one fixture patch target")
         path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+    for relative_path, start, end, replacement in RANGE_PATCHES:
+        path = source_root / relative_path
+        text = path.read_text(encoding="utf-8")
+        if replacement in text:
+            continue
+        if text.count(start) != 1:
+            raise RuntimeError(f"Unsupported source shape in {path}: expected one fixture range start")
+        start_index = text.index(start)
+        end_index = text.find(end, start_index)
+        if end_index < 0:
+            raise RuntimeError(f"Unsupported source shape in {path}: fixture range end not found")
+        path.write_text(text[:start_index] + replacement + "\n\n" + text[end_index:], encoding="utf-8")
 
 
 def run(command: list[str], *, cwd: Path) -> None:
