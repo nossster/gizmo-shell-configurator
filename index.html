@@ -47,7 +47,6 @@
             <p id="applyState" class="apply-state apply-state--header">Preview синхронизирован</p>
           </div>
           <div class="header-actions">
-            <button id="applyThemeBtn" class="primary-button" type="button">Применить</button>
             <button id="resetThemeBtn" class="ghost-button" type="button">Сбросить</button>
           </div>
         </div>
@@ -64,13 +63,13 @@
             <h2>Настройки темы</h2>
           </div>
           <div class="settings-tabs" id="settingsTabs">
-            <button class="settings-tab active" data-settings-tab="colors" type="button">Цвета · 13</button>
+            <button class="settings-tab active" data-settings-tab="colors" type="button">Цвета · 16</button>
             <button class="settings-tab" data-settings-tab="fonts" type="button">Шрифты</button>
             <button class="settings-tab" data-settings-tab="effects" type="button">Эффекты</button>
           </div>
 
           <div class="settings-tab-panel active" data-settings-panel="colors">
-            <p class="muted muted--compact">13 основных цветов управляют всей темой. Близкие поверхности, состояния и полупрозрачные варианты рассчитываются автоматически.</p>
+            <p class="muted muted--compact">16 цветов управляют темой, включая отдельные настройки Warning, Timeline и Expiration. Близкие поверхности и полупрозрачные варианты рассчитываются автоматически.</p>
             <div class="control-grid" id="colorControls"></div>
           </div>
 
@@ -85,46 +84,12 @@
           </div>
         </section>
 
-        <section class="control-group">
-          <div class="group-title-row">
-            <h2>Режим preview</h2>
-          </div>
-          <div class="preview-mode-tabs" id="previewModeTabs">
-            <button data-mode="home" class="preview-mode-tab active" type="button">Home</button>
-            <button data-mode="apps" class="preview-mode-tab" type="button">Apps</button>
-            <button data-mode="shop" class="preview-mode-tab" type="button">Shop</button>
-            <button data-mode="product" class="preview-mode-tab" type="button">Product</button>
-            <button data-mode="profile" class="preview-mode-tab" type="button">Profile</button>
-            <button data-mode="profile-products" class="preview-mode-tab" type="button">Time</button>
-            <button data-mode="profile-purchases" class="preview-mode-tab" type="button">Purchases</button>
-            <button data-mode="login" class="preview-mode-tab" type="button">Login</button>
-            <button data-mode="password-recovery" class="preview-mode-tab" type="button">Recovery</button>
-            <button data-mode="registration" class="preview-mode-tab" type="button">Registration</button>
-          </div>
-          <p id="previewModeHint" class="muted muted--compact preview-mode-hint">
-            Home: header, quick launch, баннеры и popups для тонкой подстройки shell.
-          </p>
-        </section>
       </aside>
 
       <main class="workspace">
         <section class="panel preview-panel">
-          <div class="panel__header preview-panel__header">
-            <div>
-              <p class="eyebrow">Live preview</p>
-              <h2>Макет оболочки Gizmo.Client.UI</h2>
-              <p class="muted">
-                Preview максимально приближен к структуре header / quick launch / ads / shop / profile / login shell.
-              </p>
-            </div>
-            <div class="preview-status">
-              <span class="status-dot"></span>
-              <span id="previewStatusText">Preview синхронизирован</span>
-            </div>
-          </div>
-
           <div class="preview-stage">
-            <div id="previewRoot" class="preview-root" client-theme="true">
+            <div id="previewRoot" class="preview-root" client-theme="true" hidden aria-hidden="true">
               <div class="preview-background"></div>
               <div class="giz-container preview-screens-shell">
 
@@ -738,37 +703,34 @@
                 </div>
               </div>
             </div>
+            <div id="realPreviewShell" class="real-preview-shell">
+              <div id="realPreviewLoading" class="real-preview-message">
+                <strong>Загрузка настоящего Gizmo.Client.UI.Host.Web…</strong>
+                <span>Blazor WebAssembly запускается локально с TestClient. После загрузки войдите как demo / demo.</span>
+              </div>
+              <iframe
+                id="realPreviewFrame"
+                class="real-preview-frame"
+                title="Настоящий Gizmo.Client.UI.Host.Web"
+                data-src="./real-client/"
+              ></iframe>
+            </div>
           </div>
         </section>
       </main>
 
       <aside class="panel export-panel">
-        <div class="panel__header">
-          <div>
-            <p class="eyebrow">Export</p>
-            <h2>CSS override</h2>
-            <p class="muted">Генерируется готовый CSS-файл для загрузки в Gizmo Client custom CSS.</p>
-          </div>
-        </div>
-
-        <section class="control-group export-summary-group">
-          <div class="group-title-row">
-            <h2>Профиль экспорта</h2>
-          </div>
-          <div class="summary-grid">
-            <div class="summary-card">
-              <span>Палитра</span>
-              <strong id="themeSignature">Original Gizmo baseline</strong>
+        <section class="control-group style-map-group" aria-labelledby="styleMapTitle">
+          <div class="group-title-row style-map-group__header">
+            <div>
+              <p class="eyebrow">Live bindings</p>
+              <h2 id="styleMapTitle">Карта привязок стилей</h2>
             </div>
-            <div class="summary-card">
-              <span>Шрифты</span>
-              <strong id="fontSignature">Rubik / Noto Sans</strong>
-            </div>
-            <div class="summary-card">
-              <span>Активный экран</span>
-              <strong id="previewModeLabel">Home</strong>
-            </div>
+            <span class="style-map-live-badge"><span aria-hidden="true"></span> Real UI</span>
           </div>
+          <p class="muted muted--compact">Наведите на стиль, чтобы увидеть связанные элементы в Host.Web. Клик фиксирует подсветку.</p>
+          <div id="styleMapLegend" class="style-map-legend" aria-label="Стили темы и связанные элементы интерфейса"></div>
+          <p id="styleMapStatus" class="style-map-status" aria-live="polite">Карта готова — выберите стиль.</p>
         </section>
 
         <section class="control-group export-actions-group">
