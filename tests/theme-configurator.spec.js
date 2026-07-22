@@ -2,7 +2,15 @@ const { test, expect } = require('playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const hasRealHostRuntime = fs.existsSync(path.join(__dirname, '..', 'real-client', 'configurator-runtime.json'));
+const realHostRuntimeMarkerPath = path.join(__dirname, '..', 'real-client', 'configurator-runtime.json');
+let realHostRuntimeMarker = null;
+try {
+  realHostRuntimeMarker = JSON.parse(fs.readFileSync(realHostRuntimeMarkerPath, 'utf8'));
+} catch {
+  realHostRuntimeMarker = null;
+}
+const hasRealHostRuntime = realHostRuntimeMarker?.host === 'Gizmo.Client.UI.Host.Web';
+const hasDemoLoginRuntime = hasRealHostRuntime && realHostRuntimeMarker.demoLogin === true;
 
 const visibleColorKeys = [
   'shellBg',
@@ -130,7 +138,7 @@ test('all preview routes activate exactly one screen', async ({ page }) => {
 
 test('real Host.Web receives live CSS and exports the same theme without Gizmo Server', async ({ page }) => {
   test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to enable the real Host.Web integration test.');
-  test.setTimeout(60_000);
+  test.setTimeout(90_000);
 
   const browserErrors = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
@@ -140,6 +148,12 @@ test('real Host.Web receives live CSS and exports the same theme without Gizmo S
 
   await page.locator('[data-preview-surface="real"]').click();
   const realPreview = page.frameLocator('#realPreviewFrame');
+  if (hasDemoLoginRuntime) {
+    await expect(page.locator('#realPreviewCredentials')).toBeVisible();
+    await expect(page.locator('#realPreviewCredentials')).toContainText('demo');
+  } else {
+    await expect(page.locator('#realPreviewCredentials')).toBeHidden();
+  }
   await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
   await expect(page.locator('#realPreviewShell')).toHaveClass(/is-ready/);
   await expect(page.locator('#previewStatusText')).toHaveText('Real Host.Web синхронизирован');
@@ -161,5 +175,35 @@ test('real Host.Web receives live CSS and exports the same theme without Gizmo S
   const downloadedPath = await download.path();
   expect(download.suggestedFilename()).toBe('gizmo-shell-custom.css');
   expect(fs.readFileSync(downloadedPath, 'utf8')).toContain('--shell-accent: #FF00AA;');
+
+  if (!hasDemoLoginRuntime) {
+    expect(browserErrors).toEqual([]);
+    return;
+  }
+
+  await realPreview.locator('input[type="text"]').pressSequentially('demo', { delay: 50 });
+  await realPreview.locator('input[type="password"]').pressSequentially('demo', { delay: 50 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/home');
+  await expect(realPreview.locator('a[href="home"]')).toHaveClass(/active/);
+  await expect.poll(async () => realPreview.locator('html').evaluate((element) => (
+    getComputedStyle(element).backgroundImage
+  ))).toContain('background.jpg');
+  await expect(realPreview.locator('#gizmoConfiguratorPreviewBackdrop')).toHaveCount(1);
+
+  for (const route of ['apps', 'shop']) {
+    await realPreview.locator(`a[href="${route}"]`).click();
+    await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe(`/real-client/${route}`);
+    await expect(realPreview.locator(`a[href="${route}"]`)).toHaveClass(/active/);
+    await expect.poll(async () => realPreview.locator('[client-theme]').first().evaluate((element) => (
+      getComputedStyle(element).getPropertyValue('--shell-accent').trim()
+    ))).toBe('#FF00AA');
+  }
+
+  await realPreview.getByRole('button', { name: 'PC 100', exact: true }).click();
+  await realPreview.locator('a[href="profile"]').click();
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/profile');
+  await expect(realPreview.locator('a[href="profile"].active')).toHaveCount(1);
+  await expect(realPreview.locator('body')).toContainText('User details');
   expect(browserErrors).toEqual([]);
 });

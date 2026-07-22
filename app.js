@@ -585,6 +585,7 @@ let activePresetKey = 'original-gizmo';
 let isCssOutputCollapsed = true;
 let activePreviewSurface = 'mock';
 let realPreviewState = 'idle';
+let realPreviewSupportsDemoLogin = false;
 let realPreviewResizeObserver = null;
 const REAL_PREVIEW_VIEWPORT = Object.freeze({ width: 1280, height: 760 });
 const THEME_KEYS = Object.keys(DEFAULT_THEME);
@@ -619,6 +620,7 @@ const previewSurfaceDescription = document.getElementById('previewSurfaceDescrip
 const realPreviewShell = document.getElementById('realPreviewShell');
 const realPreviewFrame = document.getElementById('realPreviewFrame');
 const realPreviewLoading = document.getElementById('realPreviewLoading');
+const realPreviewCredentials = document.getElementById('realPreviewCredentials');
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -1221,6 +1223,36 @@ function applyCssToRealPreview() {
     frameDocument.head.appendChild(importedStyle);
   }
   importedStyle.textContent = importedRawCss;
+
+  const backdropStyles = Array.from(frameDocument.querySelectorAll('style#gizmoConfiguratorPreviewBackdrop'));
+  let backdropStyle = backdropStyles.shift();
+  backdropStyles.forEach((style) => style.remove());
+  if (backdropStyle?.tagName !== 'STYLE') {
+    backdropStyle = frameDocument.createElement('style');
+    backdropStyle.id = 'gizmoConfiguratorPreviewBackdrop';
+    frameDocument.head.appendChild(backdropStyle);
+  }
+  const backdropColor = CSS.supports('color', appliedTheme.shellBg)
+    ? appliedTheme.shellBg
+    : DEFAULT_THEME.shellBg;
+  backdropStyle.textContent = `
+html {
+  min-height: 100%;
+  background-color: ${backdropColor};
+  background-image: linear-gradient(rgba(4, 12, 19, 0.18), rgba(4, 12, 19, 0.32)), url("_content/Gizmo.Client.UI/img/background.jpg");
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+body,
+#app,
+#app > main {
+  min-height: 100%;
+  background: transparent !important;
+}
+`;
   return true;
 }
 
@@ -1244,6 +1276,15 @@ async function loadRealPreview() {
     if (marker?.host !== 'Gizmo.Client.UI.Host.Web' || marker?.client !== 'TestClient') {
       throw new Error('Unexpected Host.Web runtime marker');
     }
+    realPreviewSupportsDemoLogin = marker.demoLogin === true;
+    if (realPreviewCredentials instanceof HTMLElement) {
+      realPreviewCredentials.hidden = activePreviewSurface !== 'real' || !realPreviewSupportsDemoLogin;
+    }
+    if (previewSurfaceDescription && activePreviewSurface === 'real') {
+      previewSurfaceDescription.textContent = realPreviewSupportsDemoLogin
+        ? 'Войдите как demo / demo и переходите по настоящим Home, Apps, Shop и Profile. Generated CSS применяется внутри Blazor preview на лету.'
+        : 'Generated CSS применяется внутри настоящего Blazor preview на лету. Для demo-входа соберите runtime через npm run build:real-client.';
+    }
     realPreviewFrame.src = source;
   } catch (error) {
     realPreviewState = 'error';
@@ -1263,6 +1304,9 @@ function setPreviewSurface(surface) {
 
   previewRoot.hidden = isReal;
   if (realPreviewShell instanceof HTMLElement) realPreviewShell.hidden = !isReal;
+  if (realPreviewCredentials instanceof HTMLElement) {
+    realPreviewCredentials.hidden = !isReal || !realPreviewSupportsDemoLogin;
+  }
   document.querySelectorAll('.preview-surface-tab').forEach((button) => {
     const isActive = button.dataset.previewSurface === activePreviewSurface;
     button.classList.toggle('active', isActive);
@@ -1276,7 +1320,9 @@ function setPreviewSurface(surface) {
   }
   if (previewSurfaceDescription) {
     previewSurfaceDescription.textContent = isReal
-      ? 'Реальные Razor-компоненты работают локально через TestClient; Generated CSS применяется внутри Blazor preview на лету.'
+      ? (realPreviewSupportsDemoLogin
+        ? 'Войдите как demo / demo и переходите по настоящим Home, Apps, Shop и Profile. Generated CSS применяется внутри Blazor preview на лету.'
+        : 'Generated CSS применяется внутри настоящего Blazor preview на лету. Для demo-входа соберите runtime через npm run build:real-client.')
       : 'Preview максимально приближен к структуре header / quick launch / ads / shop / profile / login shell.';
   }
 

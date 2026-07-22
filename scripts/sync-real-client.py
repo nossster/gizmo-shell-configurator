@@ -38,11 +38,19 @@ REQUIRED_FILES = (
     Path("_framework/blazor.boot.json"),
     Path("_framework/Gizmo.Web.Components.dll"),
     Path("_framework/Gizmo.Client.UI.dll"),
+    Path("_content/Gizmo.Client.UI/client_internal_style.js"),
+    Path("_content/Gizmo.Client.UI/client_external_style.js"),
+    Path("_content/Gizmo.Client.UI/webcomponents_style.js"),
+    Path("_content/Gizmo.Client.UI/client_internal_code.js"),
+    Path("_content/Gizmo.Client.UI/client_external_code.js"),
+    Path("_content/Gizmo.Client.UI/client_api_code.js"),
+    Path("_content/Gizmo.Client.UI/webcomponents_code.js"),
+    Path("_content/Gizmo.Client.UI/img/background.jpg"),
     Path("appsettings.json"),
 )
 
 
-def validate_runtime(root: Path, *, require_patched_base: bool) -> None:
+def validate_runtime(root: Path, *, require_patched_base: bool, require_demo_login: bool = False) -> None:
     missing = [str(relative) for relative in REQUIRED_FILES if not (root / relative).is_file()]
     if missing:
         raise RuntimeError(f"Missing required Host.Web files in {root}: {', '.join(missing)}")
@@ -61,6 +69,15 @@ def validate_runtime(root: Path, *, require_patched_base: bool) -> None:
         environment_settings = sorted(path.name for path in root.glob("appsettings.*.json"))
         if environment_settings:
             raise RuntimeError(f"Generated runtime contains environment settings: {', '.join(environment_settings)}")
+
+    if require_demo_login:
+        marker_path = root / "configurator-runtime.json"
+        try:
+            marker = json.loads(marker_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise RuntimeError(f"Generated runtime has an invalid marker: {marker_path}") from error
+        if marker.get("demoLogin") is not True:
+            raise RuntimeError("Generated runtime does not contain the demo-login fixture")
 
 
 def patch_index(index_path: Path) -> None:
@@ -108,7 +125,7 @@ def validate_root_framework_alias(runtime: Path) -> None:
         raise RuntimeError(f"Missing root framework aliases in {alias_root}: {', '.join(missing)}")
 
 
-def synchronize(source: Path, destination: Path) -> None:
+def synchronize(source: Path, destination: Path, *, demo_login: bool = False) -> None:
     validate_runtime(source, require_patched_base=False)
     destination.parent.mkdir(parents=True, exist_ok=True)
 
@@ -124,13 +141,14 @@ def synchronize(source: Path, destination: Path) -> None:
                     "baseHref": BASE_HREF,
                     "host": "Gizmo.Client.UI.Host.Web",
                     "client": "TestClient",
+                    "demoLogin": demo_login,
                 },
                 indent=2,
             )
             + "\n",
             encoding="utf-8",
         )
-        validate_runtime(staged, require_patched_base=True)
+        validate_runtime(staged, require_patched_base=True, require_demo_login=demo_login)
 
         if destination.exists():
             shutil.rmtree(destination)
@@ -147,6 +165,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Validate the already synchronized destination without copying files.",
     )
+    parser.add_argument(
+        "--demo-login",
+        action="store_true",
+        help="Mark a synchronized runtime built with the demo-login fixture patches.",
+    )
+    parser.add_argument(
+        "--require-demo-login",
+        action="store_true",
+        help="Require the existing runtime marker to declare demo-login support.",
+    )
     return parser.parse_args()
 
 
@@ -157,11 +185,15 @@ def main() -> int:
 
     try:
         if args.check:
-            validate_runtime(destination, require_patched_base=True)
+            validate_runtime(
+                destination,
+                require_patched_base=True,
+                require_demo_login=args.require_demo_login,
+            )
             validate_root_framework_alias(destination)
             print(f"Real Host.Web preview is valid: {destination}")
         else:
-            synchronize(source, destination)
+            synchronize(source, destination, demo_login=args.demo_login)
             print(f"Synchronized Real Host.Web preview: {source} -> {destination}")
     except (OSError, RuntimeError) as error:
         print(f"sync-real-client: {error}", file=sys.stderr)

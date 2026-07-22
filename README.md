@@ -7,6 +7,7 @@ SPA-приложение для визуальной настройки обол
 - визуально настраивать shell-палитру из 16 цветов;
 - сразу применять валидные изменения к live preview и Generated CSS без кнопки «Применить»;
 - переключаться между быстрым Demo Preview и настоящим `Gizmo.Client.UI.Host.Web`;
+- входить в настоящий Host.Web через автономный `demo / demo` и переходить по `Home`, `Apps`, `Shop`, `Profile`;
 - применять Generated CSS непосредственно к реальным Blazor-компонентам на лету через same-origin preview;
 - переключать 10 preview-маршрутов: `Home`, `Apps`, `Shop`, карточка товара,
   профиль, доступное время, покупки, вход, восстановление пароля и регистрация;
@@ -27,6 +28,7 @@ SPA-приложение для визуальной настройки обол
 - `styles.css` — стили самого конфигуратора и live preview;
 - `app.js` — контролы, пресеты, генерация CSS, import/export логика;
 - `scripts/sync-real-client.py` — перенос опубликованного Host.Web runtime в generated preview;
+- `scripts/build-real-client.py` — временная fixture-подготовка, publish и синхронизация demo-login runtime;
 - `scripts/serve.py` — локальный static server с правильными MIME types для Blazor WebAssembly;
 - `start-configurator.bat` — запуск конфигуратора двойным кликом в Windows;
 - `package.json` — минимальные scripts для проверки JS.
@@ -36,6 +38,8 @@ SPA-приложение для визуальной настройки обол
 Кнопка **Real Host.Web** открывает реальные Razor/Blazor-компоненты из
 `Gizmo.Client.UI.Host.Web`. Host использует встроенный `TestClient`, поэтому
 соединение с Gizmo Server, API, авторизация сервера и realtime не требуются.
+Для входа используются `demo / demo`; после входа доступны настоящие страницы
+`Home`, `Apps`, `Shop` и `Profile` с внутренней Blazor-навигацией.
 
 Generated CSS вставляется только в документ preview iframe и обновляется при
 каждом валидном изменении цвета, шрифта, эффекта, пресета или импортированного
@@ -88,13 +92,20 @@ python3 scripts/serve.py --port 8899
 Если исходники `Gizmo.Client.UI` находятся рядом с конфигуратором:
 
 ```bash
-dotnet publish ../Gizmo.Client.UI/Gizmo.Client.UI.Host.Web/Gizmo.Client.UI.Host.Web.csproj -c Release
-npm run sync:real-client
-python3 scripts/sync-real-client.py --check
+npm run build:real-client
 ```
 
-Для произвольного publish output можно передать
-`--source /path/to/publish/wwwroot`.
+Скрипт создаёт изолированный временный Git worktree, отключает в нём блокирующую
+тестовую резервацию, делает маршруты совместимыми с `/real-client/`, публикует
+Host.Web и синхронизирует runtime с marker `demoLogin: true`. Рабочая копия
+внешнего репозитория не изменяется даже при аварийном завершении сборки.
+
+Для другого расположения исходников или уже готового publish output:
+
+```bash
+npm run build:real-client -- --source-root /path/to/Gizmo.Client.UI
+npm run sync:real-client -- --source /path/to/publish/wwwroot
+```
 
 При синхронизации `appsettings.*.json` удаляются, а API/realtime endpoints в
 основном `appsettings.json` заменяются на localhost-заглушки. Standalone preview
@@ -107,6 +118,7 @@ python3 scripts/sync-real-client.py --check
 - E2E проверяет компактную палитру, производные токены, все пресеты,
   Export → Import, Windows ABGR DWORD, 10 preview-маршрутов и настоящий Host.Web;
 - real-host E2E проверяет Blazor `[client-theme]`, live CSS variable,
+  вход `demo / demo`, маршруты Home/Apps/Shop/Profile, preview wallpaper,
   отсутствие browser errors и содержимое скачанного CSS;
 - визуальная проверка выполнялась через Playwright screenshots;
 - проверены все 10 маршрутов, интерактивная корзина и формы;

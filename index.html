@@ -121,6 +121,12 @@
                 <button class="preview-surface-tab active" data-preview-surface="mock" type="button" role="tab" aria-selected="true">Demo</button>
                 <button class="preview-surface-tab" data-preview-surface="real" type="button" role="tab" aria-selected="false">Real Host.Web</button>
               </div>
+              <div id="realPreviewCredentials" class="real-preview-credentials" hidden>
+                <span>Demo-вход</span>
+                <kbd>demo</kbd>
+                <span>/</span>
+                <kbd>demo</kbd>
+              </div>
               <div class="preview-status">
                 <span class="status-dot"></span>
                 <span id="previewStatusText">Preview синхронизирован</span>
@@ -746,7 +752,7 @@
             <div id="realPreviewShell" class="real-preview-shell" hidden>
               <div id="realPreviewLoading" class="real-preview-message">
                 <strong>Загрузка настоящего Gizmo.Client.UI.Host.Web…</strong>
-                <span>Blazor WebAssembly запускается локально с TestClient, без Gizmo Server.</span>
+                <span>Blazor WebAssembly запускается локально с TestClient. После загрузки войдите как demo / demo.</span>
               </div>
               <iframe
                 id="realPreviewFrame"

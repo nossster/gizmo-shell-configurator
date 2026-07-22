@@ -15,6 +15,7 @@ real-client/
 _framework/
 test-results/
 playwright-report/
+dist/
 dock-*.png
 
 # Archives
