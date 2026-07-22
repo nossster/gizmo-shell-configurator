@@ -11,7 +11,7 @@ module.exports = defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'python3 -m http.server 8923 --bind 127.0.0.1',
+    command: 'python3 scripts/serve.py --port 8923 --no-browser',
     url: 'http://127.0.0.1:8923',
     reuseExistingServer: true,
     timeout: 30_000,
