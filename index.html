@@ -111,14 +111,20 @@
           <div class="panel__header preview-panel__header">
             <div>
               <p class="eyebrow">Live preview</p>
-              <h2>Макет оболочки Gizmo.Client.UI</h2>
-              <p class="muted">
+              <h2 id="previewSurfaceTitle">Макет оболочки Gizmo.Client.UI</h2>
+              <p id="previewSurfaceDescription" class="muted">
                 Preview максимально приближен к структуре header / quick launch / ads / shop / profile / login shell.
               </p>
             </div>
-            <div class="preview-status">
-              <span class="status-dot"></span>
-              <span id="previewStatusText">Preview синхронизирован</span>
+            <div class="preview-panel__tools">
+              <div id="previewSurfaceTabs" class="preview-surface-tabs" role="tablist" aria-label="Источник preview">
+                <button class="preview-surface-tab active" data-preview-surface="mock" type="button" role="tab" aria-selected="true">Demo</button>
+                <button class="preview-surface-tab" data-preview-surface="real" type="button" role="tab" aria-selected="false">Real Host.Web</button>
+              </div>
+              <div class="preview-status">
+                <span class="status-dot"></span>
+                <span id="previewStatusText">Preview синхронизирован</span>
+              </div>
             </div>
           </div>
 
@@ -736,6 +742,18 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div id="realPreviewShell" class="real-preview-shell" hidden>
+              <div id="realPreviewLoading" class="real-preview-message">
+                <strong>Загрузка настоящего Gizmo.Client.UI.Host.Web…</strong>
+                <span>Blazor WebAssembly запускается локально с TestClient, без Gizmo Server.</span>
+              </div>
+              <iframe
+                id="realPreviewFrame"
+                class="real-preview-frame"
+                title="Настоящий Gizmo.Client.UI.Host.Web"
+                data-src="./real-client/"
+              ></iframe>
             </div>
           </div>
         </section>

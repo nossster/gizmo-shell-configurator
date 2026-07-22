@@ -583,6 +583,10 @@ let hasPendingChanges = false;
 let liveApplyFrame = null;
 let activePresetKey = 'original-gizmo';
 let isCssOutputCollapsed = true;
+let activePreviewSurface = 'mock';
+let realPreviewState = 'idle';
+let realPreviewResizeObserver = null;
+const REAL_PREVIEW_VIEWPORT = Object.freeze({ width: 1280, height: 760 });
 const THEME_KEYS = Object.keys(DEFAULT_THEME);
 
 const previewRoot = document.getElementById('previewRoot');
@@ -609,6 +613,12 @@ const importCssStatus = document.getElementById('importCssStatus');
 const themeSignature = document.getElementById('themeSignature');
 const fontSignature = document.getElementById('fontSignature');
 const previewModeLabel = document.getElementById('previewModeLabel');
+const previewSurfaceTabs = document.getElementById('previewSurfaceTabs');
+const previewSurfaceTitle = document.getElementById('previewSurfaceTitle');
+const previewSurfaceDescription = document.getElementById('previewSurfaceDescription');
+const realPreviewShell = document.getElementById('realPreviewShell');
+const realPreviewFrame = document.getElementById('realPreviewFrame');
+const realPreviewLoading = document.getElementById('realPreviewLoading');
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -655,6 +665,7 @@ const PREVIEW_STYLE_HINTS = [
 ];
 
 let importedCssFileName = '';
+let importedRawCss = '';
 let draftThemeBeforeImport = null;
 let appliedThemeBeforeImport = null;
 
@@ -1156,6 +1167,125 @@ function setSettingsTab(tab) {
   document.querySelectorAll('.settings-tab-panel').forEach((panel) => {
     panel.classList.toggle('active', panel.dataset.settingsPanel === tab);
   });
+}
+
+function setRealPreviewMessage(title, detail) {
+  if (!realPreviewLoading) return;
+  const heading = realPreviewLoading.querySelector('strong');
+  const description = realPreviewLoading.querySelector('span');
+  if (heading) heading.textContent = title;
+  if (description) description.textContent = detail;
+}
+
+function fitRealPreview() {
+  if (!(realPreviewFrame instanceof HTMLIFrameElement) || !(realPreviewShell instanceof HTMLElement)) return;
+  const availableWidth = realPreviewShell.clientWidth;
+  if (!availableWidth) return;
+
+  const scale = Math.min(1, availableWidth / REAL_PREVIEW_VIEWPORT.width);
+  realPreviewFrame.style.width = `${REAL_PREVIEW_VIEWPORT.width}px`;
+  realPreviewFrame.style.height = `${REAL_PREVIEW_VIEWPORT.height}px`;
+  realPreviewFrame.style.transform = `scale(${scale})`;
+  realPreviewShell.style.height = `${Math.round(REAL_PREVIEW_VIEWPORT.height * scale)}px`;
+}
+
+function applyCssToRealPreview() {
+  if (!(realPreviewFrame instanceof HTMLIFrameElement)) return false;
+  if (!realPreviewFrame.getAttribute('src')) return false;
+
+  let frameDocument;
+  try {
+    if (realPreviewFrame.contentWindow?.location.href === 'about:blank') return false;
+    frameDocument = realPreviewFrame.contentDocument;
+  } catch {
+    return false;
+  }
+  if (!frameDocument?.head) return false;
+
+  const themeStyles = Array.from(frameDocument.querySelectorAll('style#gizmoConfiguratorTheme'));
+  let themeStyle = themeStyles.shift();
+  themeStyles.forEach((style) => style.remove());
+  if (themeStyle?.tagName !== 'STYLE') {
+    themeStyle = frameDocument.createElement('style');
+    themeStyle.id = 'gizmoConfiguratorTheme';
+    frameDocument.head.appendChild(themeStyle);
+  }
+  themeStyle.textContent = generateCss(appliedTheme);
+
+  const importedStyles = Array.from(frameDocument.querySelectorAll('style#gizmoConfiguratorImportedCss'));
+  let importedStyle = importedStyles.shift();
+  importedStyles.forEach((style) => style.remove());
+  if (importedStyle?.tagName !== 'STYLE') {
+    importedStyle = frameDocument.createElement('style');
+    importedStyle.id = 'gizmoConfiguratorImportedCss';
+    frameDocument.head.appendChild(importedStyle);
+  }
+  importedStyle.textContent = importedRawCss;
+  return true;
+}
+
+async function loadRealPreview() {
+  if (!(realPreviewFrame instanceof HTMLIFrameElement) || realPreviewState === 'loading' || realPreviewState === 'ready') return;
+
+  const source = realPreviewFrame.dataset.src || './real-client/';
+  realPreviewState = 'loading';
+  realPreviewShell?.classList.remove('is-ready', 'is-error');
+  setRealPreviewMessage(
+    'Загрузка настоящего Gizmo.Client.UI.Host.Web…',
+    'Blazor WebAssembly запускается локально с TestClient, без Gizmo Server.',
+  );
+  updateApplyState();
+
+  try {
+    const markerUrl = new URL('configurator-runtime.json', new URL(source, window.location.href));
+    const response = await fetch(markerUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Host.Web runtime marker returned ${response.status}`);
+    const marker = await response.json();
+    if (marker?.host !== 'Gizmo.Client.UI.Host.Web' || marker?.client !== 'TestClient') {
+      throw new Error('Unexpected Host.Web runtime marker');
+    }
+    realPreviewFrame.src = source;
+  } catch (error) {
+    realPreviewState = 'error';
+    realPreviewShell?.classList.add('is-error');
+    setRealPreviewMessage(
+      'Real Host.Web не найден',
+      'Сначала выполните npm run sync:real-client, затем перезагрузите страницу. Demo preview продолжает работать.',
+    );
+    updateApplyState();
+    console.warn('Real Host.Web preview is unavailable:', error);
+  }
+}
+
+function setPreviewSurface(surface) {
+  activePreviewSurface = surface === 'real' ? 'real' : 'mock';
+  const isReal = activePreviewSurface === 'real';
+
+  previewRoot.hidden = isReal;
+  if (realPreviewShell instanceof HTMLElement) realPreviewShell.hidden = !isReal;
+  document.querySelectorAll('.preview-surface-tab').forEach((button) => {
+    const isActive = button.dataset.previewSurface === activePreviewSurface;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  });
+
+  if (previewSurfaceTitle) {
+    previewSurfaceTitle.textContent = isReal
+      ? 'Настоящий Gizmo.Client.UI.Host.Web'
+      : 'Макет оболочки Gizmo.Client.UI';
+  }
+  if (previewSurfaceDescription) {
+    previewSurfaceDescription.textContent = isReal
+      ? 'Реальные Razor-компоненты работают локально через TestClient; Generated CSS применяется внутри Blazor preview на лету.'
+      : 'Preview максимально приближен к структуре header / quick launch / ads / shop / profile / login shell.';
+  }
+
+  if (isReal) {
+    fitRealPreview();
+    loadRealPreview();
+    applyCssToRealPreview();
+  }
+  updateApplyState();
 }
 
 function setPreviewMode(mode) {
@@ -2173,6 +2303,17 @@ body {
   color: var(--shell-text);
 }
 
+[client-theme] .giz-login__adv,
+[client-theme] .giz-login__adv__background {
+  background:
+    radial-gradient(circle at 30% 20%, ${hexToRgba(themeValues.shellAccent, 0.16)}, transparent 34%),
+    linear-gradient(145deg, ${themeValues.shellBgElevated2} 0%, ${themeValues.shellBg} 100%);
+}
+
+[client-theme] .giz-login__adv__background > img[src=""] {
+  display: none;
+}
+
 [client-theme] .giz-login__login .giz-login-card,
 [client-theme] .giz-login__login .giz-login-card__header,
 [client-theme] .giz-login__login .giz-login-card__body,
@@ -2250,9 +2391,19 @@ function updateApplyState() {
   }
 
   if (previewStatusText) {
-    previewStatusText.textContent = hasPendingChanges
-      ? 'Preview обновляется…'
-      : 'Preview синхронизирован';
+    if (activePreviewSurface === 'real') {
+      const realStatus = {
+        idle: 'Real Host.Web ещё не загружен',
+        loading: 'Real Host.Web загружается…',
+        ready: hasPendingChanges ? 'Real Host.Web обновляется…' : 'Real Host.Web синхронизирован',
+        error: 'Real Host.Web недоступен',
+      };
+      previewStatusText.textContent = realStatus[realPreviewState] ?? realStatus.idle;
+    } else {
+      previewStatusText.textContent = hasPendingChanges
+        ? 'Preview обновляется…'
+        : 'Preview синхронизирован';
+    }
   }
 }
 
@@ -2269,6 +2420,7 @@ function markPendingChanges() {
 
 function renderPreview() {
   previewRoot.style.cssText = previewVars(appliedTheme);
+  applyCssToRealPreview();
 }
 
 function renderCssOutput() {
@@ -2362,6 +2514,7 @@ function extractThemeOverridesFromCss(cssText) {
 async function importPreviewCss(file) {
   const rawCss = await file.text();
   const importedThemeOverrides = extractThemeOverridesFromCss(rawCss);
+  importedRawCss = rawCss;
 
   if (!draftThemeBeforeImport || !appliedThemeBeforeImport) {
     draftThemeBeforeImport = structuredClone(draftTheme);
@@ -2382,11 +2535,13 @@ async function importPreviewCss(file) {
 
   importedCssFileName = file.name;
   importedPreviewStyle.textContent = scopeImportedCss(rawCss);
+  applyCssToRealPreview();
   updateImportedCssState();
   updateExportSummary();
 }
 
 function clearImportedPreviewCss() {
+  importedRawCss = '';
   if (draftThemeBeforeImport && appliedThemeBeforeImport) {
     draftTheme = structuredClone(draftThemeBeforeImport);
     appliedTheme = structuredClone(appliedThemeBeforeImport);
@@ -2403,6 +2558,7 @@ function clearImportedPreviewCss() {
 
   importedCssFileName = '';
   importedPreviewStyle.textContent = '';
+  applyCssToRealPreview();
   if (importCssInput instanceof HTMLInputElement) importCssInput.value = '';
   updateImportedCssState();
   updateExportSummary();
@@ -2694,6 +2850,40 @@ previewRoot.addEventListener('change', (event) => {
   if (button instanceof HTMLButtonElement) button.disabled = !target.checked;
 });
 
+previewSurfaceTabs?.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLButtonElement)) return;
+  const surface = target.dataset.previewSurface;
+  if (!surface) return;
+  setPreviewSurface(surface);
+});
+
+if (realPreviewShell instanceof HTMLElement && typeof ResizeObserver === 'function') {
+  realPreviewResizeObserver = new ResizeObserver(fitRealPreview);
+  realPreviewResizeObserver.observe(realPreviewShell);
+}
+window.addEventListener('resize', fitRealPreview);
+
+realPreviewFrame?.addEventListener('load', () => {
+  if (!(realPreviewFrame instanceof HTMLIFrameElement) || !realPreviewFrame.getAttribute('src')) return;
+  if (!applyCssToRealPreview()) {
+    realPreviewState = 'error';
+    realPreviewShell?.classList.add('is-error');
+    setRealPreviewMessage(
+      'Не удалось открыть Real Host.Web',
+      'Preview должен загружаться с того же origin, что и конфигуратор.',
+    );
+    updateApplyState();
+    return;
+  }
+
+  realPreviewState = 'ready';
+  realPreviewShell?.classList.remove('is-error');
+  realPreviewShell?.classList.add('is-ready');
+  fitRealPreview();
+  updateApplyState();
+});
+
 previewModeTabs.addEventListener('click', (event) => {
   const target = event.target;
   if (!(target instanceof HTMLButtonElement)) return;
@@ -2726,7 +2916,9 @@ importCssInput.addEventListener('change', async (event) => {
     await importPreviewCss(file);
   } catch (error) {
     importedCssFileName = '';
+    importedRawCss = '';
     importedPreviewStyle.textContent = '';
+    applyCssToRealPreview();
     if (importCssStatus) importCssStatus.textContent = 'Не удалось импортировать CSS';
     if (clearImportedCssBtn instanceof HTMLButtonElement) clearImportedCssBtn.disabled = true;
     console.error(error);
@@ -2736,6 +2928,7 @@ importCssInput.addEventListener('change', async (event) => {
 resetThemeBtn.addEventListener('click', () => {
   if (importedPreviewStyle.textContent.trim().length > 0) {
     importedCssFileName = '';
+    importedRawCss = '';
     importedPreviewStyle.textContent = '';
     draftThemeBeforeImport = null;
     appliedThemeBeforeImport = null;
@@ -2762,6 +2955,7 @@ replacePreviewGlyphsWithSvg();
 applyPreviewStyleHints();
 setSettingsTab(activeSettingsTab);
 setPreviewMode(activePreviewMode);
+setPreviewSurface(activePreviewSurface);
 updateImportedCssState();
 updateCssOutputVisibility();
 renderAll(true, true);

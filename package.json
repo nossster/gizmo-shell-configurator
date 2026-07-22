@@ -5,6 +5,8 @@
   "main": "app.js",
   "scripts": {
     "check": "node --check app.js",
+    "sync:real-client": "python3 scripts/sync-real-client.py",
+    "check:real-client": "python3 scripts/sync-real-client.py --check",
     "test": "node --check app.js && playwright test"
   },
   "keywords": [

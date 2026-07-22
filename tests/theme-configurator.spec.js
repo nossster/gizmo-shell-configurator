@@ -1,4 +1,8 @@
 const { test, expect } = require('playwright/test');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const hasRealHostRuntime = fs.existsSync(path.join(__dirname, '..', 'real-client', 'configurator-runtime.json'));
 
 const visibleColorKeys = [
   'shellBg',
@@ -122,4 +126,40 @@ test('all preview routes activate exactly one screen', async ({ page }) => {
     await expect(page.locator('.preview-screen.active')).toHaveCount(1);
     await expect(page.locator(`.preview-screen[data-screen="${mode}"]`)).toHaveClass(/active/);
   }
+});
+
+test('real Host.Web receives live CSS and exports the same theme without Gizmo Server', async ({ page }) => {
+  test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to enable the real Host.Web integration test.');
+  test.setTimeout(60_000);
+
+  const browserErrors = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+
+  await page.locator('[data-preview-surface="real"]').click();
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await expect(page.locator('#realPreviewShell')).toHaveClass(/is-ready/);
+  await expect(page.locator('#previewStatusText')).toHaveText('Real Host.Web синхронизирован');
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => window.innerWidth)).toBe(1280);
+  await expect(realPreview.locator('.giz-login__adv__background > img[src=""]')).toBeHidden();
+  await expect.poll(async () => realPreview.locator('#gizmoConfiguratorTheme').first().evaluate((style) => style.textContent)).toContain('--shell-accent: #3F8CFF;');
+
+  await page.locator('[data-color-text="shellAccent"]').fill('#FF00AA');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-accent: #FF00AA;/);
+  await expect.poll(async () => realPreview.locator('#gizmoConfiguratorTheme').first().evaluate((style) => style.textContent)).toContain('--shell-accent: #FF00AA;');
+  await expect(realPreview.locator('#gizmoConfiguratorTheme')).toHaveCount(1);
+  await expect.poll(async () => realPreview.locator('[client-theme]').first().evaluate((element) => (
+    getComputedStyle(element).getPropertyValue('--shell-accent').trim()
+  ))).toBe('#FF00AA');
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#downloadCssBtn').click();
+  const download = await downloadPromise;
+  const downloadedPath = await download.path();
+  expect(download.suggestedFilename()).toBe('gizmo-shell-custom.css');
+  expect(fs.readFileSync(downloadedPath, 'utf8')).toContain('--shell-accent: #FF00AA;');
+  expect(browserErrors).toEqual([]);
 });

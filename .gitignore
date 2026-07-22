@@ -9,7 +9,10 @@ node_modules/
 # Logs and temporary outputs
 *.log
 playwright-console.log
+.hermes/
 _generated-current-export.css
+real-client/
+_framework/
 test-results/
 playwright-report/
 dock-*.png
