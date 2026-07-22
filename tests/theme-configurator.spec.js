@@ -35,6 +35,15 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
+async function fillColor(page, key, value) {
+  const input = page.locator(`[data-color-text="${key}"]`);
+  const group = input.locator('xpath=ancestor::details[1]');
+  if ((await group.getAttribute('open')) === null) {
+    await group.locator(':scope > summary').click();
+  }
+  await input.fill(value);
+}
+
 test('compact palette derives legacy tokens and Windows taskbar color', async ({ page }) => {
   await expect(page.locator('[data-color-text]')).toHaveCount(16);
   await expect(page.locator('.color-settings-group')).toHaveCount(7);
@@ -43,12 +52,12 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   const renderedKeys = await page.locator('[data-color-text]').evaluateAll((inputs) => inputs.map((input) => input.dataset.colorText));
   expect(renderedKeys).toEqual(visibleColorKeys);
 
-  await page.locator('[data-color-text="shellBg"]').fill('#112233');
-  await page.locator('[data-color-text="shellAccentHover"]').fill('#AABBCC');
-  await page.locator('[data-color-text="shellWarning"]').fill('#FEDCBA');
-  await page.locator('[data-color-text="timelineItemColor"]').fill('#123456');
-  await page.locator('[data-color-text="timeProductExpirationTextColor"]').fill('#ABCDEF');
-  await page.locator('[data-color-text="timeProductExpirationBg"]').fill('rgba(10, 20, 30, 0.4)');
+  await fillColor(page, 'shellBg', '#112233');
+  await fillColor(page, 'shellAccentHover', '#AABBCC');
+  await fillColor(page, 'shellWarning', '#FEDCBA');
+  await fillColor(page, 'timelineItemColor', '#123456');
+  await fillColor(page, 'timeProductExpirationTextColor', '#ABCDEF');
+  await fillColor(page, 'timeProductExpirationBg', 'rgba(10, 20, 30, 0.4)');
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-time-product-expiration-bg: rgba\(10, 20, 30, 0\.4\);/);
 
   const css = await page.locator('#cssOutput').inputValue();
@@ -73,7 +82,7 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
 });
 
 test('color, font and effect controls update preview and CSS automatically', async ({ page }) => {
-  await page.locator('[data-color-text="shellBg"]').fill('#264057');
+  await fillColor(page, 'shellBg', '#264057');
   await page.locator('[data-settings-tab="fonts"]').click();
   await page.locator('[data-font-select="uiFontFamily"]').selectOption("'Inter', system-ui, sans-serif");
   await page.locator('[data-settings-tab="effects"]').click();
@@ -86,7 +95,7 @@ test('color, font and effect controls update preview and CSS automatically', asy
   await expect(page.locator('#applyState')).toHaveText('Preview синхронизирован');
 
   await page.locator('[data-settings-tab="colors"]').click();
-  await page.locator('[data-color-text="shellBg"]').fill('#');
+  await fillColor(page, 'shellBg', '#');
   await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue('#');
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #264057;/);
   await expect(page.locator('#previewRoot')).toHaveAttribute('style', /--shell-bg: #264057;/);
@@ -101,7 +110,7 @@ test('style binding map mirrors all visible colors and updates its swatches', as
   const backgroundBinding = page.locator('[data-style-binding="shellBg"]');
   await expect(backgroundBinding).toContainText('Основной фон');
   await expect(backgroundBinding).toContainText('--shell-bg');
-  await page.locator('[data-color-text="shellBg"]').fill('#345678');
+  await fillColor(page, 'shellBg', '#345678');
   await expect(backgroundBinding).toHaveCSS('--style-map-swatch', '#345678');
 
   const semanticBinding = page.locator('[data-style-binding="shellWarning"]');
@@ -125,7 +134,7 @@ test('all presets use the compact model and Reset selects Original Gizmo', async
 });
 
 test('generated CSS round-trips through Import without expanding the palette', async ({ page }) => {
-  await page.locator('[data-color-text="shellBg"]').fill('#152637');
+  await fillColor(page, 'shellBg', '#152637');
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #152637;/);
   const exportedCss = await page.locator('#cssOutput').inputValue();
 
@@ -151,6 +160,35 @@ test('Real Host.Web is the only preview and auxiliary header blocks are omitted'
   await expect(page.locator('#realPreviewFrame')).toHaveAttribute('src', './real-client/');
 });
 
+test('desktop layout keeps the real preview visible beside the settings', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.reload();
+
+  const previewPanel = page.locator('.preview-panel');
+  const previewBox = await previewPanel.boundingBox();
+  expect(previewBox).not.toBeNull();
+  expect(previewBox.y).toBeLessThan(100);
+  expect(previewBox.width).toBeGreaterThanOrEqual(800);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('color setting sections behave as a single-open accordion', async ({ page }) => {
+  const groups = page.locator('details.color-settings-group');
+  await expect(groups).toHaveCount(7);
+  await expect(groups.first()).toHaveAttribute('open', '');
+  await expect(groups.nth(1)).not.toHaveAttribute('open', '');
+
+  const secondSummary = groups.nth(1).locator('summary');
+  await secondSummary.focus();
+  await secondSummary.press('Enter');
+  await expect(groups.first()).not.toHaveAttribute('open', '');
+  await expect(groups.nth(1)).toHaveAttribute('open', '');
+  expect(await groups.evaluateAll((items) => items.every((item) => item.scrollWidth <= item.clientWidth))).toBe(true);
+  expect(await page.locator('.controls-panel').evaluate((panel) => panel.scrollWidth <= panel.clientWidth)).toBe(true);
+  await groups.nth(1).locator('[data-color-text="shellText"]').fill('#EAEAEA');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-text: #EAEAEA;/);
+});
+
 test('real Host.Web receives live CSS and exports the same theme without Gizmo Server', async ({ page }) => {
   test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to enable the real Host.Web integration test.');
   test.setTimeout(90_000);
@@ -172,7 +210,7 @@ test('real Host.Web receives live CSS and exports the same theme without Gizmo S
   await expect(realPreview.locator('.giz-login__adv__background > img[src=""]')).toBeHidden();
   await expect.poll(async () => realPreview.locator('#gizmoConfiguratorTheme').first().evaluate((style) => style.textContent)).toContain('--shell-accent: #3F8CFF;');
 
-  await page.locator('[data-color-text="shellAccent"]').fill('#FF00AA');
+  await fillColor(page, 'shellAccent', '#FF00AA');
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-accent: #FF00AA;/);
   await expect.poll(async () => realPreview.locator('#gizmoConfiguratorTheme').first().evaluate((style) => style.textContent)).toContain('--shell-accent: #FF00AA;');
   await expect(realPreview.locator('#gizmoConfiguratorTheme')).toHaveCount(1);
