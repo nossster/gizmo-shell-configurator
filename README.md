@@ -31,6 +31,7 @@ SPA-приложение для визуальной настройки обол
 - `app.js` — контролы, пресеты, генерация CSS, import/export логика;
 - `scripts/sync-real-client.py` — перенос опубликованного Host.Web runtime в generated preview;
 - `scripts/build-real-client.py` — временная fixture-подготовка, publish и синхронизация demo-login runtime;
+- `scripts/package_release.py` — сборка и проверка standalone ZIP вместе с полным Host.Web runtime;
 - `scripts/serve.py` — локальный static server с правильными MIME types для Blazor WebAssembly;
 - `start-configurator.bat` — запуск конфигуратора двойным кликом в Windows;
 - `package.json` — минимальные scripts для проверки JS.
@@ -116,9 +117,28 @@ npm run sync:real-client -- --source /path/to/publish/wwwroot
 основном `appsettings.json` заменяются на localhost-заглушки. Standalone preview
 не переносит конфигурацию реального Gizmo Server.
 
+### Сборка standalone-архива
+
+После `npm run build:real-client` собрать полный release ZIP можно командой:
+
+```bash
+npm run package:release -- --output /path/to/gizmo-shell-configurator-v1.2.1.zip
+```
+
+Packager использует явный allowlist, включает generated `real-client/` и
+root-level `_framework/`, а затем проверяет runtime marker, обязательные Blazor
+assemblies, localhost-only endpoints и все JavaScript bridge-файлы
+`Gizmo.Client.UI`. Архив не создаётся, если runtime не прошёл синхронизацию или
+любой обязательный asset отсутствует. Повторная проверка готового файла:
+
+```bash
+npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.2.1.zip
+```
+
 ## Проверка
 
 - JS syntax: `node --check app.js`
+- packager contracts: `npm run test:package`;
 - полный E2E-набор: `npm test`;
 - E2E проверяет компактную палитру, производные токены, все пресеты,
   карту привязок, Export → Import, Windows ABGR DWORD, 10 preview-маршрутов и настоящий Host.Web;
