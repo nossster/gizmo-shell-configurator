@@ -8,7 +8,9 @@
     "build:real-client": "python3 scripts/build-real-client.py",
     "sync:real-client": "python3 scripts/sync-real-client.py",
     "check:real-client": "python3 scripts/sync-real-client.py --check",
-    "test": "node --check app.js && playwright test"
+    "package:release": "python3 scripts/package_release.py",
+    "test:package": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "test": "node --check app.js && npm run test:package && playwright test"
   },
   "keywords": [
     "gizmo",
