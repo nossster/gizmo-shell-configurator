@@ -232,12 +232,14 @@ input {
 }
 
 .color-settings-group {
-  display: grid;
-  gap: 14px;
-  padding: 14px;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.025);
+  overflow: clip;
 }
 
 .color-settings-group__header {
@@ -245,6 +247,28 @@ input {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  padding: 14px;
+  cursor: pointer;
+  list-style: none;
+  transition: background 0.16s ease;
+}
+
+.color-settings-group__header > div {
+  min-width: 0;
+}
+
+.color-settings-group__header::-webkit-details-marker {
+  display: none;
+}
+
+.color-settings-group__header:hover,
+.color-settings-group__header:focus-visible {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.color-settings-group__header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .color-settings-group__header h3 {
@@ -275,9 +299,32 @@ input {
   font-weight: 700;
 }
 
+.color-settings-group__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
+}
+
+.color-settings-group__chevron {
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--text-secondary);
+  border-bottom: 2px solid var(--text-secondary);
+  transform: rotate(45deg);
+  transition: transform 0.16s ease;
+}
+
+.color-settings-group[open] .color-settings-group__chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
 .color-settings-group__fields {
   display: grid;
+  min-width: 0;
   gap: 12px;
+  padding: 0 14px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.045);
 }
 
 .style-map-group {
@@ -555,6 +602,7 @@ input {
 .range-field,
 .filename-field {
   display: grid;
+  min-width: 0;
   gap: 8px;
 }
 
@@ -568,7 +616,7 @@ input {
 
 .color-input-row {
   display: grid;
-  grid-template-columns: 56px 1fr;
+  grid-template-columns: 56px minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -615,6 +663,8 @@ input {
 .color-input-row input[type='text'],
 .control-field select,
 .filename-field input {
+  width: 100%;
+  min-width: 0;
   height: 42px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.10);
@@ -629,9 +679,9 @@ input {
 
 .color-alpha-row {
   display: grid;
-  grid-template-columns: auto minmax(72px, 1fr) 42px;
+  grid-template-columns: auto minmax(0, 1fr) 36px;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .color-alpha-row > span,
@@ -4299,12 +4349,25 @@ input {
   }
 }
 
-@media (max-width: 1440px) {
+@media (min-width: 1181px) and (max-width: 1599px) {
+  .app-shell {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+
+  .export-panel {
+    grid-column: 2;
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 1180px) {
   .app-shell {
     grid-template-columns: 1fr;
   }
 
-  .controls-panel {
+  .controls-panel,
+  .export-panel {
     position: static;
     max-height: none;
   }

@@ -870,18 +870,23 @@ function createPresetButtons() {
 }
 
 function createColorControls() {
-  COLOR_FIELD_GROUPS.forEach(({ id, title, description, fields }) => {
-    const section = document.createElement('section');
+  COLOR_FIELD_GROUPS.forEach(({ id, title, description, fields }, index) => {
+    const section = document.createElement('details');
     section.className = 'color-settings-group';
-    section.setAttribute('aria-labelledby', `color-group-${id}`);
+    section.dataset.colorSettingsGroup = id;
+    section.setAttribute('name', 'theme-color-settings');
+    section.open = index === 0;
     section.innerHTML = `
-      <div class="color-settings-group__header">
+      <summary class="color-settings-group__header">
         <div>
           <h3 id="color-group-${id}">${title}</h3>
           <p>${description}</p>
         </div>
-        <span class="color-settings-group__count" aria-label="${fields.length} настроек">${fields.length}</span>
-      </div>
+        <span class="color-settings-group__meta">
+          <span class="color-settings-group__count" aria-label="${fields.length} настроек">${fields.length}</span>
+          <span class="color-settings-group__chevron" aria-hidden="true"></span>
+        </span>
+      </summary>
       <div class="color-settings-group__fields"></div>
     `;
 
@@ -913,6 +918,12 @@ function createColorControls() {
       fieldGrid.appendChild(wrapper);
     });
 
+    section.addEventListener('toggle', () => {
+      if (!section.open) return;
+      colorControls.querySelectorAll('details.color-settings-group[open]').forEach((group) => {
+        if (group !== section) group.open = false;
+      });
+    });
     colorControls.appendChild(section);
   });
 
