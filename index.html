@@ -36,58 +36,62 @@
       <symbol id="icon-package" viewBox="0 0 24 24"><path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 8-4V7M12 11v10"/></symbol>
     </svg>
     <div class="app-shell">
-      <aside class="panel controls-panel">
-        <div class="panel__header">
-          <div>
-            <p class="eyebrow">SPA configurator</p>
-            <h1>Gizmo Shell Configurator</h1>
-            <p class="muted">
-              Визуальный конфигуратор оболочки Gizmo.Client.UI с live preview и экспортом CSS override.
-            </p>
-            <p id="applyState" class="apply-state apply-state--header">Preview синхронизирован</p>
-          </div>
-          <div class="header-actions">
-            <button id="resetThemeBtn" class="ghost-button" type="button">Сбросить</button>
-          </div>
+      <header class="editor-topbar">
+        <div class="editor-brand" aria-label="Gizmo Theme Configurator">
+          <svg class="editor-brand__icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
+          <strong>Gizmo Theme Configurator</strong>
         </div>
+        <div class="editor-toolbar" aria-label="Инструменты темы">
+          <label class="preset-picker" for="presetSelect">
+            <span>Preset</span>
+            <select id="presetSelect" aria-label="Выбрать пресет темы"></select>
+          </label>
+          <span class="theme-status-badge">Client theme</span>
+          <button id="resetThemeBtn" class="toolbar-button" type="button">↻ Сбросить</button>
+          <button id="importCssBtn" class="toolbar-button" type="button">↑ Импорт CSS</button>
+          <button id="downloadCssBtn" class="toolbar-button" type="button">↓ Скачать CSS</button>
+          <button id="toggleCssOutputBtn" class="toolbar-button toolbar-button--primary" type="button">Просмотр CSS Shell</button>
+        </div>
+      </header>
 
-        <section class="control-group">
-          <div class="group-title-row">
-            <h2>Пресеты</h2>
-          </div>
-          <div class="preset-grid" id="presetGrid"></div>
-        </section>
-
-        <section class="control-group">
-          <div class="group-title-row">
-            <h2>Настройки темы</h2>
-          </div>
-          <div class="settings-tabs" id="settingsTabs">
-            <button class="settings-tab active" data-settings-tab="colors" type="button">Цвета · 16</button>
-            <button class="settings-tab" data-settings-tab="fonts" type="button">Шрифты</button>
-            <button class="settings-tab" data-settings-tab="effects" type="button">Эффекты</button>
+      <div class="editor-workspace">
+        <aside class="controls-panel" aria-label="Настройки темы">
+          <div class="controls-panel__heading">
+            <div>
+              <p class="eyebrow">Все элементы управления</p>
+              <h1>Настройки темы</h1>
+            </div>
+            <p id="applyState" class="apply-state">Preview синхронизирован</p>
           </div>
 
-          <div class="settings-tab-panel active" data-settings-panel="colors">
-            <p class="muted muted--compact">16 цветов управляют темой, включая отдельные настройки Warning, Timeline и Expiration. Близкие поверхности и полупрозрачные варианты рассчитываются автоматически.</p>
+          <section class="control-section" aria-labelledby="colorsHeading">
+            <div class="control-section__heading">
+              <h2 id="colorsHeading">① Цвета</h2>
+              <span>16</span>
+            </div>
+            <p>Основные поверхности, текст, акцент и статусы. Производные оттенки рассчитываются автоматически.</p>
             <div class="control-grid" id="colorControls"></div>
-          </div>
+          </section>
 
-          <div class="settings-tab-panel" data-settings-panel="fonts">
-            <p class="muted muted--compact">Шрифт интерфейса, заголовков и базовый размер текста для preview и экспортируемого CSS.</p>
+          <section class="control-section" aria-labelledby="fontsHeading">
+            <div class="control-section__heading">
+              <h2 id="fontsHeading">② Шрифты</h2>
+            </div>
+            <p>Шрифт интерфейса, заголовков и базовый размер текста.</p>
             <div class="control-grid" id="fontControls"></div>
-          </div>
+          </section>
 
-          <div class="settings-tab-panel" data-settings-panel="effects">
-            <p class="muted muted--compact">Радиусы, blur и тени для всей оболочки.</p>
+          <section class="control-section" aria-labelledby="effectsHeading">
+            <div class="control-section__heading">
+              <h2 id="effectsHeading">③ Эффекты</h2>
+            </div>
+            <p>Радиусы, размеры, blur и тени оболочки.</p>
             <div class="range-grid" id="rangeControls"></div>
-          </div>
-        </section>
+          </section>
+        </aside>
 
-      </aside>
-
-      <main class="workspace">
-        <section class="panel preview-panel">
+        <main class="workspace">
+          <section class="preview-panel">
           <div class="preview-stage">
             <div id="previewRoot" class="preview-root" client-theme="true" hidden aria-hidden="true">
               <div class="preview-background"></div>
@@ -716,59 +720,34 @@
               ></iframe>
             </div>
           </div>
-        </section>
-      </main>
+          </section>
+        </main>
+      </div>
 
-      <aside class="panel export-panel">
-        <section class="control-group style-map-group" aria-labelledby="styleMapTitle">
-          <div class="group-title-row style-map-group__header">
+      <dialog id="cssDialog" class="css-dialog" aria-labelledby="cssDialogTitle">
+        <div class="css-dialog__surface">
+          <header class="css-dialog__header">
             <div>
-              <p class="eyebrow">Live bindings</p>
-              <h2 id="styleMapTitle">Карта привязок стилей</h2>
+              <p class="eyebrow">Shell override</p>
+              <h2 id="cssDialogTitle">Generated CSS</h2>
             </div>
-            <span class="style-map-live-badge"><span aria-hidden="true"></span> Real UI</span>
-          </div>
-          <p class="muted muted--compact">Наведите на стиль, чтобы увидеть связанные элементы в Host.Web. Клик фиксирует подсветку.</p>
-          <div id="styleMapLegend" class="style-map-legend" aria-label="Стили темы и связанные элементы интерфейса"></div>
-          <p id="styleMapStatus" class="style-map-status" aria-live="polite">Карта готова — выберите стиль.</p>
-        </section>
-
-        <section class="control-group export-actions-group">
-          <div class="action-row">
-            <button id="copyCssBtn" class="primary-button" type="button">Копировать CSS</button>
-            <button id="downloadCssBtn" class="ghost-button" type="button">Скачать CSS</button>
-          </div>
-          <div class="action-row compact">
+            <button id="closeCssDialogBtn" class="dialog-close-button" type="button" aria-label="Закрыть просмотр CSS">×</button>
+          </header>
+          <div class="css-dialog__toolbar">
             <label class="filename-field">
               <span>Имя файла</span>
               <input id="fileNameInput" type="text" value="gizmo-shell-custom.css" />
             </label>
-          </div>
-        </section>
-
-        <section class="control-group import-preview-group">
-          <div class="group-title-row">
-            <h2>Примерка внешнего CSS</h2>
-          </div>
-          <p class="muted muted--compact">Импортирует CSS-файл поверх текущего preview, чтобы быстро примерить готовую тему.</p>
-          <div class="action-row action-row--stacked">
-            <button id="importCssBtn" class="ghost-button" type="button">Импортировать CSS</button>
+            <button id="copyCssBtn" class="primary-button" type="button">Копировать CSS</button>
             <button id="clearImportedCssBtn" class="ghost-button" type="button" disabled>Убрать импорт</button>
           </div>
-          <input id="importCssInput" type="file" accept=".css,text/css" hidden />
           <p id="importCssStatus" class="apply-state">CSS не импортирован</p>
-        </section>
-
-        <section class="control-group">
-          <div class="group-title-row">
-            <h2>Generated CSS</h2>
-            <button id="toggleCssOutputBtn" class="inline-chip-button" type="button">Показать код</button>
-          </div>
-          <div id="cssOutputContainer" class="css-output-container is-collapsed">
+          <div id="cssOutputContainer" class="css-output-container">
             <textarea id="cssOutput" class="css-output" spellcheck="false"></textarea>
           </div>
-        </section>
-      </aside>
+        </div>
+      </dialog>
+      <input id="importCssInput" type="file" accept=".css,text/css" hidden />
     </div>
 
     <script src="./app.js"></script>

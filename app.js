@@ -489,15 +489,15 @@ const ALL_COLOR_FIELD_KEYS = new Set([
 ]);
 
 const RANGE_FIELDS = [
-  ['shellRadiusS', 'Radius S', 0, 24, 1, 'px'],
-  ['shellRadiusM', 'Radius M', 0, 32, 1, 'px'],
-  ['shellRadiusL', 'Radius L', 0, 40, 1, 'px'],
-  ['shellRadiusXL', 'Radius XL', 0, 56, 1, 'px'],
-  ['headerHeight', 'Header height', 48, 92, 1, 'px'],
-  ['shellBlur', 'Glass blur', 0, 24, 1, 'px'],
-  ['panelBorderWidth', 'Border width', 0, 3, 1, 'px'],
-  ['shellShadowOpacity', 'Shadow opacity', 0, 0.6, 0.01, ''],
-  ['shellShadowStrongOpacity', 'Strong shadow', 0, 0.8, 0.01, ''],
+  ['shellRadiusS', 'Скругление полей ввода', 0, 24, 1, 'px'],
+  ['shellRadiusM', 'Скругление переключателей и tooltip', 0, 32, 1, 'px'],
+  ['shellRadiusL', 'Скругление dropdown и боковых панелей', 0, 40, 1, 'px'],
+  ['shellRadiusXL', 'Скругление модальных окон', 0, 56, 1, 'px'],
+  ['headerHeight', 'Высота верхней панели', 48, 92, 1, 'px'],
+  ['shellBlur', 'Размытие фона и glass-панелей', 0, 24, 1, 'px'],
+  ['panelBorderWidth', 'Толщина контуров', 0, 3, 1, 'px'],
+  ['shellShadowOpacity', 'Тень header и карточек', 0, 0.6, 0.01, ''],
+  ['shellShadowStrongOpacity', 'Тень popup и drawer', 0, 0.8, 0.01, ''],
 ];
 
 const FONT_SELECT_FIELDS = [
@@ -578,11 +578,9 @@ const PREVIEW_MODE_META = {
     description: 'Соглашение, чекбокс принятия условий и форма регистрации клуба.',
   },
 };
-let activeSettingsTab = 'colors';
 let hasPendingChanges = false;
 let liveApplyFrame = null;
 let activePresetKey = 'original-gizmo';
-let isCssOutputCollapsed = true;
 const activePreviewSurface = 'real';
 let realPreviewState = 'idle';
 let realPreviewResizeObserver = null;
@@ -593,11 +591,10 @@ const previewRoot = document.getElementById('previewRoot');
 const cssOutput = document.getElementById('cssOutput');
 const cssOutputContainer = document.getElementById('cssOutputContainer');
 const fileNameInput = document.getElementById('fileNameInput');
-const presetGrid = document.getElementById('presetGrid');
+const presetSelect = document.getElementById('presetSelect');
 const colorControls = document.getElementById('colorControls');
 const fontControls = document.getElementById('fontControls');
 const rangeControls = document.getElementById('rangeControls');
-const settingsTabs = document.getElementById('settingsTabs');
 const previewModeTabs = document.getElementById('previewModeTabs');
 const previewModeHint = document.getElementById('previewModeHint');
 const resetThemeBtn = document.getElementById('resetThemeBtn');
@@ -612,12 +609,8 @@ const importCssStatus = document.getElementById('importCssStatus');
 const realPreviewShell = document.getElementById('realPreviewShell');
 const realPreviewFrame = document.getElementById('realPreviewFrame');
 const realPreviewLoading = document.getElementById('realPreviewLoading');
-const styleMapLegend = document.getElementById('styleMapLegend');
-const styleMapStatus = document.getElementById('styleMapStatus');
-
-let pinnedStyleBindingKey = null;
-let styleMapMutationObserver = null;
-let styleMapSyncTimer = null;
+const cssDialog = document.getElementById('cssDialog');
+const closeCssDialogBtn = document.getElementById('closeCssDialogBtn');
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -661,86 +654,6 @@ const PREVIEW_STYLE_HINTS = [
   ['.preview-screen--profile-purchases .purchases-table', 'Покупки / .giz-data-grid'],
   ['.preview-screen--password-recovery .live-login-panel', 'Восстановление пароля / auth panel'],
   ['.preview-screen--registration .agreement-preview', 'Регистрация / agreement panel'],
-];
-
-const STYLE_BINDINGS = [
-  {
-    key: 'shellBg', variable: '--shell-bg', label: 'Основной фон',
-    targets: 'Фон приложения · Login · overlay',
-    selectors: ['#app', '.giz-main-container', '.giz-login__login', '.giz-dialog', '.giz-drawer > .giz-overlay'],
-  },
-  {
-    key: 'shellBgElevated', variable: '--shell-bg-elevated', label: 'Панели и карточки',
-    targets: 'Карточки · навигация · заказ',
-    selectors: ['.giz-login-card', '.giz-profile-navigation', '.giz-order__items', '.giz-order__notes', '.giz-order__totals', '.giz-drawer-content', '.giz-data-grid > tbody > tr'],
-  },
-  {
-    key: 'shellBgElevated2', variable: '--shell-bg-elevated-2', label: 'Header и верхний слой',
-    targets: 'Header · Login hero · raised surface',
-    selectors: ['.giz-app__header', '.giz-login__adv', '.giz-login__adv__background'],
-  },
-  {
-    key: 'popupBg', variable: '--shell-popup-bg', label: 'Popup и модальные окна',
-    targets: 'Dropdown · tooltip · dialog · input',
-    selectors: ['.giz-dropdown-menu__content', '.giz-global-search-dropdown', '.giz-dialog .giz-card', '.giz-client-dialog', '.giz-user-links', '.giz-client-tooltip', '.giz-tooltip', '.giz-input-control .giz-input-root'],
-  },
-  {
-    key: 'shellText', variable: '--shell-text', label: 'Основной текст',
-    targets: 'Заголовки · значения · основной контент',
-    selectors: ['.giz-header', '.giz-login-title', '.giz-section__header', '.giz-order__items__header', '.giz-profile-section__header', '.giz-profile-section-item__info__text'],
-  },
-  {
-    key: 'shellTextSoft', variable: '--shell-text-soft', label: 'Вторичный текст',
-    targets: 'Навигация · labels · подсказки',
-    selectors: ['.giz-header__modules-menu-item > a', '.giz-client-tab-item', '.giz-profile-navigation-item > a', '.giz-login-subtitle', '.giz-empty-state__text', '.giz-header__user-menu-item', '.giz-input-label'],
-  },
-  {
-    key: 'shellAccent', variable: '--shell-accent', label: 'Акцент · начало',
-    targets: 'Active nav · CTA · баланс · DataGrid',
-    selectors: ['.giz-header__modules-menu-item > a.active', '.giz-client-tab-item.active', '.giz-profile-navigation-item > a.active', '.giz-button--fill.accent:not(.disabled)', '.giz-button--fill.primary:not(.disabled)', '.giz-header-user-balance', '.giz-user-time-products-order--current', '.giz-data-grid'],
-  },
-  {
-    key: 'shellAccentDeep', variable: '--shell-accent-deep', label: 'Акцент · конец',
-    targets: 'Градиенты CTA · тени · glow',
-    selectors: ['.giz-button--fill.accent:not(.disabled)', '.giz-button--fill.primary:not(.disabled)', '.giz-header-user-balance', '.giz-user-time-products-order--current', '.giz-data-grid'],
-  },
-  {
-    key: 'shellAccentHover', variable: '--shell-accent-hover', label: 'Контрастный акцент',
-    targets: 'Active links · hover · focus border',
-    selectors: ['.giz-header__modules-menu-item > a.active', '.giz-client-tab-item.active', '.giz-profile-navigation-item > a.active', '.giz-login-forgot-password > a', '.giz-login-new-user > a'],
-  },
-  {
-    key: 'shellBorder', variable: '--shell-border', label: 'Основная граница',
-    targets: 'Панели · карточки · разделители',
-    selectors: ['.giz-app__header', '.giz-login-card', '.giz-profile-navigation', '.giz-order__items', '.giz-order__notes', '.giz-order__totals', '.giz-drawer-content'],
-  },
-  {
-    key: 'shellWarning', variable: '--shell-warning', label: 'Предупреждение',
-    targets: 'Semantic token · прямая связь не подтверждена',
-    selectors: [], confirmed: false,
-  },
-  {
-    key: 'timelineItemColor', variable: '--shell-timeline-item', label: 'Timeline',
-    targets: 'Линия и пункты time product', selectors: ['.giz-timeline-item'],
-  },
-  {
-    key: 'timeProductExpirationTextColor', variable: '--shell-time-product-expiration-text', label: 'Expiration · текст',
-    targets: 'Текст срока действия пакета', selectors: ['.giz-time-product-expiration'],
-  },
-  {
-    key: 'timeProductExpirationBg', variable: '--shell-time-product-expiration-bg', label: 'Expiration · фон',
-    targets: 'Подложка срока действия пакета', selectors: ['.giz-time-product-expiration'],
-  },
-  {
-    key: 'shellSuccess', variable: '--shell-success', label: 'Успешное состояние',
-    targets: 'Semantic token · прямая связь не подтверждена',
-    selectors: [], confirmed: false,
-  },
-  {
-    key: 'shellDanger', variable: '--shell-danger', label: 'Ошибка или опасность',
-    targets: 'Semantic token · прямая связь не подтверждена',
-    selectors: [], confirmed: false,
-  },
 ];
 
 let importedCssFileName = '';
@@ -792,13 +705,6 @@ function getPresetDisplayName(key) {
   return preset.label.replace(/^Reference ·\s*|^Dark ·\s*|^Light ·\s*/, '');
 }
 
-function getPresetToneLabel(key) {
-  const preset = PRESETS[key];
-  if (!preset) return 'Custom';
-  if (preset.label.startsWith('Reference')) return 'Reference';
-  return preset.label.startsWith('Light') ? 'Light' : 'Dark';
-}
-
 function formatFontFamilyLabel(value) {
   return String(value)
     .split(',')[0]
@@ -818,11 +724,20 @@ function findMatchingPresetKey(themeValues) {
   return null;
 }
 
-function syncPresetButtons() {
+function syncPresetSelect() {
   activePresetKey = findMatchingPresetKey(appliedTheme) ?? 'custom';
-  document.querySelectorAll('.preset-card').forEach((button) => {
-    button.classList.toggle('active', button.dataset.preset === activePresetKey);
-  });
+  if (!(presetSelect instanceof HTMLSelectElement)) return;
+
+  let customOption = presetSelect.querySelector('option[value="custom"]');
+  if (activePresetKey === 'custom' && !customOption) {
+    customOption = document.createElement('option');
+    customOption.value = 'custom';
+    customOption.textContent = 'Custom — Текущие изменения';
+    presetSelect.appendChild(customOption);
+  } else if (activePresetKey !== 'custom') {
+    customOption?.remove();
+  }
+  presetSelect.value = activePresetKey;
 }
 
 function updatePreviewModeHint() {
@@ -836,57 +751,50 @@ function updateExportSummary() {
   updatePreviewModeHint();
 }
 
-function updateCssOutputVisibility() {
-  if (cssOutputContainer) {
-    cssOutputContainer.classList.toggle('is-collapsed', isCssOutputCollapsed);
-  }
-  if (toggleCssOutputBtn) {
-    toggleCssOutputBtn.textContent = isCssOutputCollapsed ? 'Показать код' : 'Скрыть код';
-  }
-}
-
-function createPresetButtons() {
-  Object.entries(PRESETS).forEach(([key, preset]) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `preset-card${key === 'original-gizmo' ? ' preset-card--featured' : ''}`;
-    button.dataset.preset = key;
-    const tone = getPresetToneLabel(key);
-    const presetName = getPresetDisplayName(key);
-    button.innerHTML = `
-      <span class="preset-card__swatch" style="background: linear-gradient(135deg, ${preset.values.shellAccent}, ${preset.values.shellAccentDeep});"></span>
-      <span class="preset-card__text">
-        <span class="preset-card__label">${presetName}</span>
-        <span class="preset-card__meta">${tone} preset</span>
-        <span class="preset-card__description">${preset.description ?? ''}</span>
-      </span>
-    `;
-    button.addEventListener('click', () => {
-      draftTheme = structuredClone(preset.values);
-      renderAll(true, true);
-    });
-    presetGrid.appendChild(button);
+function createPresetOptions() {
+  if (!(presetSelect instanceof HTMLSelectElement)) return;
+  Object.entries(PRESETS).forEach(([key, preset], index) => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = `${String(index + 1).padStart(2, '0')} — ${getPresetDisplayName(key)}`;
+    presetSelect.appendChild(option);
+  });
+  presetSelect.addEventListener('change', () => {
+    const preset = PRESETS[presetSelect.value];
+    if (!preset) return;
+    draftTheme = structuredClone(preset.values);
+    renderAll(true, true);
   });
 }
 
+function createControlCard({ title, bodyMarkup, extraClass = '' }) {
+  const wrapper = document.createElement('div');
+  wrapper.className = `theme-control-card${extraClass ? ` ${extraClass}` : ''}`;
+  wrapper.innerHTML = `
+    <div class="theme-control-card__header">
+      <div class="theme-control-card__summary">
+        <strong>${title}</strong>
+      </div>
+    </div>
+    <div class="theme-control-card__body">${bodyMarkup}</div>
+  `;
+  return wrapper;
+}
+
 function createColorControls() {
-  COLOR_FIELD_GROUPS.forEach(({ id, title, description, fields }, index) => {
-    const section = document.createElement('details');
+  COLOR_FIELD_GROUPS.forEach(({ id, title, description, fields }) => {
+    const section = document.createElement('section');
     section.className = 'color-settings-group';
     section.dataset.colorSettingsGroup = id;
-    section.setAttribute('name', 'theme-color-settings');
-    section.open = index === 0;
+    section.setAttribute('aria-labelledby', `color-group-${id}`);
     section.innerHTML = `
-      <summary class="color-settings-group__header">
+      <header class="color-settings-group__header">
         <div>
           <h3 id="color-group-${id}">${title}</h3>
           <p>${description}</p>
         </div>
-        <span class="color-settings-group__meta">
-          <span class="color-settings-group__count" aria-label="${fields.length} настроек">${fields.length}</span>
-          <span class="color-settings-group__chevron" aria-hidden="true"></span>
-        </span>
-      </summary>
+        <span class="color-settings-group__count" aria-label="${fields.length} настроек">${fields.length}</span>
+      </header>
       <div class="color-settings-group__fields"></div>
     `;
 
@@ -895,35 +803,40 @@ function createColorControls() {
       if (key === 'shellAccentDeep') return;
 
       if (key === 'shellAccent') {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'control-field gradient-color-control';
-        wrapper.innerHTML = `
-          <div class="gradient-color-control__header">
-            <span>Акцентный градиент</span>
-            <small>2 цветовые точки</small>
-          </div>
-          <div class="gradient-color-control__preview" data-gradient-preview role="img" aria-label="Предпросмотр акцентного градиента"></div>
-          <div class="gradient-color-control__stops">
-            <div>${createColorInputMarkup('shellAccent', 'Начальный цвет')}</div>
-            <div>${createColorInputMarkup('shellAccentDeep', 'Конечный цвет')}</div>
-          </div>
-        `;
+        const wrapper = createControlCard({
+          key: 'shellAccent',
+          title: 'Акцентный градиент',
+          extraClass: 'gradient-color-control',
+          bodyMarkup: `
+            <div class="gradient-color-control__header">
+              <span>CTA, active states и glow</span>
+              <small>2 цветовые точки</small>
+            </div>
+            <div class="gradient-color-control__preview" data-gradient-preview role="img" aria-label="Предпросмотр акцентного градиента"></div>
+            <div class="gradient-color-control__stops">
+              <div class="gradient-color-control__stop">
+                <span class="gradient-color-control__stop-label">Начальный цвет</span>
+                ${createColorInputMarkup('shellAccent', 'Начальный цвет')}
+              </div>
+              <div class="gradient-color-control__stop">
+                <span class="gradient-color-control__stop-label">Конечный цвет</span>
+                ${createColorInputMarkup('shellAccentDeep', 'Конечный цвет')}
+              </div>
+            </div>
+          `,
+        });
         fieldGrid.appendChild(wrapper);
         return;
       }
 
-      const wrapper = document.createElement('label');
-      wrapper.className = 'control-field';
-      wrapper.innerHTML = createColorInputMarkup(key, label);
+      const wrapper = createControlCard({
+        key,
+        title: label,
+        bodyMarkup: createColorInputMarkup(key, label),
+      });
       fieldGrid.appendChild(wrapper);
     });
 
-    section.addEventListener('toggle', () => {
-      if (!section.open) return;
-      colorControls.querySelectorAll('details.color-settings-group[open]').forEach((group) => {
-        if (group !== section) group.open = false;
-      });
-    });
     colorControls.appendChild(section);
   });
 
@@ -974,7 +887,6 @@ function createColorControls() {
 
 function createColorInputMarkup(key, label) {
   return `
-    <span>${label}</span>
     <div class="color-input-row">
       <span class="color-picker-shell">
         <input data-color-picker="${key}" type="color" aria-label="${label}: выбор цвета" />
@@ -982,8 +894,8 @@ function createColorInputMarkup(key, label) {
       <input data-color-text="${key}" type="text" spellcheck="false" autocapitalize="characters" aria-label="${label}: значение цвета" />
     </div>
     <div class="color-alpha-row">
-      <span>Прозрачность</span>
-      <input id="color-alpha-${key}" data-color-alpha="${key}" type="range" min="0" max="100" step="1" aria-label="${label}: прозрачность" />
+      <span>Непрозрачность</span>
+      <input id="color-alpha-${key}" data-color-alpha="${key}" type="range" min="0" max="100" step="1" aria-label="${label}: непрозрачность" />
       <output data-color-alpha-value="${key}" for="color-alpha-${key}">100%</output>
     </div>
   `;
@@ -991,15 +903,17 @@ function createColorInputMarkup(key, label) {
 
 function createRangeControls() {
   RANGE_FIELDS.forEach(([key, label, min, max, step, suffix]) => {
-    const wrapper = document.createElement('label');
-    wrapper.className = 'range-field';
-    wrapper.innerHTML = `
-      <div class="range-field__header">
-        <span>${label}</span>
-        <strong data-range-value="${key}"></strong>
-      </div>
-      <input data-range-input="${key}" type="range" min="${min}" max="${max}" step="${step}" />
-    `;
+    const wrapper = createControlCard({
+      key,
+      title: label,
+      bodyMarkup: `
+        <div class="range-field__header">
+          <span>Текущее значение</span>
+          <strong data-range-value="${key}"></strong>
+        </div>
+        <input data-range-input="${key}" type="range" min="${min}" max="${max}" step="${step}" />
+      `,
+    });
     wrapper.dataset.suffix = suffix;
     rangeControls.appendChild(wrapper);
   });
@@ -1017,27 +931,30 @@ function createRangeControls() {
 
 function createFontControls() {
   FONT_SELECT_FIELDS.forEach(([key, label, options]) => {
-    const wrapper = document.createElement('label');
-    wrapper.className = 'control-field';
-    wrapper.innerHTML = `
-      <span>${label}</span>
-      <select data-font-select="${key}">
-        ${options.map(([value, text]) => `<option value="${value}">${text}</option>`).join('')}
-      </select>
-    `;
+    const wrapper = createControlCard({
+      key,
+      title: label,
+      bodyMarkup: `
+        <select data-font-select="${key}">
+          ${options.map(([value, text]) => `<option value="${value}">${text}</option>`).join('')}
+        </select>
+      `,
+    });
     fontControls.appendChild(wrapper);
   });
 
   FONT_RANGE_FIELDS.forEach(([key, label, min, max, step, suffix]) => {
-    const wrapper = document.createElement('label');
-    wrapper.className = 'range-field';
-    wrapper.innerHTML = `
-      <div class="range-field__header">
-        <span>${label}</span>
-        <strong data-font-range-value="${key}"></strong>
-      </div>
-      <input data-font-range="${key}" type="range" min="${min}" max="${max}" step="${step}" />
-    `;
+    const wrapper = createControlCard({
+      key,
+      title: label,
+      bodyMarkup: `
+        <div class="range-field__header">
+          <span>Текущее значение</span>
+          <strong data-font-range-value="${key}"></strong>
+        </div>
+        <input data-font-range="${key}" type="range" min="${min}" max="${max}" step="${step}" />
+      `,
+    });
     wrapper.dataset.suffix = suffix;
     fontControls.appendChild(wrapper);
   });
@@ -1233,16 +1150,6 @@ function syncFontRangeValueDisplay(key) {
   if (value) value.textContent = `${draftTheme[key]}${suffix}`;
 }
 
-function setSettingsTab(tab) {
-  activeSettingsTab = tab;
-  document.querySelectorAll('.settings-tab').forEach((button) => {
-    button.classList.toggle('active', button.dataset.settingsTab === tab);
-  });
-  document.querySelectorAll('.settings-tab-panel').forEach((panel) => {
-    panel.classList.toggle('active', panel.dataset.settingsPanel === tab);
-  });
-}
-
 function setRealPreviewMessage(title, detail) {
   if (!realPreviewLoading) return;
   const heading = realPreviewLoading.querySelector('strong');
@@ -1328,189 +1235,6 @@ body,
 }
 `;
   return true;
-}
-
-function getRealPreviewDocument() {
-  if (!(realPreviewFrame instanceof HTMLIFrameElement) || !realPreviewFrame.getAttribute('src')) return null;
-  try {
-    if (realPreviewFrame.contentWindow?.location.href === 'about:blank') return null;
-    return realPreviewFrame.contentDocument;
-  } catch {
-    return null;
-  }
-}
-
-function getStyleBindingElements(binding, frameDocument = getRealPreviewDocument()) {
-  if (!frameDocument) return [];
-  const elements = new Set();
-  binding.selectors.forEach((selector) => {
-    try {
-      frameDocument.querySelectorAll(selector).forEach((element) => elements.add(element));
-    } catch {
-      // An unsupported selector must not disable the remaining bindings.
-    }
-  });
-  return Array.from(elements);
-}
-
-function ensureStyleMapHighlightStyle(frameDocument) {
-  if (!frameDocument?.head) return;
-  let style = frameDocument.getElementById('gizmoConfiguratorStyleMap');
-  if (style?.tagName !== 'STYLE') {
-    style = frameDocument.createElement('style');
-    style.id = 'gizmoConfiguratorStyleMap';
-    frameDocument.head.appendChild(style);
-  }
-  style.textContent = `
-.gizmo-style-map-highlight {
-  outline: 3px solid color-mix(in srgb, var(--gizmo-style-map-color, #ffca28) 42%, #fff) !important;
-  outline-offset: 3px !important;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, .96),
-    0 0 0 6px rgba(3, 8, 18, .72),
-    0 0 24px 9px color-mix(in srgb, var(--gizmo-style-map-color, #ffca28) 62%, transparent) !important;
-  animation: gizmo-style-map-pulse 1.05s ease-in-out infinite alternate !important;
-}
-@keyframes gizmo-style-map-pulse {
-  from { outline-offset: 2px; filter: brightness(1); }
-  to { outline-offset: 6px; filter: brightness(1.18); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .gizmo-style-map-highlight { animation: none !important; }
-}`;
-}
-
-function clearStyleBindingHighlight() {
-  const frameDocument = getRealPreviewDocument();
-  if (!frameDocument) return;
-  frameDocument.querySelectorAll('.gizmo-style-map-highlight').forEach((element) => {
-    element.classList.remove('gizmo-style-map-highlight');
-    element.style.removeProperty('--gizmo-style-map-color');
-  });
-}
-
-function setStyleMapStatus(binding, count, pinned = false) {
-  if (!styleMapStatus) return;
-  if (!binding) {
-    styleMapStatus.textContent = 'Карта готова — выберите стиль.';
-    return;
-  }
-  const countLabel = binding.confirmed === false
-    ? 'Прямая selector-привязка в текущем Host.Web не подтверждена.'
-    : count === 0
-    ? 'На текущей странице элементы не найдены.'
-    : `Подсвечено элементов: ${count}.`;
-  styleMapStatus.textContent = `${binding.label} → ${binding.targets}. ${countLabel}${pinned ? ' Подсветка закреплена.' : ''}`;
-}
-
-function highlightStyleBinding(key, { pinned = false } = {}) {
-  const binding = STYLE_BINDINGS.find((item) => item.key === key);
-  const frameDocument = getRealPreviewDocument();
-  clearStyleBindingHighlight();
-  if (!binding || !frameDocument) {
-    setStyleMapStatus(binding, 0, pinned);
-    return 0;
-  }
-
-  ensureStyleMapHighlightStyle(frameDocument);
-  const color = CSS.supports('color', draftTheme[key]) ? draftTheme[key] : '#ffca28';
-  const elements = getStyleBindingElements(binding, frameDocument);
-  elements.forEach((element) => {
-    element.style.setProperty('--gizmo-style-map-color', color);
-    element.classList.add('gizmo-style-map-highlight');
-  });
-  setStyleMapStatus(binding, elements.length, pinned);
-  return elements.length;
-}
-
-function syncStyleMapLegend() {
-  if (!styleMapLegend) return;
-  STYLE_BINDINGS.forEach((binding) => {
-    const button = styleMapLegend.querySelector(`[data-style-binding="${binding.key}"]`);
-    if (!(button instanceof HTMLButtonElement)) return;
-    const color = CSS.supports('color', draftTheme[binding.key]) ? draftTheme[binding.key] : 'transparent';
-    button.style.setProperty('--style-map-swatch', color);
-    button.classList.toggle('is-pinned', pinnedStyleBindingKey === binding.key);
-    button.setAttribute('aria-pressed', String(pinnedStyleBindingKey === binding.key));
-    const count = getStyleBindingElements(binding).length;
-    const countElement = button.querySelector('[data-style-binding-count]');
-    if (countElement) {
-      countElement.textContent = binding.confirmed === false
-        ? 'нет прямой связи'
-        : count === 0 ? '0 на странице' : `${count} найдено`;
-    }
-  });
-}
-
-function scheduleStyleMapSync() {
-  window.clearTimeout(styleMapSyncTimer);
-  styleMapSyncTimer = window.setTimeout(() => {
-    syncStyleMapLegend();
-    if (pinnedStyleBindingKey) highlightStyleBinding(pinnedStyleBindingKey, { pinned: true });
-  }, 80);
-}
-
-function observeRealPreviewBindings() {
-  styleMapMutationObserver?.disconnect();
-  const frameDocument = getRealPreviewDocument();
-  if (!frameDocument?.body) return;
-  styleMapMutationObserver = new MutationObserver(scheduleStyleMapSync);
-  styleMapMutationObserver.observe(frameDocument.body, { childList: true, subtree: true });
-  scheduleStyleMapSync();
-}
-
-function createStyleMapLegend() {
-  if (!styleMapLegend) return;
-  const fragment = document.createDocumentFragment();
-  STYLE_BINDINGS.forEach((binding) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'style-map-item';
-    button.dataset.styleBinding = binding.key;
-    button.setAttribute('aria-pressed', 'false');
-
-    const swatch = document.createElement('span');
-    swatch.className = 'style-map-item__swatch';
-    swatch.setAttribute('aria-hidden', 'true');
-    const copy = document.createElement('span');
-    copy.className = 'style-map-item__copy';
-    const label = document.createElement('strong');
-    label.textContent = binding.label;
-    const targets = document.createElement('span');
-    targets.textContent = binding.targets;
-    const meta = document.createElement('span');
-    meta.className = 'style-map-item__meta';
-    const variable = document.createElement('code');
-    variable.textContent = binding.variable;
-    const count = document.createElement('small');
-    count.dataset.styleBindingCount = '';
-    count.textContent = 'ожидание preview';
-
-    meta.append(variable, count);
-    copy.append(label, targets, meta);
-    button.append(swatch, copy);
-    button.addEventListener('mouseenter', () => {
-      if (!pinnedStyleBindingKey) highlightStyleBinding(binding.key);
-    });
-    button.addEventListener('mouseleave', () => {
-      if (!pinnedStyleBindingKey) {
-        clearStyleBindingHighlight();
-        setStyleMapStatus(null, 0);
-      }
-    });
-    button.addEventListener('click', () => {
-      pinnedStyleBindingKey = pinnedStyleBindingKey === binding.key ? null : binding.key;
-      if (pinnedStyleBindingKey) highlightStyleBinding(binding.key, { pinned: true });
-      else {
-        clearStyleBindingHighlight();
-        setStyleMapStatus(null, 0);
-      }
-      syncStyleMapLegend();
-    });
-    fragment.appendChild(button);
-  });
-  styleMapLegend.replaceChildren(fragment);
-  syncStyleMapLegend();
 }
 
 async function loadRealPreview() {
@@ -1805,8 +1529,28 @@ body {
 [client-theme] .giz-section__header,
 [client-theme] .giz-order__items__header,
 [client-theme] .giz-profile-user-details__header,
-[client-theme] .giz-profile-user-purchases__header {
-  color: var(--shell-text);
+[client-theme] .giz-profile-user-purchases__header,
+[client-theme] .giz-profile-section__header,
+[client-theme] .giz-profile-section-item__info__text,
+[client-theme] .giz-profile-section-item__info__text--name,
+[client-theme] .giz-profile-header .giz-numbers,
+[client-theme] .giz-app-card,
+[client-theme] .giz-app-card__content,
+[client-theme] .giz-app-card__content__details,
+[client-theme] .giz-app-card__title,
+[client-theme] .giz-app-card-text,
+[client-theme] .giz-product-card,
+[client-theme] .giz-product-card__content,
+[client-theme] .giz-product-card__content__details,
+[client-theme] .giz-product-card__price,
+[client-theme] .giz-select__content,
+[client-theme] .giz-multi-select__content,
+[client-theme] .giz-list-item:not(.selected),
+[client-theme] .giz-list-item:not(.selected) .giz-list-item__content,
+[client-theme] .giz-multi-select-item:not(.selected),
+[client-theme] .giz-time-product-details,
+[client-theme] .giz-global-search input {
+  color: var(--shell-text) !important;
 }
 
 [client-theme] .giz-header__modules-menu-item > a,
@@ -1817,9 +1561,13 @@ body {
 [client-theme] .giz-empty-state__text,
 [client-theme] .giz-order-summary-text,
 [client-theme] .giz-header__user-menu-item,
+[client-theme] .giz-profile-header .giz-title,
 [client-theme] .giz-profile-section-item__info__title,
-[client-theme] .giz-profile-section-item__info__text--name {
-  color: var(--shell-text-soft);
+[client-theme] .giz-app-card__content__footer-category,
+[client-theme] .giz-product-card__title,
+[client-theme] .giz-timeline-header,
+[client-theme] .giz-input-label {
+  color: var(--shell-text-soft) !important;
 }
 
 [client-theme] .giz-header__modules-menu-item > a {
@@ -1874,20 +1622,20 @@ body {
 }
 
 [client-theme] .giz-input-root input,
-[client-theme] .giz-input-root svg,
-[client-theme] .giz-input-label {
-  color: var(--shell-text-soft);
+[client-theme] .giz-input-control .giz-input-root input,
+[client-theme] .giz-main-container .giz-login__login .giz-input-root input {
+  color: var(--shell-text) !important;
 }
 
-[client-theme] .giz-input-control .giz-input-root input,
+[client-theme] .giz-input-root svg,
+[client-theme] .giz-input-label,
 [client-theme] .giz-input-control .giz-input-root svg,
-[client-theme] .giz-main-container .giz-login__login .giz-input-root input,
 [client-theme] .giz-main-container .giz-login__login .giz-input-root svg,
 [client-theme] .giz-main-container .giz-login__login .giz-input-root .giz-icon,
 [client-theme] .giz-main-container .giz-login__login .giz-input-root .giz-input__icon-right,
 [client-theme] .giz-main-container .giz-login__login .helper-link,
 [client-theme] .giz-main-container .giz-login__login .giz-login-forgot-password > a {
-  color: var(--shell-text-soft);
+  color: var(--shell-text-soft) !important;
 }
 
 [client-theme] .giz-input-control .giz-input-root input::placeholder,
@@ -2673,8 +2421,6 @@ function markPendingChanges() {
 function renderPreview() {
   previewRoot.style.cssText = previewVars(appliedTheme);
   applyCssToRealPreview();
-  syncStyleMapLegend();
-  if (pinnedStyleBindingKey) highlightStyleBinding(pinnedStyleBindingKey, { pinned: true });
 }
 
 function renderCssOutput() {
@@ -2691,7 +2437,7 @@ function applyDraftTheme() {
   hasPendingChanges = false;
   renderPreview();
   renderCssOutput();
-  syncPresetButtons();
+  syncPresetSelect();
   updateExportSummary();
   updateApplyState();
 }
@@ -2782,7 +2528,7 @@ async function importPreviewCss(file) {
     syncControlValues();
     renderPreview();
     renderCssOutput();
-    syncPresetButtons();
+    syncPresetSelect();
     updateExportSummary();
     updateApplyState();
   }
@@ -2805,7 +2551,7 @@ function clearImportedPreviewCss() {
     syncControlValues();
     renderPreview();
     renderCssOutput();
-    syncPresetButtons();
+    syncPresetSelect();
     updateExportSummary();
     updateApplyState();
   }
@@ -3127,9 +2873,6 @@ realPreviewFrame?.addEventListener('load', () => {
   realPreviewShell?.classList.remove('is-error');
   realPreviewShell?.classList.add('is-ready');
   fitRealPreview();
-  observeRealPreviewBindings();
-  syncStyleMapLegend();
-  if (pinnedStyleBindingKey) highlightStyleBinding(pinnedStyleBindingKey, { pinned: true });
   updateApplyState();
 });
 
@@ -3139,14 +2882,6 @@ previewModeTabs?.addEventListener('click', (event) => {
   const mode = target.dataset.mode;
   if (!mode) return;
   setPreviewMode(mode);
-});
-
-settingsTabs.addEventListener('click', (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLButtonElement)) return;
-  const tab = target.dataset.settingsTab;
-  if (!tab) return;
-  setSettingsTab(tab);
 });
 
 importCssBtn.addEventListener('click', () => {
@@ -3191,21 +2926,21 @@ resetThemeBtn.addEventListener('click', () => {
 copyCssBtn.addEventListener('click', copyCss);
 downloadCssBtn.addEventListener('click', downloadCss);
 toggleCssOutputBtn?.addEventListener('click', () => {
-  isCssOutputCollapsed = !isCssOutputCollapsed;
-  updateCssOutputVisibility();
+  if (cssDialog instanceof HTMLDialogElement && !cssDialog.open) cssDialog.showModal();
+});
+closeCssDialogBtn?.addEventListener('click', () => cssDialog?.close());
+cssDialog?.addEventListener('click', (event) => {
+  if (event.target === cssDialog) cssDialog.close();
 });
 
-createPresetButtons();
+createPresetOptions();
 createColorControls();
 createFontControls();
 createRangeControls();
-createStyleMapLegend();
 hydratePreviewPartials();
 replacePreviewGlyphsWithSvg();
 applyPreviewStyleHints();
-setSettingsTab(activeSettingsTab);
 setPreviewMode(activePreviewMode);
 setPreviewSurface(activePreviewSurface);
 updateImportedCssState();
-updateCssOutputVisibility();
 renderAll(true, true);
