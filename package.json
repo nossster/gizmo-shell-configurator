@@ -1,6 +1,6 @@
 {
   "name": "gizmo-shell-configurator",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "SPA configurator for Gizmo Client UI themes with live preview and CSS override export.",
   "main": "app.js",
   "scripts": {

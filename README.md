@@ -122,7 +122,7 @@ npm run sync:real-client -- --source /path/to/publish/wwwroot
 После `npm run build:real-client` собрать полный release ZIP можно командой:
 
 ```bash
-npm run package:release -- --output /path/to/gizmo-shell-configurator-v1.2.1.zip
+npm run package:release -- --output /path/to/gizmo-shell-configurator-v1.3.0.zip
 ```
 
 Packager использует явный allowlist, включает generated `real-client/` и
@@ -132,7 +132,7 @@ assemblies, localhost-only endpoints и все JavaScript bridge-файлы
 любой обязательный asset отсутствует. Повторная проверка готового файла:
 
 ```bash
-npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.2.1.zip
+npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.3.0.zip
 ```
 
 ## Проверка
