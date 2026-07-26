@@ -5194,6 +5194,58 @@ body {
   line-height: 1.5;
 }
 
+.wallpaper-control {
+  display: grid;
+  gap: 12px;
+}
+
+.wallpaper-control__preview {
+  aspect-ratio: 16 / 9;
+  min-height: 120px;
+  overflow: hidden;
+  background-color: #0c0f11;
+  background-image:
+    linear-gradient(rgba(4, 12, 19, 0.18), rgba(4, 12, 19, 0.32)),
+    url('./real-client/_content/Gizmo.Client.UI/img/background.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.28);
+}
+
+.wallpaper-control__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.wallpaper-control__actions .toolbar-button {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  white-space: normal;
+}
+
+.wallpaper-control__actions .toolbar-button:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+}
+
+.wallpaper-control__status {
+  min-height: 18px;
+  margin: 0;
+  color: #9aa8bd;
+  font-size: 10px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.wallpaper-control__status.is-error {
+  color: #ff7f8d;
+}
+
 .controls-panel .control-grid,
 .controls-panel .range-grid,
 #colorControls {

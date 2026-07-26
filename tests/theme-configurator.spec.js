@@ -183,6 +183,87 @@ test('all control sections stay available in one scrollable sidebar and CSS open
   await expect(page.locator('#cssDialog')).not.toBeVisible();
 });
 
+test('wallpaper upload applies to real Host.Web, blurs the full viewport and round-trips through CSS', async ({ page }) => {
+  test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to verify wallpaper integration.');
+  test.setTimeout(90_000);
+
+  const wallpaperPng = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl2nH0AAAAASUVORK5CYII=',
+    'base64',
+  );
+  const wallpaperFileName = 'wallpaper-";html{display:none}.png';
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+
+  await page.locator('#wallpaperInput').setInputFiles({
+    name: wallpaperFileName,
+    mimeType: 'image/png',
+    buffer: wallpaperPng,
+  });
+
+  await expect(page.locator('#wallpaperStatus')).toContainText(wallpaperFileName);
+  await expect(page.locator('#resetWallpaperBtn')).toBeEnabled();
+  await expect(page.locator('#presetSelect')).toHaveValue('original-gizmo');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: url\("data:image\/png;base64,/);
+  await expect.poll(async () => realPreview.locator('html').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('data:image/png;base64');
+
+  await page.locator('#presetSelect').selectOption('dark-blue');
+  await expect(page.locator('#presetSelect')).toHaveValue('dark-blue');
+  await expect(page.locator('#wallpaperStatus')).toContainText(wallpaperFileName);
+  await expect(page.locator('#resetWallpaperBtn')).toBeEnabled();
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: url\("data:image\/png;base64,/);
+  await expect.poll(async () => realPreview.locator('html').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('data:image/png;base64');
+
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/home');
+
+  const nativeTopBackground = await realPreview.locator('.giz-background').evaluate((element) => {
+    const image = element.querySelector(':scope > img');
+    const overlayStyle = getComputedStyle(element, '::after');
+    return {
+      imageDisplay: image ? getComputedStyle(image).display : null,
+      overlayBackdropFilter: overlayStyle.backdropFilter,
+    };
+  });
+  expect(nativeTopBackground).toEqual({
+    imageDisplay: 'none',
+    overlayBackdropFilter: 'none',
+  });
+
+  const wallpaperOverlay = await realPreview.locator('html').evaluate((element) => {
+    const style = getComputedStyle(element, '::before');
+    return {
+      position: style.position,
+      top: style.top,
+      right: style.right,
+      bottom: style.bottom,
+      left: style.left,
+      backdropFilter: style.backdropFilter,
+    };
+  });
+  expect(wallpaperOverlay).toEqual({
+    position: 'fixed',
+    top: '0px',
+    right: '0px',
+    bottom: '0px',
+    left: '0px',
+    backdropFilter: 'blur(12px)',
+  });
+
+  const exportedCss = await page.locator('#cssOutput').inputValue();
+  await page.locator('#resetWallpaperBtn').click();
+  await expect(page.locator('#wallpaperStatus')).toContainText('Стандартные обои Gizmo');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: none;/);
+
+  await page.locator('#importCssInput').setInputFiles({
+    name: 'wallpaper-roundtrip.css',
+    mimeType: 'text/css',
+    buffer: Buffer.from(exportedCss),
+  });
+  await expect(page.locator('#wallpaperStatus')).toContainText(wallpaperFileName);
+  await expect.poll(async () => realPreview.locator('html').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('data:image/png;base64');
+});
+
 test('text color controls recolor real Host.Web typography instead of only nearby icons', async ({ page }) => {
   test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify live Host.Web text bindings.');
   test.setTimeout(90_000);

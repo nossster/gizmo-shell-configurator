@@ -2,13 +2,21 @@
 
 SPA-приложение для визуальной настройки оболочки `Gizmo.Client.UI` с live preview и экспортом готового CSS override.
 
+## v1.3.1 — Custom wallpaper и полноэкранный blur
+
+- добавлена безопасная загрузка пользовательских JPG, PNG и WebP до 8 МБ;
+- wallpaper сразу применяется к настоящему `Gizmo.Client.UI.Host.Web` и встраивается в Generated CSS;
+- CSS Export → Import восстанавливает изображение и имя файла;
+- blur равномерно покрывает весь viewport, а UI остаётся чётким;
+- пользовательские обои сохраняются при смене preset и удаляются только отдельным или общим сбросом.
+
 ## Что умеет
 
 - визуально настраивать shell-палитру из 16 цветов;
-- показывать интерактивную карту привязок: какой стиль управляет какими реальными элементами Host.Web;
-- подсвечивать связанные элементы прямо в Real Host.Web по hover и закреплять подсветку кликом;
+- загружать пользовательские обои и возвращать стандартный wallpaper Gizmo;
+- показывать название активного wallpaper и сохранять его при смене preset;
 - сразу применять валидные изменения к live preview и Generated CSS без кнопки «Применить»;
-- переключаться между быстрым Demo Preview и настоящим `Gizmo.Client.UI.Host.Web`;
+- использовать настоящий `Gizmo.Client.UI.Host.Web` как единственную preview surface;
 - входить в настоящий Host.Web через автономный `demo / demo` и переходить по `Home`, `Apps`, `Shop`, `Profile`;
 - применять Generated CSS непосредственно к реальным Blazor-компонентам на лету через same-origin preview;
 - переключать 10 preview-маршрутов: `Home`, `Apps`, `Shop`, карточка товара,
@@ -38,7 +46,7 @@ SPA-приложение для визуальной настройки обол
 
 ## Настоящий Gizmo Client preview
 
-Кнопка **Real Host.Web** открывает реальные Razor/Blazor-компоненты из
+Центральный preview автоматически открывает реальные Razor/Blazor-компоненты из
 `Gizmo.Client.UI.Host.Web`. Host использует встроенный `TestClient`, поэтому
 соединение с Gizmo Server, API, авторизация сервера и realtime не требуются.
 Для входа используются `demo / demo`; после входа доступны настоящие страницы
@@ -48,8 +56,7 @@ Generated CSS вставляется только в документ preview if
 каждом валидном изменении цвета, шрифта, эффекта, пресета или импортированного
 CSS. Кнопка **Скачать CSS** сохраняет тот же CSS, который виден в настоящем UI.
 
-Blazor runtime загружается лениво после первого нажатия **Real Host.Web**.
-Первый запуск может занять несколько секунд. Generated folders `real-client/`
+Первый запуск Blazor runtime может занять несколько секунд. Generated folders `real-client/`
 и `_framework/` не хранятся в Git, но включаются в standalone-архив.
 
 ## Компактная палитра
@@ -122,7 +129,7 @@ npm run sync:real-client -- --source /path/to/publish/wwwroot
 После `npm run build:real-client` собрать полный release ZIP можно командой:
 
 ```bash
-npm run package:release -- --output /path/to/gizmo-shell-configurator-v1.3.0.zip
+npm run package:release -- --output /path/to/gizmo-shell-configurator-v1.3.1.zip
 ```
 
 Packager использует явный allowlist, включает generated `real-client/` и
@@ -132,7 +139,7 @@ assemblies, localhost-only endpoints и все JavaScript bridge-файлы
 любой обязательный asset отсутствует. Повторная проверка готового файла:
 
 ```bash
-npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.3.0.zip
+npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.3.1.zip
 ```
 
 ## Проверка
@@ -141,7 +148,8 @@ npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.3.0.zip
 - packager contracts: `npm run test:package`;
 - полный E2E-набор: `npm test`;
 - E2E проверяет компактную палитру, производные токены, все пресеты,
-  карту привязок, Export → Import, Windows ABGR DWORD, 10 preview-маршрутов и настоящий Host.Web;
+  wallpaper upload, полноэкранный blur, Export → Import, Windows ABGR DWORD,
+  10 preview-маршрутов и настоящий Host.Web;
 - real-host E2E проверяет Blazor `[client-theme]`, live CSS variable,
   вход `demo / demo`, маршруты Home/Apps/Shop/Profile, preview wallpaper,
   отсутствие browser errors и содержимое скачанного CSS;
