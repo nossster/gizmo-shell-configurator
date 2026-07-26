@@ -64,9 +64,25 @@
             <p id="applyState" class="apply-state">Preview синхронизирован</p>
           </div>
 
+          <section class="control-section wallpaper-section" aria-labelledby="wallpaperHeading">
+            <div class="control-section__heading">
+              <h2 id="wallpaperHeading">① Обои клиента</h2>
+            </div>
+            <p>Загрузите JPG, PNG или WebP до 8 МБ. Изображение встраивается в CSS и применяется к настоящему Host.Web.</p>
+            <div class="wallpaper-control">
+              <div id="wallpaperPreview" class="wallpaper-control__preview" role="img" aria-label="Предпросмотр стандартных обоев Gizmo"></div>
+              <div class="wallpaper-control__actions">
+                <button id="uploadWallpaperBtn" class="toolbar-button toolbar-button--primary" type="button">↑ Загрузить обои</button>
+                <button id="resetWallpaperBtn" class="toolbar-button" type="button" disabled>Вернуть стандартные</button>
+              </div>
+              <p id="wallpaperStatus" class="wallpaper-control__status" role="status" aria-live="polite">Стандартные обои Gizmo</p>
+              <input id="wallpaperInput" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden />
+            </div>
+          </section>
+
           <section class="control-section" aria-labelledby="colorsHeading">
             <div class="control-section__heading">
-              <h2 id="colorsHeading">① Цвета</h2>
+              <h2 id="colorsHeading">② Цвета</h2>
               <span>16</span>
             </div>
             <p>Основные поверхности, текст, акцент и статусы. Производные оттенки рассчитываются автоматически.</p>
@@ -75,7 +91,7 @@
 
           <section class="control-section" aria-labelledby="fontsHeading">
             <div class="control-section__heading">
-              <h2 id="fontsHeading">② Шрифты</h2>
+              <h2 id="fontsHeading">③ Шрифты</h2>
             </div>
             <p>Шрифт интерфейса, заголовков и базовый размер текста.</p>
             <div class="control-grid" id="fontControls"></div>
@@ -83,7 +99,7 @@
 
           <section class="control-section" aria-labelledby="effectsHeading">
             <div class="control-section__heading">
-              <h2 id="effectsHeading">③ Эффекты</h2>
+              <h2 id="effectsHeading">④ Эффекты</h2>
             </div>
             <p>Радиусы, размеры, blur и тени оболочки.</p>
             <div class="range-grid" id="rangeControls"></div>

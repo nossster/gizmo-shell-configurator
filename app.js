@@ -30,6 +30,8 @@ const DEFAULT_THEME = {
   shellShadowOpacity: 0.30,
   shellShadowStrongOpacity: 0.37,
   shellBlur: 6,
+  wallpaperImage: '',
+  wallpaperName: '',
   shellRadiusS: 8,
   shellRadiusM: 8,
   shellRadiusL: 16,
@@ -586,6 +588,10 @@ let realPreviewState = 'idle';
 let realPreviewResizeObserver = null;
 const REAL_PREVIEW_VIEWPORT = Object.freeze({ width: 1280, height: 760 });
 const THEME_KEYS = Object.keys(DEFAULT_THEME);
+const PRESET_THEME_KEYS = THEME_KEYS.filter((key) => key !== 'wallpaperImage' && key !== 'wallpaperName');
+const MAX_WALLPAPER_SIZE_BYTES = 8388608;
+const ALLOWED_WALLPAPER_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const WALLPAPER_DATA_URL_PATTERN = /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i;
 
 const previewRoot = document.getElementById('previewRoot');
 const cssOutput = document.getElementById('cssOutput');
@@ -611,6 +617,11 @@ const realPreviewFrame = document.getElementById('realPreviewFrame');
 const realPreviewLoading = document.getElementById('realPreviewLoading');
 const cssDialog = document.getElementById('cssDialog');
 const closeCssDialogBtn = document.getElementById('closeCssDialogBtn');
+const wallpaperInput = document.getElementById('wallpaperInput');
+const uploadWallpaperBtn = document.getElementById('uploadWallpaperBtn');
+const resetWallpaperBtn = document.getElementById('resetWallpaperBtn');
+const wallpaperPreview = document.getElementById('wallpaperPreview');
+const wallpaperStatus = document.getElementById('wallpaperStatus');
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -699,6 +710,84 @@ const IMPORTED_THEME_VARIABLE_MAP = {
   '--shell-blur': 'shellBlur',
 };
 
+function normalizeWallpaperDataUrl(value) {
+  const dataUrl = String(value || '').trim();
+  return WALLPAPER_DATA_URL_PATTERN.test(dataUrl) ? dataUrl : '';
+}
+
+function wallpaperCssImage(themeValues) {
+  const dataUrl = normalizeWallpaperDataUrl(themeValues.wallpaperImage);
+  return dataUrl ? `url("${dataUrl}")` : 'none';
+}
+
+function wallpaperCssName(themeValues) {
+  return JSON.stringify(normalizeWallpaperDataUrl(themeValues.wallpaperImage)
+    ? String(themeValues.wallpaperName || 'Пользовательские обои')
+    : '');
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve(String(reader.result || '')));
+    reader.addEventListener('error', () => reject(new Error('Не удалось прочитать изображение.')));
+    reader.readAsDataURL(file);
+  });
+}
+
+function verifyImageDataUrl(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener('load', () => resolve());
+    image.addEventListener('error', () => reject(new Error('Выбранный файл не удалось декодировать как изображение.')));
+    image.src = dataUrl;
+  });
+}
+
+function setWallpaperStatus(message, isError = false) {
+  if (!wallpaperStatus) return;
+  wallpaperStatus.textContent = message;
+  wallpaperStatus.classList.toggle('is-error', isError);
+}
+
+function syncWallpaperControls() {
+  const dataUrl = normalizeWallpaperDataUrl(draftTheme.wallpaperImage);
+  const fileName = dataUrl ? String(draftTheme.wallpaperName || 'Пользовательские обои') : '';
+
+  if (wallpaperPreview instanceof HTMLElement) {
+    wallpaperPreview.style.backgroundImage = dataUrl
+      ? `linear-gradient(rgba(4, 12, 19, 0.18), rgba(4, 12, 19, 0.32)), url("${dataUrl}")`
+      : '';
+    wallpaperPreview.setAttribute(
+      'aria-label',
+      dataUrl ? `Предпросмотр пользовательских обоев: ${fileName}` : 'Предпросмотр стандартных обоев Gizmo',
+    );
+  }
+
+  if (resetWallpaperBtn instanceof HTMLButtonElement) resetWallpaperBtn.disabled = !dataUrl;
+  setWallpaperStatus(dataUrl ? `Пользовательские обои: ${fileName}` : 'Стандартные обои Gizmo');
+}
+
+async function setWallpaperFromFile(file) {
+  if (!ALLOWED_WALLPAPER_TYPES.has(file.type)) {
+    throw new Error('Поддерживаются только JPG, PNG и WebP.');
+  }
+  if (file.size > MAX_WALLPAPER_SIZE_BYTES) {
+    throw new Error('Изображение больше 8 МБ. Выберите файл меньшего размера.');
+  }
+
+  const dataUrl = await readFileAsDataUrl(file);
+  if (!normalizeWallpaperDataUrl(dataUrl)) {
+    throw new Error('Формат изображения не соответствует JPG, PNG или WebP.');
+  }
+  await verifyImageDataUrl(dataUrl);
+
+  draftTheme.wallpaperImage = dataUrl;
+  draftTheme.wallpaperName = file.name;
+  syncWallpaperControls();
+  markPendingChanges();
+}
+
 function getPresetDisplayName(key) {
   const preset = PRESETS[key];
   if (!preset) return 'Custom override';
@@ -713,7 +802,7 @@ function formatFontFamilyLabel(value) {
 }
 
 function themesMatch(left, right) {
-  return THEME_KEYS.every((key) => String(left[key]) === String(right[key]));
+  return PRESET_THEME_KEYS.every((key) => String(left[key]) === String(right[key]));
 }
 
 function findMatchingPresetKey(themeValues) {
@@ -762,7 +851,13 @@ function createPresetOptions() {
   presetSelect.addEventListener('change', () => {
     const preset = PRESETS[presetSelect.value];
     if (!preset) return;
-    draftTheme = structuredClone(preset.values);
+    const wallpaperImage = normalizeWallpaperDataUrl(draftTheme.wallpaperImage);
+    const wallpaperName = wallpaperImage ? String(draftTheme.wallpaperName || 'Пользовательские обои') : '';
+    draftTheme = {
+      ...structuredClone(preset.values),
+      wallpaperImage,
+      wallpaperName,
+    };
     renderAll(true, true);
   });
 }
@@ -1107,6 +1202,7 @@ function syncColorText(key, value) {
 }
 
 function syncControlValues() {
+  syncWallpaperControls();
   COLOR_FIELDS.forEach(([key]) => {
     syncColorText(key, draftTheme[key]);
     syncColorPicker(key, draftTheme[key]);
@@ -1216,11 +1312,13 @@ function applyCssToRealPreview() {
   const backdropColor = CSS.supports('color', appliedTheme.shellBg)
     ? appliedTheme.shellBg
     : DEFAULT_THEME.shellBg;
+  const customWallpaper = normalizeWallpaperDataUrl(appliedTheme.wallpaperImage);
+  const backdropImage = customWallpaper || '_content/Gizmo.Client.UI/img/background.jpg';
   backdropStyle.textContent = `
 html {
   min-height: 100%;
   background-color: ${backdropColor};
-  background-image: linear-gradient(rgba(4, 12, 19, 0.18), rgba(4, 12, 19, 0.32)), url("_content/Gizmo.Client.UI/img/background.jpg");
+  background-image: linear-gradient(rgba(4, 12, 19, 0.18), rgba(4, 12, 19, 0.32)), url("${backdropImage}") !important;
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
@@ -1411,6 +1509,35 @@ function generateCss(themeValues) {
 
 ${generateWindowsTaskbarRegistryComment(themeValues)}
 
+:root {
+  --shell-wallpaper-image: ${wallpaperCssImage(themeValues)};
+  --shell-wallpaper-name: ${wallpaperCssName(themeValues)};
+  --shell-wallpaper-blur: ${themeValues.shellBlur}px;
+}
+
+html {
+  min-height: 100%;
+  position: relative;
+  isolation: isolate;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+${normalizeWallpaperDataUrl(themeValues.wallpaperImage) ? `  background-image:
+    linear-gradient(rgba(4, 12, 19, 0.18), rgba(4, 12, 19, 0.32)),
+    var(--shell-wallpaper-image) !important;` : ''}
+}
+
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(var(--shell-wallpaper-blur));
+  backdrop-filter: blur(var(--shell-wallpaper-blur));
+}
+
 [client-theme] {
   --shell-bg: ${themeValues.shellBg};
   --shell-bg-elevated: ${themeValues.shellBgElevated};
@@ -1453,7 +1580,10 @@ ${generateWindowsTaskbarRegistryComment(themeValues)}
 }
 
 body {
-  background-color: var(--shell-bg);
+  min-height: 100%;
+  position: relative;
+  z-index: 1;
+  background-color: transparent !important;
   color: var(--shell-text);
 }
 
@@ -1475,12 +1605,17 @@ body {
   font-weight: var(--shell-font-weight-heading);
 }
 
+[client-theme] .giz-background > img {
+  display: none !important;
+}
+
 [client-theme] .giz-background::after {
   background:
     linear-gradient(180deg, ${hexToRgba(themeValues.shellBg, 0.08)} 0%, ${hexToRgba(themeValues.shellBg, 0.42)} 58%, ${hexToRgba(themeValues.shellBg, 0.72)} 100%),
     radial-gradient(circle at top left, ${hexToRgba(themeValues.shellAccent, 0.12)}, transparent 35%),
     radial-gradient(circle at top right, ${hexToRgba(themeValues.shellAccentDeep, 0.10)}, transparent 32%) !important;
-  backdrop-filter: blur(var(--shell-blur));
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 [client-theme] .giz-container .giz-app__header {
@@ -2477,6 +2612,8 @@ function updateImportedCssState() {
 function scopeImportedCss(cssText) {
   return cssText
     .replace(/\[client-theme(?:=(?:"true"|'true'))?\]/g, '#previewRoot')
+    .replace(/(^|}|,)\s*:root(?=\s*[{,])/gm, '$1 #previewRoot')
+    .replace(/(^|}|,)\s*html(?=\s*(?:::|[{,]))/gm, '$1 #previewRoot')
     .replace(/(^|}|,)\s*body(?=\s*[{,])/gm, '$1 #previewRoot')
     .replace(/#previewRoot\s+\.giz-container\s+/g, '#previewRoot ');
 }
@@ -2505,6 +2642,28 @@ function extractThemeOverridesFromCss(cssText) {
     const normalized = normalizeImportedThemeValue(themeKey, match[1]);
     if (normalized !== null && normalized !== '') {
       overrides[themeKey] = normalized;
+    }
+  }
+
+  const wallpaperMatch = cssText.match(
+    /--shell-wallpaper-image\s*:\s*(none|url\(\s*["']?(data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+)["']?\s*\))\s*;/i,
+  );
+  if (wallpaperMatch) {
+    overrides.wallpaperImage = wallpaperMatch[1].toLowerCase() === 'none'
+      ? ''
+      : normalizeWallpaperDataUrl(wallpaperMatch[2]);
+    overrides.wallpaperName = '';
+
+    const wallpaperNameMatch = cssText.match(/--shell-wallpaper-name\s*:\s*("(?:\\.|[^"\\])*")\s*;/i);
+    if (wallpaperNameMatch && overrides.wallpaperImage) {
+      try {
+        overrides.wallpaperName = String(JSON.parse(wallpaperNameMatch[1]));
+      } catch {
+        overrides.wallpaperName = 'Обои из импортированного CSS';
+      }
+    }
+    if (overrides.wallpaperImage && !overrides.wallpaperName) {
+      overrides.wallpaperName = 'Обои из импортированного CSS';
     }
   }
 
@@ -2882,6 +3041,32 @@ previewModeTabs?.addEventListener('click', (event) => {
   const mode = target.dataset.mode;
   if (!mode) return;
   setPreviewMode(mode);
+});
+
+uploadWallpaperBtn?.addEventListener('click', () => {
+  wallpaperInput?.click();
+});
+
+wallpaperInput?.addEventListener('change', async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) return;
+  const [file] = Array.from(target.files || []);
+  if (!file) return;
+
+  try {
+    await setWallpaperFromFile(file);
+  } catch (error) {
+    setWallpaperStatus(error instanceof Error ? error.message : 'Не удалось загрузить изображение.', true);
+  } finally {
+    target.value = '';
+  }
+});
+
+resetWallpaperBtn?.addEventListener('click', () => {
+  draftTheme.wallpaperImage = '';
+  draftTheme.wallpaperName = '';
+  syncWallpaperControls();
+  markPendingChanges();
 });
 
 importCssBtn.addEventListener('click', () => {
