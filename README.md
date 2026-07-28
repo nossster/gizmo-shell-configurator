@@ -129,9 +129,14 @@ docker run --rm -p 8920:8920 --name gizmo-shell-configurator gizmo-shell-configu
 
 - `http://127.0.0.1:8920`
 
-Если `real-client/` и root-level `_framework/` уже синхронизированы перед сборкой
-образа, они попадут внутрь контейнера. Без них контейнер запускает Demo Preview
-и показывает предупреждение о недоступном Real Host.Web runtime.
+Docker build сам клонирует `GAMP/Gizmo.Client.UI` вместе с submodules,
+публикует `Gizmo.Client.UI.Host.Web`, синхронизирует `real-client/` и
+root-level `_framework/`, а затем кладёт готовый Real Host.Web runtime внутрь
+финального образа. Для фиксации конкретной ревизии исходников Gizmo:
+
+```bash
+docker build --build-arg GIZMO_CLIENT_UI_REF=<commit-or-branch> -t gizmo-shell-configurator:1.4.0 .
+```
 
 ### Обновление настоящего Host.Web runtime
 
