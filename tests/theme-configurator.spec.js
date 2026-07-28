@@ -163,6 +163,7 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('[client-theme] .giz-input-root--outline:focus-within');
   expect(css).toContain('box-shadow: var(--shell-focus-inset) !important;');
   expect(css).toContain('[client-theme] .giz-input-label {');
+  expect(css).toMatch(/\[client-theme\] \.giz-input-label \{[\s\S]*?border-radius: var\(--shell-input-radius-outer\) !important;/);
   expect(css).toContain('padding-inline: 0.25rem !important;');
   expect(css).toContain('[client-theme] .giz-dialog .giz-input-label');
   expect(css).toContain('[client-theme] .giz-login-card .giz-input-label');
@@ -216,11 +217,16 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).not.toMatch(/\.giz-product-card__content__image,\s*\n\[client-theme\] \.giz-product-card__content__image img\s*{\s*border-radius: var\(--shell-card-radius-inner\) !important;\s*overflow: hidden !important;\s*clip-path:/);
   expect(css).toContain('[client-theme] .giz-timeline-item {');
   expect(css).toContain('background: var(--shell-timeline-item-bg) !important;');
-  expect(css).toContain('[client-theme] .giz-time-product-expiration {');
+  expect(css).toMatch(/\[client-theme\] \.giz-timeline-item \{[\s\S]*?border-radius: var\(--shell-input-radius-outer\) !important;/);
+  expect(css).toContain('[client-theme] .giz-time-product-expiration,');
   expect(css).toContain('[client-theme] .giz-product-details__product__info__additional__availability');
   expect(css).toContain('[client-theme] .giz-product-details__product__info__additional__expirations__body .giz-product-expiration');
   expect(css).toContain('background: var(--shell-time-product-expiration-bg) !important;');
   expect(css).toContain('background-color: var(--shell-time-product-expiration-bg) !important;');
+  expect(css).toMatch(/\[client-theme\] \.giz-time-product-expiration,[\s\S]*?border-radius: var\(--shell-input-radius-outer\) !important;/);
+  expect(css).toMatch(/\[client-theme\] \.giz-password-tooltip \{[\s\S]*?border-radius: var\(--shell-panel-radius-outer\) !important;/);
+  expect(css).toMatch(/\[client-theme\] \.giz-dropdown-menu__content \{[\s\S]*?border-radius: var\(--shell-panel-radius-outer\);/);
+  expect(css).toMatch(/\[client-theme\] \.giz-dialog > \.giz-card,[\s\S]*?border-radius: var\(--shell-modal-radius-outer\);/);
   expect(css).toContain('[client-theme] .giz-shop__body::before');
   expect(css).toContain('[client-theme] .giz-shop__products__body::before');
   expect(css).toContain('[client-theme] .giz-product-details__body::before');

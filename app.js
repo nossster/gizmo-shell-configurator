@@ -2327,7 +2327,7 @@ function buildComprehensiveOverrideCss() {
 [client-theme] .giz-input-label {
   background: var(--shell-bg-elevated) !important;
   background-color: var(--shell-bg-elevated) !important;
-  border-radius: var(--shell-input-radius-inner) !important;
+  border-radius: var(--shell-input-radius-outer) !important;
   padding-inline: 0.25rem !important;
   position: relative;
   z-index: 1;
@@ -2573,7 +2573,7 @@ function buildComprehensiveOverrideCss() {
 [client-theme] .giz-password-tooltip {
   background: var(--shell-popup-bg) !important;
   border-color: var(--shell-border-strong-color) !important;
-  border-radius: var(--shell-panel-radius-inner) !important;
+  border-radius: var(--shell-panel-radius-outer) !important;
   box-shadow: var(--shell-shadow-strong) !important;
 }
 
@@ -3277,7 +3277,7 @@ body {
 [client-theme] .giz-input-label {
   background: var(--shell-bg-elevated) !important;
   background-color: var(--shell-bg-elevated) !important;
-  border-radius: var(--shell-input-radius-inner) !important;
+  border-radius: var(--shell-input-radius-outer) !important;
   padding-inline: 0.25rem !important;
   position: relative;
   z-index: 1;
@@ -3348,7 +3348,7 @@ body {
 [client-theme] .giz-drawer-content {
   background: var(--shell-bg-elevated);
   border: ${themeValues.panelBorderWidth}px solid var(--shell-border);
-  border-radius: ${themeValues.shellRadiusL / 10}rem;
+  border-radius: var(--shell-panel-radius-outer);
   box-shadow: var(--shell-shadow);
   -webkit-backdrop-filter: blur(var(--shell-blur)) !important;
   backdrop-filter: blur(var(--shell-blur)) !important;
@@ -3828,7 +3828,7 @@ body {
 .giz-client-tooltip,
 .giz-tooltip,
 .giz-user-balance-tooltip {
-  border-radius: ${themeValues.shellRadiusM / 10}rem;
+  border-radius: var(--shell-panel-radius-outer);
 }
 
 [client-theme] .giz-select__dropdown .giz-list-item.active,
@@ -3970,7 +3970,7 @@ body {
 [client-theme] .giz-timeline-item {
   color: var(--shell-timeline-item) !important;
   background: var(--shell-timeline-item-bg) !important;
-  border-radius: var(--shell-input-radius-inner) !important;
+  border-radius: var(--shell-input-radius-outer) !important;
 }
 
 [client-theme] .giz-timeline-item::before {
@@ -3989,7 +3989,7 @@ body {
   color: var(--shell-time-product-expiration-text) !important;
   background: var(--shell-time-product-expiration-bg) !important;
   background-color: var(--shell-time-product-expiration-bg) !important;
-  border-radius: var(--shell-input-radius-inner) !important;
+  border-radius: var(--shell-input-radius-outer) !important;
   margin-bottom: 0.8rem;
   text-align: right;
   font-weight: 500;
@@ -4000,12 +4000,12 @@ body {
 
 [client-theme] .giz-dialog > .giz-card,
 [client-theme] .giz-dialog .giz-card {
-  border-radius: ${themeValues.shellRadiusXL / 10}rem;
+  border-radius: var(--shell-modal-radius-outer);
 }
 
 .giz-dialog > .giz-card,
 .giz-dialog .giz-card {
-  border-radius: ${themeValues.shellRadiusXL / 10}rem;
+  border-radius: var(--shell-modal-radius-outer);
 }
 
 [client-theme] .giz-dialog > .giz-card::before,
@@ -4031,7 +4031,7 @@ body {
 }
 
 [client-theme] .giz-dropdown-menu__content {
-  border-radius: ${themeValues.shellRadiusL / 10}rem;
+  border-radius: var(--shell-panel-radius-outer);
 }
 
 [client-theme] .giz-password-tooltip::before {
