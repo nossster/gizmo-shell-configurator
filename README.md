@@ -118,6 +118,21 @@ python3 scripts/serve.py --port 8899
 
 - `http://127.0.0.1:8899`
 
+### Docker
+
+```bash
+docker build -t gizmo-shell-configurator:1.4.0 .
+docker run --rm -p 8920:8920 --name gizmo-shell-configurator gizmo-shell-configurator:1.4.0
+```
+
+Открыть:
+
+- `http://127.0.0.1:8920`
+
+Если `real-client/` и root-level `_framework/` уже синхронизированы перед сборкой
+образа, они попадут внутрь контейнера. Без них контейнер запускает Demo Preview
+и показывает предупреждение о недоступном Real Host.Web runtime.
+
 ### Обновление настоящего Host.Web runtime
 
 Для первого запуска нужен полноценный `git clone --recursive` репозитория
