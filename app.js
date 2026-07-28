@@ -2339,6 +2339,14 @@ function buildComprehensiveOverrideCss() {
   background-color: var(--shell-popup-bg) !important;
 }
 
+[client-theme] .giz-login__login .giz-input-label,
+[client-theme] .giz-login-card .giz-input-label,
+[client-theme] .giz-main-container .giz-login__login .giz-input-label {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
 [client-theme] .giz-container .giz-app__header,
 [client-theme] .giz-home-apps__header__quick-launch,
 [client-theme] .giz-home-apps__header__ads,
@@ -3138,6 +3146,18 @@ body {
   color: var(--shell-text) !important;
 }
 
+[client-theme] .giz-section__header__filters__title,
+[client-theme] .giz-section__header__filters label,
+[client-theme] .giz-section__header__filters [class*="__title"],
+[client-theme] .giz-apps-filters label,
+[client-theme] .giz-apps-filters [class*="__title"],
+[client-theme] .giz-shop__products__header__filters label,
+[client-theme] .giz-shop__products__header__filters [class*="__title"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
 [client-theme] .giz-chip {
   border-width: var(--shell-control-border-width) !important;
   border-style: solid !important;
@@ -3265,6 +3285,14 @@ body {
 [client-theme] .giz-login__login .giz-input-label {
   background: var(--shell-popup-bg) !important;
   background-color: var(--shell-popup-bg) !important;
+}
+
+[client-theme] .giz-login__login .giz-input-label,
+[client-theme] .giz-login-card .giz-input-label,
+[client-theme] .giz-main-container .giz-login__login .giz-input-label {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 [client-theme] .giz-input-control .giz-input-root input::placeholder,

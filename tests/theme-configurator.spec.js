@@ -165,6 +165,8 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('[client-theme] .giz-input-label {');
   expect(css).toContain('padding-inline: 0.25rem !important;');
   expect(css).toContain('[client-theme] .giz-dialog .giz-input-label');
+  expect(css).toContain('[client-theme] .giz-login-card .giz-input-label');
+  expect(css).toContain('[client-theme] .giz-main-container .giz-login__login .giz-input-label');
   expect(css).toContain('border: 0 !important;');
   expect(css).toContain('box-shadow: none !important;');
   expect(css).toContain('border-color: var(--shell-border-focus) !important;');
@@ -175,6 +177,9 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('[client-theme] .giz-user-links-item:hover .giz-user-links-item__icon {');
   expect(css).toContain('[client-theme] .giz-section__header__filters .giz-button-group');
   expect(css).toContain('background: var(--shell-filter-utility-bg) !important;');
+  expect(css).toContain('[client-theme] .giz-section__header__filters__title');
+  expect(css).toContain('[client-theme] .giz-section__header__filters label');
+  expect(css).toContain('[client-theme] .giz-apps-filters label');
   expect(css).toContain('[client-theme] .giz-chip {');
   expect(css).toContain('border-radius: var(--shell-input-radius-outer) !important;');
   expect(css).toContain('[client-theme] .giz-button {');
