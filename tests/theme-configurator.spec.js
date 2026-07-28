@@ -16,19 +16,55 @@ const visibleColorKeys = [
   'shellBg',
   'shellBgElevated',
   'shellBgElevated2',
+  'shellBgGlass',
+  'shellBgSoft',
   'popupBg',
+  'popupTextColor',
+  'appCardBg',
+  'productCardBg',
+  'filterUtilityBg',
+  'buttonInactiveBg',
   'shellText',
   'shellTextSoft',
+  'shellTextGhost',
+  'bodyTextColor',
+  'headingColor',
+  'headingTextSoft',
+  'linkColor',
+  'linkHoverColor',
+  'iconColor',
+  'iconMutedColor',
+  'iconActiveColor',
+  'iconSuccessColor',
+  'iconWarningColor',
+  'iconDangerColor',
   'shellAccent',
   'shellAccentDeep',
   'shellAccentHover',
-  'shellBorder',
   'shellWarning',
-  'timelineItemColor',
-  'timeProductExpirationTextColor',
-  'timeProductExpirationBg',
   'shellSuccess',
   'shellDanger',
+  'shellBorder',
+  'shellBorderStrong',
+  'borderColor',
+  'borderStrongColor',
+  'borderHoverColor',
+  'borderFocusColor',
+  'shadowColor',
+  'loginPanelBg',
+  'loginHeroBg',
+  'loginCardBg',
+  'loginOverlayBg',
+  'loginSeparatorColor',
+  'loginQrTitleColor',
+  'loginQrTextColor',
+  'timelineItemColor',
+  'timelineItemBg',
+  'timeProductExpirationTextColor',
+  'timeProductExpirationBg',
+  'userLinksHoverColor',
+  'selectedStateBg',
+  'selectedStateTextColor',
 ];
 
 test.beforeEach(async ({ page }) => {
@@ -41,28 +77,161 @@ async function fillColor(page, key, value) {
 }
 
 test('compact palette derives legacy tokens and Windows taskbar color', async ({ page }) => {
-  await expect(page.locator('[data-color-text]')).toHaveCount(16);
-  await expect(page.locator('.color-settings-group')).toHaveCount(7);
+  await expect(page.locator('[data-color-text]')).toHaveCount(visibleColorKeys.length);
+  await expect(page.locator('.color-settings-group')).toHaveCount(10);
   await expect(page.locator('#applyThemeBtn')).toHaveCount(0);
 
   const renderedKeys = await page.locator('[data-color-text]').evaluateAll((inputs) => inputs.map((input) => input.dataset.colorText));
   expect(renderedKeys).toEqual(visibleColorKeys);
 
   await fillColor(page, 'shellBg', '#112233');
+  await fillColor(page, 'shellBgElevated2', '#123987');
+  await fillColor(page, 'popupBg', '#334455');
+  await fillColor(page, 'popupTextColor', '#BADA55');
   await fillColor(page, 'shellAccentHover', '#AABBCC');
+  await fillColor(page, 'filterUtilityBg', '#224466');
+  await fillColor(page, 'userLinksHoverColor', '#AABBCC');
+  await fillColor(page, 'borderFocusColor', '#00FF11');
   await fillColor(page, 'shellWarning', '#FEDCBA');
   await fillColor(page, 'timelineItemColor', '#123456');
+  await fillColor(page, 'timelineItemBg', 'rgba(11, 22, 33, 0.5)');
   await fillColor(page, 'timeProductExpirationTextColor', '#ABCDEF');
   await fillColor(page, 'timeProductExpirationBg', 'rgba(10, 20, 30, 0.4)');
+  await fillColor(page, 'selectedStateBg', '#445566');
+  await fillColor(page, 'selectedStateTextColor', '#F1E2D3');
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-time-product-expiration-bg: rgba\(10, 20, 30, 0\.4\);/);
 
   const css = await page.locator('#cssOutput').inputValue();
   expect(css).toContain('--shell-bg: #112233;');
+  expect(css).toContain('--shell-bg-elevated-2: #123987;');
+  expect(css).toContain('--shell-popup-bg: #334455;');
+  expect(css).toContain('--shell-popup-text: #BADA55;');
+  expect(css).toContain('--shell-filter-utility-bg: #224466;');
   expect(css).toContain('--shell-user-links-hover: #AABBCC;');
+  expect(css).toContain('--shell-border-focus: #00FF11;');
   expect(css).toContain('--shell-warning: #FEDCBA;');
   expect(css).toContain('--shell-timeline-item: #123456;');
+  expect(css).toContain('--shell-timeline-item-bg: rgba(11, 22, 33, 0.5);');
   expect(css).toContain('--shell-time-product-expiration-text: #ABCDEF;');
   expect(css).toContain('--shell-time-product-expiration-bg: rgba(10, 20, 30, 0.4);');
+  expect(css).toContain('--shell-selected-bg: #445566;');
+  expect(css).toContain('--shell-selected-text: #F1E2D3;');
+  expect(css).toContain('--shell-icon-active:');
+  expect(css).toContain('--shell-heading:');
+  expect(css).toContain('--shell-border-hover:');
+  expect(css).toContain('--shell-shadow-color:');
+  expect(css).toContain('--shell-focus-inset: inset 0 0 0');
+  expect(css).toContain('--shell-button-radius-outer:');
+  expect(css).toContain('--shell-button-radius-inner:');
+  expect(css).toContain('--shell-input-radius-outer:');
+  expect(css).toContain('--shell-input-radius-inner:');
+  expect(css).toContain('--shell-login-panel-bg:');
+  expect(css).toContain('--shell-login-overlay-bg:');
+  expect(css).toContain('.giz-login__login');
+  expect(css).toContain('.giz-icon [fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-dropdown-menu {');
+  expect(css).toContain('background: transparent !important;');
+  expect(css).toContain('[client-theme] .giz-dropdown-menu__content.giz-active-apps {');
+  expect(css).toContain('max-height: min(38rem, calc(100vh - var(--shell-header-height) - 2rem)) !important;');
+  expect(css).toContain('[client-theme] .giz-menu-notifications__footer');
+  expect(css).toContain('[client-theme] .giz-menu-notifications__footer__action');
+  expect(css).toContain('[client-theme] .giz-app-details-card-brand-info');
+  expect(css).toContain('[client-theme] .giz-user-online-deposit__submitted__qr__label');
+  expect(css).toContain('[client-theme] .giz-user-online-deposit__submitted__action__label');
+  expect(css).toContain('background: var(--shell-popup-bg) !important;');
+  expect(css).toContain('background-color: var(--shell-popup-bg) !important;');
+  expect(css).toContain('color: var(--shell-popup-text) !important;');
+  expect(css).toContain('[client-theme] .giz-header__modules-menu-item > a svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-app-card svg');
+  expect(css).toContain('[client-theme] .giz-app-card svg *:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-app-card svg path:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-app-card svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-app-card__content__image svg path[stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] .giz-app-details-card svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-profile-section-item__icon svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-header__user-menu-item svg path[stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] svg [fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] svg [stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] .giz-product-card__content__image svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-product-details__product__info__image svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-product-time-image-wrapper svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-timeline svg path[stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] .giz-product-card__content__image .giz-default-image img');
+  expect(css).toContain('drop-shadow(400px 0 0 var(--shell-icon)) !important;');
+  expect(css).toContain('[client-theme] .giz-global-search:focus-within');
+  expect(css).toContain('[client-theme] .giz-header__global-search:focus-within');
+  expect(css).toContain('[client-theme] .giz-input-root--outline:focus-within');
+  expect(css).toContain('box-shadow: var(--shell-focus-inset) !important;');
+  expect(css).toContain('[client-theme] .giz-input-label {');
+  expect(css).toContain('padding-inline: 0.25rem !important;');
+  expect(css).toContain('[client-theme] .giz-dialog .giz-input-label');
+  expect(css).toContain('border: 0 !important;');
+  expect(css).toContain('box-shadow: none !important;');
+  expect(css).toContain('border-color: var(--shell-border-focus) !important;');
+  expect(css).toContain('[client-theme] .giz-user-links-item:hover {');
+  expect(css).toContain('color: var(--shell-user-links-hover) !important;');
+  expect(css).toContain('background: transparent !important;');
+  expect(css).toContain('background-color: transparent !important;');
+  expect(css).toContain('[client-theme] .giz-user-links-item:hover .giz-user-links-item__icon {');
+  expect(css).toContain('[client-theme] .giz-section__header__filters .giz-button-group');
+  expect(css).toContain('background: var(--shell-filter-utility-bg) !important;');
+  expect(css).toContain('[client-theme] .giz-chip {');
+  expect(css).toContain('border-radius: var(--shell-input-radius-outer) !important;');
+  expect(css).toContain('[client-theme] .giz-button {');
+  expect(css).toContain('border-radius: var(--shell-button-radius-outer) !important;');
+  expect(css).toContain('[client-theme] .quick-launcher-switch .giz-button');
+  expect(css).toContain('border-radius: var(--shell-button-radius-inner)');
+  expect(css).toContain('[client-theme] .giz-chip .giz-chip__label');
+  expect(css).toContain('[client-theme] .giz-chip .giz-icon');
+  expect(css).toContain('[client-theme] .giz-chip.active');
+  expect(css).toContain('[client-theme] .giz-chip.active *');
+  expect(css).toContain('[client-theme] .giz-filters-icon');
+  expect(css).toContain('[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear .giz-icon');
+  expect(css).toContain('[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg path {');
+  expect(css).toContain('[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg path[fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg path[stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] .giz-select__dropdown .giz-list-item.selected');
+  expect(css).toContain('[client-theme] .giz-select__dropdown .giz-list-item.active');
+  expect(css).toContain('[client-theme] .giz-user-online-deposit .giz-button-group .giz-button.selected');
+  expect(css).toContain('[client-theme] .giz-user-online-deposit-dialog .quick-select .giz-button.active');
+  expect(css).toContain('background: var(--shell-selected-bg) !important;');
+  expect(css).toContain('color: var(--shell-selected-text) !important;');
+  expect(css).toContain('[client-theme] .giz-data-grid > thead th');
+  expect(css).toContain('background: var(--shell-bg-elevated-2) !important;');
+  expect(css).toContain('[client-theme] .giz-home__header__ads');
+  expect(css).toContain('[client-theme] .live-ad-card--monster');
+  expect(css).toContain('background: var(--shell-product-card-bg) !important;');
+  expect(css).toContain('[client-theme] .giz-app-card__content--hovered');
+  expect(css).toContain('border-radius: var(--shell-card-radius-inner) !important;');
+  expect(css).toContain('[client-theme] .giz-app-card__content__image img');
+  expect(css).toContain('[client-theme] .giz-app-card__content__image picture img');
+  expect(css).toContain('clip-path: inset(0 round var(--shell-card-radius-inner)) !important;');
+  expect(css).not.toMatch(/\.giz-product-card__content__image,\s*\n\[client-theme\] \.giz-product-card__content__image img\s*{\s*border-radius: var\(--shell-card-radius-inner\) !important;\s*overflow: hidden !important;\s*clip-path:/);
+  expect(css).toContain('[client-theme] .giz-timeline-item {');
+  expect(css).toContain('background: var(--shell-timeline-item-bg) !important;');
+  expect(css).toContain('[client-theme] .giz-time-product-expiration {');
+  expect(css).toContain('[client-theme] .giz-product-details__product__info__additional__availability');
+  expect(css).toContain('[client-theme] .giz-product-details__product__info__additional__expirations__body .giz-product-expiration');
+  expect(css).toContain('background: var(--shell-time-product-expiration-bg) !important;');
+  expect(css).toContain('background-color: var(--shell-time-product-expiration-bg) !important;');
+  expect(css).toContain('[client-theme] .giz-shop__body::before');
+  expect(css).toContain('[client-theme] .giz-shop__products__body::before');
+  expect(css).toContain('[client-theme] .giz-product-details__body::before');
+  expect(css).toContain('[client-theme] .giz-background::after');
+  expect(css).toContain('[client-theme] .giz-login__adv__background::after');
+  expect(css).toContain('[client-theme] .giz-app__body::before');
+  expect(css).toContain('[client-theme] .giz-apps__body::before');
+  expect(css).toContain('[client-theme] .giz-home__body::before');
+  expect(css).toContain('[client-theme] .giz-profile::before');
+  expect(css).toContain('[client-theme] .giz-home__header__quick-launch');
+  expect(css).toContain('[client-theme] .giz-home__header__quick-launch > *');
+  expect(css).toContain('z-index: 30 !important;');
+  expect(css).toContain('isolation: isolate !important;');
+  expect(css).toContain('[client-theme] .giz-dock-item-tooltip');
+  expect(css).toContain('z-index: 2147483647 !important;');
+  expect(css).toContain('backdrop-filter: blur(var(--shell-wallpaper-blur)) !important;');
+  expect(css).toContain('-webkit-backdrop-filter: blur(var(--shell-blur)) !important;');
+  expect(css).toContain('backdrop-filter: blur(var(--shell-blur)) !important;');
   expect(css).toContain('"AccentColor"=dword:ff332211');
   expect(css).toContain('[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Accent]');
   expect(css).toContain('"AccentColorMenu"=dword:ff332211');
@@ -80,11 +249,19 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
 test('color, font and effect controls update preview and CSS automatically', async ({ page }) => {
   await fillColor(page, 'shellBg', '#264057');
   await page.locator('[data-font-select="uiFontFamily"]').selectOption("'Inter', system-ui, sans-serif");
-  await page.locator('[data-range-input="shellRadiusM"]').fill('20');
+  await page.locator('[data-range-input="cardRadiusOuter"]').fill('20');
+  await page.locator('[data-range-number="buttonRadiusOuter"]').fill('22');
+  await page.locator('[data-range-number="buttonRadiusOuter"]').blur();
+  await page.locator('[data-range-number="inputRadiusOuter"]').fill('18');
+  await page.locator('[data-range-number="inputRadiusOuter"]').blur();
 
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #264057;/);
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-font-ui: 'Inter', system-ui, sans-serif;/);
-  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-radius-m: 20px;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-card-radius-outer: 20px;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-button-radius-outer: 22px;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-input-radius-outer: 18px;/);
+  await expect(page.locator('[data-range-input="buttonRadiusOuter"]')).toHaveValue('22');
+  await expect(page.locator('[data-range-input="inputRadiusOuter"]')).toHaveValue('18');
   await expect(page.locator('#previewRoot')).toHaveAttribute('style', /--shell-bg: #264057;/);
   await expect(page.locator('#applyState')).toHaveText('Preview синхронизирован');
 
@@ -102,7 +279,18 @@ test('preset dropdown applies every theme, exposes Custom and Reset selects Orig
   for (const value of presetValues) {
     await presetSelect.selectOption(value);
     await expect(presetSelect).toHaveValue(value);
-    await expect(page.locator('[data-color-text]')).toHaveCount(16);
+    await expect(page.locator('[data-color-text]')).toHaveCount(visibleColorKeys.length);
+    await expect(page.locator('[data-range-number="buttonRadiusOuter"]')).toHaveValue('16');
+    await expect(page.locator('[data-range-number="inputRadiusOuter"]')).toHaveValue('16');
+    await expect(page.locator('#cssOutput')).toHaveValue(/--shell-button-radius-outer: 16px;/);
+    await expect(page.locator('#cssOutput')).toHaveValue(/--shell-input-radius-outer: 16px;/);
+    await expect(page.locator('#cssOutput')).toHaveValue(/--shell-timeline-item-bg: rgba\(\d+, \d+, \d+, 0\);/);
+    if (value !== 'original-gizmo') {
+      const css = await page.locator('#cssOutput').inputValue();
+      const accentHover = css.match(/--shell-accent-hover:\s*([^;]+);/)?.[1];
+      const userLinksHover = css.match(/--shell-user-links-hover:\s*([^;]+);/)?.[1];
+      expect(userLinksHover).toBe(accentHover);
+    }
   }
 
   await fillColor(page, 'shellBg', '#123456');
@@ -125,7 +313,7 @@ test('generated CSS round-trips through Import without expanding the palette', a
   });
 
   await expect(page.locator('#importCssStatus')).toContainText('roundtrip.css');
-  await expect(page.locator('[data-color-text]')).toHaveCount(16);
+  await expect(page.locator('[data-color-text]')).toHaveCount(visibleColorKeys.length);
   await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue('#152637');
 });
 
@@ -138,7 +326,10 @@ test('Real Host.Web is the only preview and auxiliary header blocks are omitted'
   await expect(page.locator('.preset-card, .settings-tab, details.color-settings-group')).toHaveCount(0);
   await expect(page.locator('#previewRoot')).toBeHidden();
   await expect(page.locator('#realPreviewShell')).toBeVisible();
-  await expect(page.locator('#realPreviewFrame')).toHaveAttribute('src', './real-client/');
+  await expect(page.locator('#realPreviewFrame')).toHaveAttribute('data-src', './real-client/');
+  if (hasRealHostRuntime) {
+    await expect(page.locator('#realPreviewFrame')).toHaveAttribute('src', './real-client/');
+  }
   await expect(page.locator('#styleMapLegend, #previewInspectBtn, [data-style-binding], [data-control-binding-card]')).toHaveCount(0);
 });
 
@@ -164,11 +355,42 @@ test('desktop layout keeps the real preview visible beside the settings', async 
 });
 
 test('all control sections stay available in one scrollable sidebar and CSS opens in a dialog', async ({ page }) => {
+  const expectedSectionHosts = [
+    '#surfaceColorControls',
+    '#fontControls',
+    '#typographyColorControls',
+    '#iconColorControls',
+    '#accentColorControls',
+    '#borderColorControls',
+    '#borderRangeControls',
+    '#radiusRangeControls',
+    '#shadowColorControls',
+    '#shadowRangeControls',
+    '#loginColorControls',
+    '#componentColorControls',
+    '#layoutRangeControls',
+  ];
+  for (const selector of expectedSectionHosts) {
+    await expect(page.locator(selector)).toBeVisible();
+  }
+
   const groups = page.locator('section.color-settings-group');
-  await expect(groups).toHaveCount(7);
+  await expect(groups).toHaveCount(10);
   await expect(page.locator('[data-font-select]')).toHaveCount(2);
   await expect(page.locator('[data-font-range]')).toHaveCount(2);
-  await expect(page.locator('[data-range-input]')).toHaveCount(9);
+  await expect(page.locator('[data-font-range-number]')).toHaveCount(2);
+  await expect(page.locator('[data-range-input]')).toHaveCount(19);
+  await expect(page.locator('[data-range-number]')).toHaveCount(19);
+  await expect(page.locator('#loginColorControls [data-color-text]')).toHaveCount(7);
+  await expect(page.locator('#surfaceColorControls [data-color-text]')).toHaveCount(11);
+  await expect(page.locator('#iconColorControls [data-color-text]')).toHaveCount(6);
+  await expect(page.locator('#borderColorControls [data-color-text]')).toHaveCount(6);
+  await expect(page.locator('#borderRangeControls [data-range-input]')).toHaveCount(3);
+  await expect(page.locator('#radiusRangeControls [data-range-input]')).toHaveCount(6);
+  await expect(page.locator('#shadowColorControls [data-color-text]')).toHaveCount(1);
+  await expect(page.locator('#shadowRangeControls [data-range-input]')).toHaveCount(8);
+  await expect(page.locator('#componentColorControls [data-color-text]')).toHaveCount(7);
+  await expect(page.locator('#layoutRangeControls [data-range-input]')).toHaveCount(2);
   expect(await groups.evaluateAll((items) => items.every((item) => getComputedStyle(item).display !== 'none'))).toBe(true);
   expect(await groups.evaluateAll((items) => items.every((item) => item.scrollWidth <= item.clientWidth))).toBe(true);
   expect(await page.locator('.controls-panel').evaluate((panel) => panel.scrollWidth <= panel.clientWidth)).toBe(true);
@@ -183,7 +405,43 @@ test('all control sections stay available in one scrollable sidebar and CSS open
   await expect(page.locator('#cssDialog')).not.toBeVisible();
 });
 
-test('wallpaper upload applies to real Host.Web, blurs the full viewport and round-trips through CSS', async ({ page }) => {
+test('wallpaper controls can create a theme palette from the uploaded image', async ({ page }) => {
+  const wallpaperPngDataUrl = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 4;
+    canvas.height = 4;
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#051018';
+    context.fillRect(0, 0, 4, 4);
+    context.fillStyle = '#F97316';
+    context.fillRect(2, 0, 2, 4);
+    return canvas.toDataURL('image/png');
+  });
+  const wallpaperPng = Buffer.from(wallpaperPngDataUrl.split(',')[1], 'base64');
+
+  await expect(page.locator('#createThemeFromWallpaperBtn')).toBeVisible();
+  await expect(page.locator('#createThemeFromWallpaperBtn')).toBeDisabled();
+
+  await page.locator('#wallpaperInput').setInputFiles({
+    name: 'palette-source.png',
+    mimeType: 'image/png',
+    buffer: wallpaperPng,
+  });
+
+  await expect(page.locator('#createThemeFromWallpaperBtn')).toBeEnabled();
+  await page.locator('#createThemeFromWallpaperBtn').click();
+  await expect(page.locator('#wallpaperStatus')).toContainText('Тема создана из обоев: palette-source.png');
+  await expect(page.locator('[data-color-text="shellAccent"]')).not.toHaveValue('#3F8CFF');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: none;/);
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/data:image\/png;base64,/);
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/\.giz-background > img\s*{\s*display: none !important;/);
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/--shell-accent: #3F8CFF;/);
+
+  await page.locator('#resetWallpaperBtn').click();
+  await expect(page.locator('#createThemeFromWallpaperBtn')).toBeDisabled();
+});
+
+test('wallpaper upload applies to real Host.Web preview without embedding in exported CSS', async ({ page }) => {
   test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to verify wallpaper integration.');
   test.setTimeout(90_000);
 
@@ -204,14 +462,18 @@ test('wallpaper upload applies to real Host.Web, blurs the full viewport and rou
   await expect(page.locator('#wallpaperStatus')).toContainText(wallpaperFileName);
   await expect(page.locator('#resetWallpaperBtn')).toBeEnabled();
   await expect(page.locator('#presetSelect')).toHaveValue('original-gizmo');
-  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: url\("data:image\/png;base64,/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: none;/);
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/data:image\/png;base64,/);
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/\.giz-background > img\s*{\s*display: none !important;/);
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/\.giz-login__adv__background > img\s*{\s*opacity: 0 !important;/);
   await expect.poll(async () => realPreview.locator('html').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('data:image/png;base64');
 
   await page.locator('#presetSelect').selectOption('dark-blue');
   await expect(page.locator('#presetSelect')).toHaveValue('dark-blue');
   await expect(page.locator('#wallpaperStatus')).toContainText(wallpaperFileName);
   await expect(page.locator('#resetWallpaperBtn')).toBeEnabled();
-  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: url\("data:image\/png;base64,/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-wallpaper-image: none;/);
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/data:image\/png;base64,/);
   await expect.poll(async () => realPreview.locator('html').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('data:image/png;base64');
 
   await realPreview.getByRole('button', { name: 'Continue' }).click();
@@ -227,7 +489,7 @@ test('wallpaper upload applies to real Host.Web, blurs the full viewport and rou
   });
   expect(nativeTopBackground).toEqual({
     imageDisplay: 'none',
-    overlayBackdropFilter: 'none',
+    overlayBackdropFilter: 'blur(12px)',
   });
 
   const wallpaperOverlay = await realPreview.locator('html').evaluate((element) => {
@@ -260,8 +522,22 @@ test('wallpaper upload applies to real Host.Web, blurs the full viewport and rou
     mimeType: 'text/css',
     buffer: Buffer.from(exportedCss),
   });
-  await expect(page.locator('#wallpaperStatus')).toContainText(wallpaperFileName);
-  await expect.poll(async () => realPreview.locator('html').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('data:image/png;base64');
+  await expect(page.locator('#wallpaperStatus')).toContainText('Стандартные обои Gizmo');
+  await expect(page.locator('#cssOutput')).not.toHaveValue(/data:image\/png;base64,/);
+});
+
+test('real Host.Web home does not receive injected demo content', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify clean Host.Web content.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+  await expect.poll(async () => realPreview.locator('body').evaluate(() => location.pathname)).toBe('/real-client/home');
+
+  await expect(realPreview.locator('#gizmoConfiguratorDemoLayer')).toHaveCount(0);
+  await expect(realPreview.locator('.gizmo-configurator-demo-main')).toHaveCount(0);
+  await expect(realPreview.locator('.giz-news-rotator')).toHaveCount(0);
 });
 
 test('text color controls recolor real Host.Web typography instead of only nearby icons', async ({ page }) => {

@@ -1,8 +1,11 @@
 const { defineConfig } = require('playwright/test');
 
+const python = process.env.PYTHON || 'python3';
+const useManagedWebServer = process.env.PLAYWRIGHT_NO_WEBSERVER !== '1';
+
 module.exports = defineConfig({
   testDir: './tests',
-  outputDir: '/tmp/gizmo-shell-configurator-test-results',
+  outputDir: './test-results',
   timeout: 30_000,
   fullyParallel: false,
   reporter: 'line',
@@ -10,10 +13,10 @@ module.exports = defineConfig({
     baseURL: 'http://127.0.0.1:8923',
     headless: true,
   },
-  webServer: {
-    command: 'python3 scripts/serve.py --port 8923 --no-browser',
+  webServer: useManagedWebServer ? {
+    command: `${python} scripts/serve.py --port 8923 --no-browser`,
     url: 'http://127.0.0.1:8923',
     reuseExistingServer: true,
     timeout: 30_000,
-  },
+  } : undefined,
 });

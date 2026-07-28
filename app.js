@@ -15,14 +15,42 @@ const DEFAULT_THEME = {
   shellSuccess: '#10AE79',
   shellWarning: '#E68200',
   shellDanger: '#F73B3B',
+  iconColor: '#FAFAFA',
+  iconMutedColor: 'rgba(255, 255, 255, 0.60)',
+  iconActiveColor: '#3F8CFF',
+  iconSuccessColor: '#10AE79',
+  iconWarningColor: '#E68200',
+  iconDangerColor: '#F73B3B',
+  headingColor: '#FAFAFA',
+  headingTextSoft: 'rgba(255, 255, 255, 0.72)',
+  bodyTextColor: '#FAFAFA',
+  linkColor: '#57BCFF',
+  linkHoverColor: '#6FA5C8',
+  borderColor: 'rgba(246, 251, 253, 0.06)',
+  borderStrongColor: 'rgba(255, 255, 255, 0.12)',
+  borderHoverColor: 'rgba(87, 188, 255, 0.45)',
+  borderFocusColor: '#3F8CFF',
+  shadowColor: '#000000',
+  loginPanelBg: '#0C0F11',
+  loginHeroBg: '#1A1D21',
+  loginCardBg: '#22272B',
+  loginOverlayBg: 'rgba(35, 35, 45, 0.90)',
+  loginSeparatorColor: 'rgba(246, 251, 253, 0.06)',
+  loginQrTitleColor: '#FAFAFA',
+  loginQrTextColor: 'rgba(255, 255, 255, 0.60)',
   userLinksHoverColor: '#0f7cfe',
   timelineItemColor: '#ffc700',
+  timelineItemBg: 'rgba(255, 199, 0, 0)',
   timeProductExpirationTextColor: '#ffffff',
   timeProductExpirationBg: 'rgba(255, 199, 0, 0.32)',
   appCardBg: '#22272B',
   productCardBg: '#22272B',
   popupBg: '#22272B',
+  popupTextColor: 'rgba(255, 255, 255, 0.60)',
+  filterUtilityBg: '#101820',
   buttonInactiveBg: '#373839',
+  selectedStateBg: '#3F8CFF',
+  selectedStateTextColor: '#ffffff',
   uiFontFamily: "'Noto Sans', 'Segoe UI', sans-serif",
   displayFontFamily: "'Rubik', 'Segoe UI', sans-serif",
   baseFontSize: 16,
@@ -32,12 +60,33 @@ const DEFAULT_THEME = {
   shellBlur: 6,
   wallpaperImage: '',
   wallpaperName: '',
-  shellRadiusS: 8,
+  shellRadiusS: 16,
   shellRadiusM: 8,
   shellRadiusL: 16,
   shellRadiusXL: 16,
+  panelRadiusOuter: 16,
+  panelRadiusInner: 8,
+  cardRadiusOuter: 12,
+  cardRadiusInner: 8,
+  controlRadiusOuter: 16,
+  controlRadiusInner: 8,
+  buttonRadiusOuter: 16,
+  buttonRadiusInner: 8,
+  inputRadiusOuter: 16,
+  inputRadiusInner: 8,
+  modalRadiusOuter: 16,
+  modalRadiusInner: 10,
+  radiusInset: 8,
   headerHeight: 64,
   panelBorderWidth: 1,
+  controlBorderWidth: 1,
+  focusRingWidth: 3,
+  shadowOffsetY: 10,
+  shadowBlur: 30,
+  shadowSpread: 0,
+  shadowStrongOffsetY: 18,
+  shadowStrongBlur: 48,
+  shadowStrongSpread: 0,
 };
 
 const PRESETS = {
@@ -393,15 +442,96 @@ const PRESETS = {
 function deriveThemeColors(themeValues) {
   const resolved = { ...themeValues };
   const textSoftAlpha = getColorAlpha(resolved.shellTextSoft);
+  const setDefault = (key, value) => {
+    if (resolved[key] === undefined || resolved[key] === null || resolved[key] === '') {
+      resolved[key] = value;
+    }
+  };
+  const setDerivedDefault = (key, value, sourceKey) => {
+    setDefault(key, value);
+    if (
+      DEFAULT_THEME?.[key] !== undefined
+      && resolved[key] === DEFAULT_THEME[key]
+      && sourceKey
+      && resolved[sourceKey] !== DEFAULT_THEME[sourceKey]
+    ) {
+      resolved[key] = value;
+    }
+  };
 
-  resolved.shellBgGlass = setColorAlpha(resolved.shellBgElevated2, 0.82) ?? resolved.shellBgElevated2;
-  resolved.shellBgSoft = mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.18) ?? resolved.shellBgElevated2;
-  resolved.shellBorderStrong = mixColorTokens(resolved.shellBorder, resolved.shellAccentHover, 0.35) ?? resolved.shellBorder;
-  resolved.shellTextGhost = setColorAlpha(resolved.shellTextSoft, textSoftAlpha * 0.54) ?? resolved.shellTextSoft;
-  resolved.userLinksHoverColor = resolved.shellAccentHover;
-  resolved.appCardBg = resolved.shellBgElevated;
-  resolved.productCardBg = resolved.shellBgElevated2;
-  resolved.buttonInactiveBg = mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.24) ?? resolved.shellBgElevated2;
+  setDefault('shellBgGlass', setColorAlpha(resolved.shellBgElevated2, 0.82) ?? resolved.shellBgElevated2);
+  setDefault('shellBgSoft', mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.18) ?? resolved.shellBgElevated2);
+  setDefault('shellBorderStrong', mixColorTokens(resolved.shellBorder, resolved.shellAccentHover, 0.35) ?? resolved.shellBorder);
+  setDefault('shellTextGhost', setColorAlpha(resolved.shellTextSoft, textSoftAlpha * 0.54) ?? resolved.shellTextSoft);
+  setDerivedDefault('iconColor', resolved.shellText, 'shellText');
+  setDerivedDefault('iconMutedColor', resolved.shellTextSoft, 'shellTextSoft');
+  setDerivedDefault('iconActiveColor', resolved.shellAccent, 'shellAccent');
+  setDerivedDefault('iconSuccessColor', resolved.shellSuccess, 'shellSuccess');
+  setDerivedDefault('iconWarningColor', resolved.shellWarning, 'shellWarning');
+  setDerivedDefault('iconDangerColor', resolved.shellDanger, 'shellDanger');
+  setDerivedDefault('headingColor', resolved.shellText, 'shellText');
+  setDerivedDefault('headingTextSoft', resolved.shellTextSoft, 'shellTextSoft');
+  setDerivedDefault('bodyTextColor', resolved.shellText, 'shellText');
+  setDerivedDefault('linkColor', resolved.shellAccentHover, 'shellAccentHover');
+  setDerivedDefault('linkHoverColor', resolved.shellAccent, 'shellAccent');
+  setDerivedDefault('borderColor', resolved.shellBorder, 'shellBorder');
+  setDerivedDefault('borderStrongColor', resolved.shellBorderStrong, 'shellBorderStrong');
+  setDerivedDefault('borderHoverColor', setColorAlpha(resolved.shellAccentHover, 0.45) ?? resolved.shellAccentHover, 'shellAccentHover');
+  setDerivedDefault('borderFocusColor', resolved.shellAccent, 'shellAccent');
+  setDefault('shadowColor', '#000000');
+  setDerivedDefault('loginPanelBg', resolved.shellBg, 'shellBg');
+  setDerivedDefault('loginHeroBg', resolved.shellBgElevated2, 'shellBgElevated2');
+  setDerivedDefault('loginCardBg', resolved.shellBgElevated, 'shellBgElevated');
+  setDerivedDefault('loginOverlayBg', resolved.shellBgGlass, 'shellBgGlass');
+  setDerivedDefault('loginSeparatorColor', resolved.borderColor, 'borderColor');
+  setDerivedDefault('loginQrTitleColor', resolved.headingColor, 'headingColor');
+  setDerivedDefault('loginQrTextColor', resolved.headingTextSoft, 'headingTextSoft');
+  setDerivedDefault('userLinksHoverColor', resolved.shellAccentHover, 'shellAccentHover');
+  setDerivedDefault('timelineItemColor', resolved.shellAccentHover, 'shellAccentHover');
+  setDerivedDefault('timelineItemBg', setColorAlpha(resolved.shellAccent, 0) ?? 'rgba(0, 0, 0, 0)', 'shellAccent');
+  setDerivedDefault('timeProductExpirationTextColor', resolved.shellText, 'shellText');
+  setDerivedDefault('timeProductExpirationBg', setColorAlpha(resolved.shellAccent, 0.32) ?? resolved.shellAccent, 'shellAccent');
+  setDefault('appCardBg', resolved.shellBgElevated);
+  setDefault('productCardBg', resolved.shellBgElevated2);
+  setDerivedDefault('popupTextColor', resolved.shellTextSoft, 'shellTextSoft');
+  setDerivedDefault('filterUtilityBg', resolved.shellBgElevated2, 'shellBgElevated2');
+  setDefault('buttonInactiveBg', mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.24) ?? resolved.shellBgElevated2);
+  setDerivedDefault('selectedStateBg', resolved.shellAccent, 'shellAccent');
+  setDerivedDefault('selectedStateTextColor', resolved.shellText, 'shellText');
+
+  const radiusInset = Number(resolved.radiusInset ?? 8);
+  const innerRadius = (outer) => Math.max(0, Number(outer) - radiusInset);
+  const legacyControlRadiusOuter = Number(resolved.controlRadiusOuter ?? resolved.shellRadiusS ?? 16);
+  const legacyControlRadiusChanged = (
+    resolved.controlRadiusOuter !== undefined
+    && DEFAULT_THEME?.controlRadiusOuter !== undefined
+    && Number(resolved.controlRadiusOuter) !== Number(DEFAULT_THEME.controlRadiusOuter)
+  );
+  if (
+    resolved.buttonRadiusOuter === undefined
+    || resolved.buttonRadiusOuter === null
+    || (legacyControlRadiusChanged && Number(resolved.buttonRadiusOuter) === Number(DEFAULT_THEME.buttonRadiusOuter))
+  ) {
+    resolved.buttonRadiusOuter = legacyControlRadiusOuter;
+  }
+  if (
+    resolved.inputRadiusOuter === undefined
+    || resolved.inputRadiusOuter === null
+    || (legacyControlRadiusChanged && Number(resolved.inputRadiusOuter) === Number(DEFAULT_THEME.inputRadiusOuter))
+  ) {
+    resolved.inputRadiusOuter = legacyControlRadiusOuter;
+  }
+  resolved.panelRadiusInner = innerRadius(resolved.panelRadiusOuter ?? resolved.shellRadiusL);
+  resolved.cardRadiusInner = innerRadius(resolved.cardRadiusOuter ?? resolved.shellRadiusM);
+  resolved.buttonRadiusInner = innerRadius(resolved.buttonRadiusOuter ?? resolved.controlRadiusOuter ?? resolved.shellRadiusS);
+  resolved.inputRadiusInner = innerRadius(resolved.inputRadiusOuter ?? resolved.controlRadiusOuter ?? resolved.shellRadiusS);
+  resolved.controlRadiusOuter = Number(resolved.inputRadiusOuter ?? resolved.controlRadiusOuter ?? resolved.shellRadiusS);
+  resolved.controlRadiusInner = innerRadius(resolved.controlRadiusOuter);
+  resolved.modalRadiusInner = innerRadius(resolved.modalRadiusOuter ?? resolved.shellRadiusXL);
+  resolved.shellRadiusS = Number(resolved.inputRadiusOuter ?? resolved.controlRadiusOuter ?? resolved.shellRadiusS);
+  resolved.shellRadiusM = Number(resolved.cardRadiusOuter ?? resolved.shellRadiusM);
+  resolved.shellRadiusL = Number(resolved.panelRadiusOuter ?? resolved.shellRadiusL);
+  resolved.shellRadiusXL = Number(resolved.modalRadiusOuter ?? resolved.shellRadiusXL);
 
   return resolved;
 }
@@ -414,28 +544,44 @@ Object.values(PRESETS).forEach((preset) => {
 const COLOR_FIELD_GROUPS = [
   {
     id: 'backgrounds',
+    target: 'surfaceColorControls',
     title: 'Основа интерфейса',
-    description: 'Четыре уровня поверхностей. Карточки, glass и мягкие состояния рассчитываются автоматически.',
+    description: 'Основной фон, панели, карточки, popup и мягкие поверхности.',
     fields: [
       ['shellBg', 'Основной фон'],
       ['shellBgElevated', 'Панели и карточки'],
       ['shellBgElevated2', 'Header и поднятые поверхности'],
+      ['shellBgGlass', 'Glass-поверхность'],
+      ['shellBgSoft', 'Мягкая поверхность'],
       ['popupBg', 'Popup и модальные окна'],
+      ['popupTextColor', 'Popup/модальные окна · текст'],
+      ['appCardBg', 'Карточки приложений'],
+      ['productCardBg', 'Карточки товаров'],
+      ['filterUtilityBg', 'Sort/filter utility блок'],
+      ['buttonInactiveBg', 'Неактивные кнопки'],
     ],
   },
   {
     id: 'text',
-    title: 'Текст',
-    description: 'Два уровня контраста. Placeholder и ghost-текст выводятся из вторичного цвета.',
+    target: 'typographyColorControls',
+    title: 'Текст и заголовки',
+    description: 'Основной текст, вторичный текст, ghost, заголовки и ссылки.',
     fields: [
       ['shellText', 'Основной текст'],
       ['shellTextSoft', 'Вторичный текст'],
+      ['shellTextGhost', 'Placeholder и ghost-текст'],
+      ['bodyTextColor', 'Текст интерфейса'],
+      ['headingColor', 'Заголовки'],
+      ['headingTextSoft', 'Подзаголовки'],
+      ['linkColor', 'Ссылки'],
+      ['linkHoverColor', 'Ссылки при hover'],
     ],
   },
   {
     id: 'accents',
+    target: 'accentColorControls',
     title: 'Акцент',
-    description: 'Ручной градиент и контрастный цвет для активных иконок, ссылок и hover-состояний.',
+    description: 'Ручной градиент, hover и отдельный цвет пользовательских ссылок.',
     fields: [
       ['shellAccent', 'Начало градиента'],
       ['shellAccentDeep', 'Глубокий цвет градиента'],
@@ -443,15 +589,45 @@ const COLOR_FIELD_GROUPS = [
     ],
   },
   {
+    id: 'icons',
+    target: 'iconColorControls',
+    title: 'Иконки',
+    description: 'Цвет и прозрачность обычных, приглушённых, активных и статусных иконок.',
+    fields: [
+      ['iconColor', 'Иконки'],
+      ['iconMutedColor', 'Приглушённые иконки'],
+      ['iconActiveColor', 'Активные иконки'],
+      ['iconSuccessColor', 'Success иконки'],
+      ['iconWarningColor', 'Warning иконки'],
+      ['iconDangerColor', 'Danger иконки'],
+    ],
+  },
+  {
     id: 'borders',
+    target: 'borderColorControls',
     title: 'Границы',
-    description: 'Один базовый контур; усиленный вариант автоматически смешивается с акцентом.',
+    description: 'Основная, усиленная, hover и focus обводка.',
     fields: [
       ['shellBorder', 'Основная граница'],
+      ['shellBorderStrong', 'Усиленная граница'],
+      ['borderColor', 'Цвет обводки'],
+      ['borderStrongColor', 'Сильная обводка'],
+      ['borderHoverColor', 'Hover обводка'],
+      ['borderFocusColor', 'Focus обводка'],
+    ],
+  },
+  {
+    id: 'shadows',
+    target: 'shadowColorControls',
+    title: 'Тени',
+    description: 'Цвет тени используется вместе с размерами и прозрачностью из блока эффектов.',
+    fields: [
+      ['shadowColor', 'Цвет тени'],
     ],
   },
   {
     id: 'warning',
+    target: 'accentColorControls',
     title: 'Предупреждение',
     description: 'Отдельный warning-цвет. Его изменение не влияет на Timeline, Expiration и другие состояния.',
     fields: [
@@ -460,21 +636,42 @@ const COLOR_FIELD_GROUPS = [
   },
   {
     id: 'timeline-expiration',
+    target: 'componentColorControls',
     title: 'Timeline и Expiration',
     description: 'Отдельные цвета компонентов, не связанные с Warning и другими статусами.',
     fields: [
       ['timelineItemColor', '.giz-timeline-item'],
+      ['timelineItemBg', '.giz-timeline-item · фон'],
       ['timeProductExpirationTextColor', '.giz-time-product-expiration · текст'],
       ['timeProductExpirationBg', '.giz-time-product-expiration · фон'],
+      ['userLinksHoverColor', '.giz-user-links hover'],
+      ['selectedStateBg', 'Selected/active · фон'],
+      ['selectedStateTextColor', 'Selected/active · текст'],
     ],
   },
   {
     id: 'states',
+    target: 'accentColorControls',
     title: 'Остальные статусы',
     description: 'Success и Danger настраиваются независимо от предупреждения.',
     fields: [
       ['shellSuccess', 'Успешное состояние'],
       ['shellDanger', 'Ошибка или опасность'],
+    ],
+  },
+  {
+    id: 'login',
+    target: 'loginColorControls',
+    title: 'Login layout',
+    description: 'Отдельные цвета экрана входа: hero, panel, card, overlay, QR и separator.',
+    fields: [
+      ['loginPanelBg', 'Login panel'],
+      ['loginHeroBg', 'Login hero'],
+      ['loginCardBg', 'Login card'],
+      ['loginOverlayBg', 'Lock overlay'],
+      ['loginSeparatorColor', 'Separator'],
+      ['loginQrTitleColor', 'QR заголовок'],
+      ['loginQrTextColor', 'QR текст'],
     ],
   },
 ];
@@ -486,20 +683,36 @@ const ALL_COLOR_FIELD_KEYS = new Set([
   'shellBg', 'shellBgElevated', 'shellBgElevated2', 'shellBgGlass', 'shellBgSoft',
   'shellBorder', 'shellBorderStrong', 'shellText', 'shellTextSoft', 'shellTextGhost',
   'shellAccent', 'shellAccentHover', 'shellAccentDeep', 'shellSuccess', 'shellWarning',
-  'shellDanger', 'userLinksHoverColor', 'timelineItemColor', 'timeProductExpirationTextColor',
-  'timeProductExpirationBg', 'appCardBg', 'productCardBg', 'popupBg', 'buttonInactiveBg',
+  'shellDanger', 'userLinksHoverColor', 'timelineItemColor', 'timelineItemBg', 'timeProductExpirationTextColor',
+  'timeProductExpirationBg', 'appCardBg', 'productCardBg', 'popupBg', 'popupTextColor', 'filterUtilityBg',
+  'buttonInactiveBg', 'selectedStateBg', 'selectedStateTextColor',
+  'iconColor', 'iconMutedColor', 'iconActiveColor', 'iconSuccessColor', 'iconWarningColor',
+  'iconDangerColor', 'headingColor', 'headingTextSoft', 'bodyTextColor', 'linkColor',
+  'linkHoverColor', 'borderColor', 'borderStrongColor', 'borderHoverColor', 'borderFocusColor',
+  'shadowColor', 'loginPanelBg', 'loginHeroBg', 'loginCardBg', 'loginOverlayBg',
+  'loginSeparatorColor', 'loginQrTitleColor', 'loginQrTextColor',
 ]);
 
 const RANGE_FIELDS = [
-  ['shellRadiusS', 'Скругление полей ввода', 0, 24, 1, 'px'],
-  ['shellRadiusM', 'Скругление переключателей и tooltip', 0, 32, 1, 'px'],
-  ['shellRadiusL', 'Скругление dropdown и боковых панелей', 0, 40, 1, 'px'],
-  ['shellRadiusXL', 'Скругление модальных окон', 0, 56, 1, 'px'],
-  ['headerHeight', 'Высота верхней панели', 48, 92, 1, 'px'],
-  ['shellBlur', 'Размытие фона и glass-панелей', 0, 24, 1, 'px'],
-  ['panelBorderWidth', 'Толщина контуров', 0, 3, 1, 'px'],
-  ['shellShadowOpacity', 'Тень header и карточек', 0, 0.6, 0.01, ''],
-  ['shellShadowStrongOpacity', 'Тень popup и drawer', 0, 0.8, 0.01, ''],
+  ['panelRadiusOuter', 'Внешний радиус панелей', 0, 56, 1, 'px', 'radiusRangeControls'],
+  ['cardRadiusOuter', 'Внешний радиус карточек', 0, 48, 1, 'px', 'radiusRangeControls'],
+  ['buttonRadiusOuter', 'Внешний радиус кнопок', 0, 32, 1, 'px', 'radiusRangeControls'],
+  ['inputRadiusOuter', 'Внешний радиус input', 0, 32, 1, 'px', 'radiusRangeControls'],
+  ['modalRadiusOuter', 'Внешний радиус окон', 0, 64, 1, 'px', 'radiusRangeControls'],
+  ['radiusInset', 'Авто-разница внутреннего радиуса', 0, 24, 1, 'px', 'radiusRangeControls'],
+  ['headerHeight', 'Высота верхней панели', 48, 92, 1, 'px', 'layoutRangeControls'],
+  ['shellBlur', 'Размытие фона и glass-панелей', 0, 24, 1, 'px', 'layoutRangeControls'],
+  ['panelBorderWidth', 'Толщина контуров элементов', 0, 3, 1, 'px', 'borderRangeControls'],
+  ['controlBorderWidth', 'Толщина контуров controls', 0, 3, 1, 'px', 'borderRangeControls'],
+  ['focusRingWidth', 'Ширина focus-ring', 0, 8, 1, 'px', 'borderRangeControls'],
+  ['shellShadowOpacity', 'Непрозрачность обычной тени', 0, 0.6, 0.01, '', 'shadowRangeControls'],
+  ['shellShadowStrongOpacity', 'Непрозрачность popup/window тени', 0, 0.8, 0.01, '', 'shadowRangeControls'],
+  ['shadowOffsetY', 'Смещение обычной тени', 0, 40, 1, 'px', 'shadowRangeControls'],
+  ['shadowBlur', 'Размер обычной тени', 0, 90, 1, 'px', 'shadowRangeControls'],
+  ['shadowSpread', 'Spread обычной тени', -20, 30, 1, 'px', 'shadowRangeControls'],
+  ['shadowStrongOffsetY', 'Смещение сильной тени', 0, 60, 1, 'px', 'shadowRangeControls'],
+  ['shadowStrongBlur', 'Размер сильной тени', 0, 120, 1, 'px', 'shadowRangeControls'],
+  ['shadowStrongSpread', 'Spread сильной тени', -20, 40, 1, 'px', 'shadowRangeControls'],
 ];
 
 const FONT_SELECT_FIELDS = [
@@ -619,6 +832,7 @@ const cssDialog = document.getElementById('cssDialog');
 const closeCssDialogBtn = document.getElementById('closeCssDialogBtn');
 const wallpaperInput = document.getElementById('wallpaperInput');
 const uploadWallpaperBtn = document.getElementById('uploadWallpaperBtn');
+const createThemeFromWallpaperBtn = document.getElementById('createThemeFromWallpaperBtn');
 const resetWallpaperBtn = document.getElementById('resetWallpaperBtn');
 const wallpaperPreview = document.getElementById('wallpaperPreview');
 const wallpaperStatus = document.getElementById('wallpaperStatus');
@@ -689,14 +903,50 @@ const IMPORTED_THEME_VARIABLE_MAP = {
   '--shell-success': 'shellSuccess',
   '--shell-warning': 'shellWarning',
   '--shell-danger': 'shellDanger',
+  '--shell-icon': 'iconColor',
+  '--shell-icon-muted': 'iconMutedColor',
+  '--shell-icon-active': 'iconActiveColor',
+  '--shell-icon-success': 'iconSuccessColor',
+  '--shell-icon-warning': 'iconWarningColor',
+  '--shell-icon-danger': 'iconDangerColor',
+  '--shell-heading': 'headingColor',
+  '--shell-heading-soft': 'headingTextSoft',
+  '--shell-body-text': 'bodyTextColor',
+  '--shell-link': 'linkColor',
+  '--shell-link-hover': 'linkHoverColor',
+  '--shell-border-color': 'borderColor',
+  '--shell-border-strong-color': 'borderStrongColor',
+  '--shell-border-hover': 'borderHoverColor',
+  '--shell-border-focus': 'borderFocusColor',
+  '--shell-shadow-color': 'shadowColor',
+  '--shell-shadow-opacity': 'shellShadowOpacity',
+  '--shell-shadow-strong-opacity': 'shellShadowStrongOpacity',
+  '--shell-shadow-offset-y': 'shadowOffsetY',
+  '--shell-shadow-blur': 'shadowBlur',
+  '--shell-shadow-spread': 'shadowSpread',
+  '--shell-shadow-strong-offset-y': 'shadowStrongOffsetY',
+  '--shell-shadow-strong-blur': 'shadowStrongBlur',
+  '--shell-shadow-strong-spread': 'shadowStrongSpread',
+  '--shell-login-panel-bg': 'loginPanelBg',
+  '--shell-login-hero-bg': 'loginHeroBg',
+  '--shell-login-card-bg': 'loginCardBg',
+  '--shell-login-overlay-bg': 'loginOverlayBg',
+  '--shell-login-separator': 'loginSeparatorColor',
+  '--shell-login-qr-title': 'loginQrTitleColor',
+  '--shell-login-qr-text': 'loginQrTextColor',
   '--shell-user-links-hover': 'userLinksHoverColor',
   '--shell-timeline-item': 'timelineItemColor',
+  '--shell-timeline-item-bg': 'timelineItemBg',
   '--shell-time-product-expiration-text': 'timeProductExpirationTextColor',
   '--shell-time-product-expiration-bg': 'timeProductExpirationBg',
   '--shell-app-card-bg': 'appCardBg',
   '--shell-product-card-bg': 'productCardBg',
   '--shell-popup-bg': 'popupBg',
+  '--shell-popup-text': 'popupTextColor',
+  '--shell-filter-utility-bg': 'filterUtilityBg',
   '--shell-button-inactive-bg': 'buttonInactiveBg',
+  '--shell-selected-bg': 'selectedStateBg',
+  '--shell-selected-text': 'selectedStateTextColor',
   '--shell-font-ui': 'uiFontFamily',
   '--shell-font-display': 'displayFontFamily',
   '--shell-font-size-base': 'baseFontSize',
@@ -705,10 +955,31 @@ const IMPORTED_THEME_VARIABLE_MAP = {
   '--shell-radius-m': 'shellRadiusM',
   '--shell-radius-l': 'shellRadiusL',
   '--shell-radius-xl': 'shellRadiusXL',
+  '--shell-panel-radius-outer': 'panelRadiusOuter',
+  '--shell-card-radius-outer': 'cardRadiusOuter',
+  '--shell-control-radius-outer': 'controlRadiusOuter',
+  '--shell-button-radius-outer': 'buttonRadiusOuter',
+  '--shell-input-radius-outer': 'inputRadiusOuter',
+  '--shell-modal-radius-outer': 'modalRadiusOuter',
+  '--shell-radius-inset': 'radiusInset',
   '--shell-header-height': 'headerHeight',
   '--shell-panel-border-width': 'panelBorderWidth',
+  '--shell-control-border-width': 'controlBorderWidth',
+  '--shell-focus-ring-width': 'focusRingWidth',
   '--shell-blur': 'shellBlur',
 };
+
+const NUMERIC_THEME_KEYS = new Set([
+  'baseFontSize', 'headingFontWeight',
+  'shellRadiusS', 'shellRadiusM', 'shellRadiusL', 'shellRadiusXL',
+  'panelRadiusOuter', 'panelRadiusInner', 'cardRadiusOuter', 'cardRadiusInner',
+  'controlRadiusOuter', 'controlRadiusInner', 'buttonRadiusOuter', 'buttonRadiusInner',
+  'inputRadiusOuter', 'inputRadiusInner', 'modalRadiusOuter', 'modalRadiusInner',
+  'radiusInset', 'headerHeight', 'panelBorderWidth', 'controlBorderWidth',
+  'focusRingWidth', 'shellBlur', 'shellShadowOpacity', 'shellShadowStrongOpacity',
+  'shadowOffsetY', 'shadowBlur', 'shadowSpread', 'shadowStrongOffsetY',
+  'shadowStrongBlur', 'shadowStrongSpread',
+]);
 
 function normalizeWallpaperDataUrl(value) {
   const dataUrl = String(value || '').trim();
@@ -744,6 +1015,178 @@ function verifyImageDataUrl(dataUrl) {
   });
 }
 
+function loadWallpaperImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener('load', () => resolve(image));
+    image.addEventListener('error', () => reject(new Error('Не удалось создать тему: изображение не декодируется.')));
+    image.src = dataUrl;
+  });
+}
+
+function rgbToHsl({ r, g, b }) {
+  const red = r / 255;
+  const green = g / 255;
+  const blue = b / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const lightness = (max + min) / 2;
+  if (max === min) return { h: 0, s: 0, l: lightness };
+
+  const delta = max - min;
+  const saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+  let hue = 0;
+  if (max === red) hue = (green - blue) / delta + (green < blue ? 6 : 0);
+  if (max === green) hue = (blue - red) / delta + 2;
+  if (max === blue) hue = (red - green) / delta + 4;
+  return { h: hue / 6, s: saturation, l: lightness };
+}
+
+function colorLuminance({ r, g, b }) {
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
+
+function clampChannel(value) {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+function colorToHex(color) {
+  return colorChannelsToHex({
+    r: clampChannel(color.r),
+    g: clampChannel(color.g),
+    b: clampChannel(color.b),
+  });
+}
+
+function mixRgb(start, end, endWeight) {
+  const weight = Math.max(0, Math.min(1, Number(endWeight)));
+  return {
+    r: start.r * (1 - weight) + end.r * weight,
+    g: start.g * (1 - weight) + end.g * weight,
+    b: start.b * (1 - weight) + end.b * weight,
+  };
+}
+
+function scaleRgb(color, multiplier) {
+  return {
+    r: color.r * multiplier,
+    g: color.g * multiplier,
+    b: color.b * multiplier,
+  };
+}
+
+function alphaRgb(color, alpha) {
+  return `rgba(${clampChannel(color.r)}, ${clampChannel(color.g)}, ${clampChannel(color.b)}, ${formatAlphaValue(alpha)})`;
+}
+
+function averageColors(colors, fallback) {
+  if (!colors.length) return fallback;
+  const total = colors.reduce((acc, color) => ({
+    r: acc.r + color.r,
+    g: acc.g + color.g,
+    b: acc.b + color.b,
+  }), { r: 0, g: 0, b: 0 });
+  return {
+    r: total.r / colors.length,
+    g: total.g / colors.length,
+    b: total.b / colors.length,
+  };
+}
+
+async function createWallpaperPalette(dataUrl) {
+  const image = await loadWallpaperImage(dataUrl);
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  if (!context) throw new Error('Не удалось создать тему: canvas недоступен.');
+
+  const maxSide = 96;
+  const ratio = Math.min(1, maxSide / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
+  canvas.width = Math.max(1, Math.round((image.naturalWidth || image.width) * ratio));
+  canvas.height = Math.max(1, Math.round((image.naturalHeight || image.height) * ratio));
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  const raw = context.getImageData(0, 0, canvas.width, canvas.height).data;
+  const colors = [];
+  for (let index = 0; index < raw.length; index += 4) {
+    if (raw[index + 3] < 96) continue;
+    const color = { r: raw[index], g: raw[index + 1], b: raw[index + 2] };
+    const hsl = rgbToHsl(color);
+    colors.push({
+      ...color,
+      luminance: colorLuminance(color),
+      saturation: hsl.s,
+    });
+  }
+  if (!colors.length) throw new Error('Не удалось создать тему: в изображении нет непрозрачных пикселей.');
+
+  const sortedByLuminance = [...colors].sort((left, right) => left.luminance - right.luminance);
+  const darkest = sortedByLuminance.slice(0, Math.max(1, Math.floor(sortedByLuminance.length * 0.38)));
+  const base = averageColors(darkest, colors[0]);
+  const accent = [...colors]
+    .filter((color) => color.luminance > 0.16 && color.luminance < 0.86)
+    .sort((left, right) => (
+      (right.saturation * 1.6 + right.luminance * 0.4)
+      - (left.saturation * 1.6 + left.luminance * 0.4)
+    ))[0] || sortedByLuminance[Math.floor(sortedByLuminance.length * 0.7)] || colors[0];
+
+  const bg = mixRgb(scaleRgb(base, 0.42), { r: 6, g: 9, b: 12 }, 0.48);
+  const elevated = mixRgb(bg, accent, 0.18);
+  const elevated2 = mixRgb(bg, accent, 0.28);
+  const accentSoft = mixRgb(accent, { r: 255, g: 255, b: 255 }, 0.18);
+  const accentDeep = mixRgb(accent, { r: 0, g: 0, b: 0 }, 0.28);
+  const text = colorLuminance(bg) > 0.45 ? '#111827' : '#FAFAFA';
+  const textRgb = parseColorToken(text);
+
+  return {
+    shellBg: colorToHex(bg),
+    shellBgElevated: colorToHex(elevated),
+    shellBgElevated2: colorToHex(elevated2),
+    shellBgGlass: alphaRgb(elevated2, 0.86),
+    shellBgSoft: alphaRgb(mixRgb(elevated2, accent, 0.28), 0.28),
+    shellAccent: colorToHex(accent),
+    shellAccentHover: colorToHex(accentSoft),
+    shellAccentDeep: colorToHex(accentDeep),
+    shellBorder: alphaRgb(accentSoft, 0.22),
+    shellBorderStrong: alphaRgb(accentSoft, 0.42),
+    shellText: text,
+    shellTextSoft: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.shellTextSoft,
+    shellTextGhost: textRgb ? alphaRgb(textRgb, 0.36) : DEFAULT_THEME.shellTextGhost,
+    bodyTextColor: text,
+    headingColor: text,
+    headingTextSoft: textRgb ? alphaRgb(textRgb, 0.76) : DEFAULT_THEME.headingTextSoft,
+    linkColor: colorToHex(accentSoft),
+    linkHoverColor: colorToHex(accent),
+    iconColor: text,
+    iconMutedColor: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.iconMutedColor,
+    iconActiveColor: colorToHex(accent),
+    timelineItemColor: colorToHex(accentSoft),
+    timelineItemBg: alphaRgb(accent, 0),
+    timeProductExpirationTextColor: text,
+    timeProductExpirationBg: alphaRgb(accent, 0.32),
+    borderColor: alphaRgb(accentSoft, 0.22),
+    borderStrongColor: alphaRgb(accentSoft, 0.42),
+    borderHoverColor: alphaRgb(accentSoft, 0.52),
+    borderFocusColor: colorToHex(accent),
+    loginPanelBg: colorToHex(bg),
+    loginHeroBg: colorToHex(elevated2),
+    loginCardBg: colorToHex(elevated),
+    loginOverlayBg: alphaRgb(elevated, 0.9),
+    loginSeparatorColor: alphaRgb(accentSoft, 0.24),
+    loginQrTitleColor: text,
+    loginQrTextColor: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.loginQrTextColor,
+    appCardBg: colorToHex(elevated),
+    productCardBg: colorToHex(elevated2),
+    popupBg: colorToHex(mixRgb(elevated2, bg, 0.18)),
+    popupTextColor: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.popupTextColor,
+    filterUtilityBg: colorToHex(mixRgb(elevated2, bg, 0.32)),
+    buttonInactiveBg: colorToHex(mixRgb(elevated2, accent, 0.18)),
+    selectedStateBg: colorToHex(accent),
+    selectedStateTextColor: text,
+    userLinksHoverColor: colorToHex(accent),
+    shadowColor: '#000000',
+  };
+}
+
 function setWallpaperStatus(message, isError = false) {
   if (!wallpaperStatus) return;
   wallpaperStatus.textContent = message;
@@ -765,6 +1208,7 @@ function syncWallpaperControls() {
   }
 
   if (resetWallpaperBtn instanceof HTMLButtonElement) resetWallpaperBtn.disabled = !dataUrl;
+  if (createThemeFromWallpaperBtn instanceof HTMLButtonElement) createThemeFromWallpaperBtn.disabled = !dataUrl;
   setWallpaperStatus(dataUrl ? `Пользовательские обои: ${fileName}` : 'Стандартные обои Gizmo');
 }
 
@@ -876,8 +1320,17 @@ function createControlCard({ title, bodyMarkup, extraClass = '' }) {
   return wrapper;
 }
 
+function findControlHost(targetId, fallbackElement) {
+  const target = targetId ? document.getElementById(targetId) : null;
+  return target instanceof HTMLElement ? target : fallbackElement;
+}
+
 function createColorControls() {
-  COLOR_FIELD_GROUPS.forEach(({ id, title, description, fields }) => {
+  const hosts = new Set();
+  COLOR_FIELD_GROUPS.forEach(({ id, target, title, description, fields }) => {
+    const host = findControlHost(target, colorControls);
+    if (!(host instanceof HTMLElement)) return;
+    hosts.add(host);
     const section = document.createElement('section');
     section.className = 'color-settings-group';
     section.dataset.colorSettingsGroup = id;
@@ -932,52 +1385,54 @@ function createColorControls() {
       fieldGrid.appendChild(wrapper);
     });
 
-    colorControls.appendChild(section);
+    host.appendChild(section);
   });
 
-  colorControls.addEventListener('input', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
+  hosts.forEach((host) => host.addEventListener('input', handleColorControlInput));
+}
 
-    const pickerKey = target.dataset.colorPicker;
-    const textKey = target.dataset.colorText;
-    const alphaKey = target.dataset.colorAlpha;
+function handleColorControlInput(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) return;
 
-    if (pickerKey) {
-      const currentAlpha = getColorAlpha(draftTheme[pickerKey]);
-      const normalized = setColorAlpha(target.value, currentAlpha) ?? target.value;
-      draftTheme[pickerKey] = normalized;
-      draftTheme = deriveThemeColors(draftTheme);
-      syncColorText(pickerKey, normalized);
-      syncColorAlpha(pickerKey, normalized);
-      syncGradientPreview();
-      markPendingChanges();
-    }
+  const pickerKey = target.dataset.colorPicker;
+  const textKey = target.dataset.colorText;
+  const alphaKey = target.dataset.colorAlpha;
 
-    if (textKey) {
-      const normalized = normalizeThemeColorValue(textKey, target.value);
-      if (!normalized) return;
-      draftTheme[textKey] = normalized;
-      draftTheme = deriveThemeColors(draftTheme);
-      syncColorText(textKey, normalized);
-      syncColorPicker(textKey, normalized);
-      syncColorAlpha(textKey, normalized);
-      syncGradientPreview();
-      markPendingChanges();
-    }
+  if (pickerKey) {
+    const currentAlpha = getColorAlpha(draftTheme[pickerKey]);
+    const normalized = setColorAlpha(target.value, currentAlpha) ?? target.value;
+    draftTheme[pickerKey] = normalized;
+    draftTheme = deriveThemeColors(draftTheme);
+    syncColorText(pickerKey, normalized);
+    syncColorAlpha(pickerKey, normalized);
+    syncGradientPreview();
+    markPendingChanges();
+  }
 
-    if (alphaKey) {
-      const normalized = setColorAlpha(draftTheme[alphaKey], Number(target.value) / 100);
-      if (!normalized) return;
-      draftTheme[alphaKey] = normalized;
-      draftTheme = deriveThemeColors(draftTheme);
-      syncColorText(alphaKey, normalized);
-      syncColorPicker(alphaKey, normalized);
-      syncColorAlpha(alphaKey, normalized);
-      syncGradientPreview();
-      markPendingChanges();
-    }
-  });
+  if (textKey) {
+    const normalized = normalizeThemeColorValue(textKey, target.value);
+    if (!normalized) return;
+    draftTheme[textKey] = normalized;
+    draftTheme = deriveThemeColors(draftTheme);
+    syncColorText(textKey, normalized);
+    syncColorPicker(textKey, normalized);
+    syncColorAlpha(textKey, normalized);
+    syncGradientPreview();
+    markPendingChanges();
+  }
+
+  if (alphaKey) {
+    const normalized = setColorAlpha(draftTheme[alphaKey], Number(target.value) / 100);
+    if (!normalized) return;
+    draftTheme[alphaKey] = normalized;
+    draftTheme = deriveThemeColors(draftTheme);
+    syncColorText(alphaKey, normalized);
+    syncColorPicker(alphaKey, normalized);
+    syncColorAlpha(alphaKey, normalized);
+    syncGradientPreview();
+    markPendingChanges();
+  }
 }
 
 function createColorInputMarkup(key, label) {
@@ -997,7 +1452,11 @@ function createColorInputMarkup(key, label) {
 }
 
 function createRangeControls() {
-  RANGE_FIELDS.forEach(([key, label, min, max, step, suffix]) => {
+  const hosts = new Set();
+  RANGE_FIELDS.forEach(([key, label, min, max, step, suffix, target]) => {
+    const host = findControlHost(target, rangeControls);
+    if (!(host instanceof HTMLElement)) return;
+    hosts.add(host);
     const wrapper = createControlCard({
       key,
       title: label,
@@ -1006,22 +1465,43 @@ function createRangeControls() {
           <span>Текущее значение</span>
           <strong data-range-value="${key}"></strong>
         </div>
-        <input data-range-input="${key}" type="range" min="${min}" max="${max}" step="${step}" />
+        <div class="range-field__inputs">
+          <input data-range-input="${key}" type="range" min="${min}" max="${max}" step="${step}" />
+          <label class="range-number-field">
+            <input data-range-number="${key}" type="number" min="${min}" max="${max}" step="${step}" aria-label="${label}: значение" />
+            <span>${suffix}</span>
+          </label>
+        </div>
       `,
     });
     wrapper.dataset.suffix = suffix;
-    rangeControls.appendChild(wrapper);
+    host.appendChild(wrapper);
   });
 
-  rangeControls.addEventListener('input', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
-    const key = target.dataset.rangeInput;
-    if (!key) return;
-    draftTheme[key] = Number(target.value);
-    syncRangeValueDisplay(key);
-    markPendingChanges();
+  hosts.forEach((host) => {
+    host.addEventListener('input', handleRangeControlInput);
+    host.addEventListener('change', handleRangeControlInput);
   });
+}
+
+function handleRangeControlInput(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) return;
+  const key = target.dataset.rangeInput || target.dataset.rangeNumber;
+  if (!key) return;
+  const field = RANGE_FIELDS.find(([fieldKey]) => fieldKey === key);
+  if (!field) return;
+  const [, , min, max] = field;
+  if (target.value.trim() === '') {
+    if (event.type === 'change') syncRangeInput(key);
+    return;
+  }
+  const value = Math.max(min, Math.min(max, Number(target.value)));
+  if (Number.isNaN(value)) return;
+  draftTheme[key] = value;
+  syncRangeInput(key);
+  syncRangeValueDisplay(key);
+  markPendingChanges();
 }
 
 function createFontControls() {
@@ -1047,7 +1527,13 @@ function createFontControls() {
           <span>Текущее значение</span>
           <strong data-font-range-value="${key}"></strong>
         </div>
-        <input data-font-range="${key}" type="range" min="${min}" max="${max}" step="${step}" />
+        <div class="range-field__inputs">
+          <input data-font-range="${key}" type="range" min="${min}" max="${max}" step="${step}" />
+          <label class="range-number-field">
+            <input data-font-range-number="${key}" type="number" min="${min}" max="${max}" step="${step}" aria-label="${label}: значение" />
+            <span>${suffix}</span>
+          </label>
+        </div>
       `,
     });
     wrapper.dataset.suffix = suffix;
@@ -1064,9 +1550,22 @@ function createFontControls() {
       return;
     }
 
-    if (target instanceof HTMLInputElement && target.dataset.fontRange) {
-      draftTheme[target.dataset.fontRange] = Number(target.value);
-      syncFontRangeValueDisplay(target.dataset.fontRange);
+    const fontRangeKey = target instanceof HTMLInputElement
+      ? target.dataset.fontRange || target.dataset.fontRangeNumber
+      : '';
+    if (fontRangeKey) {
+      const field = FONT_RANGE_FIELDS.find(([fieldKey]) => fieldKey === fontRangeKey);
+      if (!field) return;
+      const [, , min, max] = field;
+      if (target.value.trim() === '') {
+        if (event.type === 'change') syncFontRangeInput(fontRangeKey);
+        return;
+      }
+      const value = Math.max(min, Math.min(max, Number(target.value)));
+      if (Number.isNaN(value)) return;
+      draftTheme[fontRangeKey] = value;
+      syncFontRangeInput(fontRangeKey);
+      syncFontRangeValueDisplay(fontRangeKey);
       markPendingChanges();
     }
   };
@@ -1216,18 +1715,23 @@ function syncControlValues() {
   });
 
   FONT_RANGE_FIELDS.forEach(([key, , , , , suffix]) => {
-    const input = document.querySelector(`[data-font-range="${key}"]`);
     const value = document.querySelector(`[data-font-range-value="${key}"]`);
-    if (input instanceof HTMLInputElement) input.value = String(draftTheme[key]);
+    syncFontRangeInput(key);
     if (value) value.textContent = `${draftTheme[key]}${suffix}`;
   });
 
   RANGE_FIELDS.forEach(([key, , , , , suffix]) => {
-    const input = document.querySelector(`[data-range-input="${key}"]`);
     const value = document.querySelector(`[data-range-value="${key}"]`);
-    if (input instanceof HTMLInputElement) input.value = String(draftTheme[key]);
+    syncRangeInput(key);
     if (value) value.textContent = `${draftTheme[key]}${suffix}`;
   });
+}
+
+function syncRangeInput(key) {
+  const slider = document.querySelector(`[data-range-input="${key}"]`);
+  const number = document.querySelector(`[data-range-number="${key}"]`);
+  if (slider instanceof HTMLInputElement) slider.value = String(draftTheme[key]);
+  if (number instanceof HTMLInputElement) number.value = String(draftTheme[key]);
 }
 
 function syncRangeValueDisplay(key) {
@@ -1236,6 +1740,13 @@ function syncRangeValueDisplay(key) {
   const suffix = field[5];
   const value = document.querySelector(`[data-range-value="${key}"]`);
   if (value) value.textContent = `${draftTheme[key]}${suffix}`;
+}
+
+function syncFontRangeInput(key) {
+  const slider = document.querySelector(`[data-font-range="${key}"]`);
+  const number = document.querySelector(`[data-font-range-number="${key}"]`);
+  if (slider instanceof HTMLInputElement) slider.value = String(draftTheme[key]);
+  if (number instanceof HTMLInputElement) number.value = String(draftTheme[key]);
 }
 
 function syncFontRangeValueDisplay(key) {
@@ -1331,6 +1842,14 @@ body,
   min-height: 100%;
   background: transparent !important;
 }
+
+${customWallpaper ? `[client-theme] .giz-background > img {
+  display: none !important;
+}
+
+[client-theme] .giz-login__adv__background > img {
+  opacity: 0 !important;
+}` : ''}
 `;
   return true;
 }
@@ -1361,7 +1880,7 @@ async function loadRealPreview() {
     realPreviewShell?.classList.add('is-error');
     setRealPreviewMessage(
       'Real Host.Web не найден',
-      'Сначала выполните npm run sync:real-client, затем перезагрузите страницу.',
+      'Сначала выполните npm run build:real-client из полного git clone с submodules, затем перезагрузите страницу.',
     );
     updateApplyState();
     console.warn('Real Host.Web preview is unavailable:', error);
@@ -1403,7 +1922,9 @@ function applyPreviewStyleHints() {
   });
 }
 
-function previewVars(themeValues) {
+function themeCssVariables(themeValues, indent = '    ') {
+  const shadow = `0 ${themeValues.shadowOffsetY}px ${themeValues.shadowBlur}px ${themeValues.shadowSpread}px ${hexToRgba(themeValues.shadowColor, themeValues.shellShadowOpacity)}`;
+  const shadowStrong = `0 ${themeValues.shadowStrongOffsetY}px ${themeValues.shadowStrongBlur}px ${themeValues.shadowStrongSpread}px ${hexToRgba(themeValues.shadowColor, themeValues.shellShadowStrongOpacity)}`;
   return `
     --shell-bg: ${themeValues.shellBg};
     --shell-bg-elevated: ${themeValues.shellBgElevated};
@@ -1421,14 +1942,50 @@ function previewVars(themeValues) {
     --shell-success: ${themeValues.shellSuccess};
     --shell-warning: ${themeValues.shellWarning};
     --shell-danger: ${themeValues.shellDanger};
+    --shell-icon: ${themeValues.iconColor};
+    --shell-icon-muted: ${themeValues.iconMutedColor};
+    --shell-icon-active: ${themeValues.iconActiveColor};
+    --shell-icon-success: ${themeValues.iconSuccessColor};
+    --shell-icon-warning: ${themeValues.iconWarningColor};
+    --shell-icon-danger: ${themeValues.iconDangerColor};
+    --shell-heading: ${themeValues.headingColor};
+    --shell-heading-soft: ${themeValues.headingTextSoft};
+    --shell-body-text: ${themeValues.bodyTextColor};
+    --shell-link: ${themeValues.linkColor};
+    --shell-link-hover: ${themeValues.linkHoverColor};
+    --shell-border-color: ${themeValues.borderColor};
+    --shell-border-strong-color: ${themeValues.borderStrongColor};
+    --shell-border-hover: ${themeValues.borderHoverColor};
+    --shell-border-focus: ${themeValues.borderFocusColor};
+    --shell-shadow-color: ${themeValues.shadowColor};
+    --shell-shadow-opacity: ${themeValues.shellShadowOpacity};
+    --shell-shadow-strong-opacity: ${themeValues.shellShadowStrongOpacity};
+    --shell-shadow-offset-y: ${themeValues.shadowOffsetY}px;
+    --shell-shadow-blur: ${themeValues.shadowBlur}px;
+    --shell-shadow-spread: ${themeValues.shadowSpread}px;
+    --shell-shadow-strong-offset-y: ${themeValues.shadowStrongOffsetY}px;
+    --shell-shadow-strong-blur: ${themeValues.shadowStrongBlur}px;
+    --shell-shadow-strong-spread: ${themeValues.shadowStrongSpread}px;
+    --shell-login-panel-bg: ${themeValues.loginPanelBg};
+    --shell-login-hero-bg: ${themeValues.loginHeroBg};
+    --shell-login-card-bg: ${themeValues.loginCardBg};
+    --shell-login-overlay-bg: ${themeValues.loginOverlayBg};
+    --shell-login-separator: ${themeValues.loginSeparatorColor};
+    --shell-login-qr-title: ${themeValues.loginQrTitleColor};
+    --shell-login-qr-text: ${themeValues.loginQrTextColor};
     --shell-user-links-hover: ${themeValues.userLinksHoverColor};
     --shell-timeline-item: ${themeValues.timelineItemColor};
+    --shell-timeline-item-bg: ${themeValues.timelineItemBg};
     --shell-time-product-expiration-text: ${themeValues.timeProductExpirationTextColor};
     --shell-time-product-expiration-bg: ${themeValues.timeProductExpirationBg};
     --shell-app-card-bg: ${themeValues.appCardBg};
     --shell-product-card-bg: ${themeValues.productCardBg};
     --shell-popup-bg: ${themeValues.popupBg};
+    --shell-popup-text: ${themeValues.popupTextColor};
+    --shell-filter-utility-bg: ${themeValues.filterUtilityBg};
     --shell-button-inactive-bg: ${themeValues.buttonInactiveBg};
+    --shell-selected-bg: ${themeValues.selectedStateBg};
+    --shell-selected-text: ${themeValues.selectedStateTextColor};
     --shell-font-ui: ${themeValues.uiFontFamily};
     --shell-font-display: ${themeValues.displayFontFamily};
     --shell-font-size-base: ${themeValues.baseFontSize}px;
@@ -1437,17 +1994,37 @@ function previewVars(themeValues) {
     --shell-bg-overlay-bottom: ${hexToRgba(themeValues.shellBg, 0.86)};
     --shell-bg-accent-glow: ${hexToRgba(themeValues.shellAccent, 0.14)};
     --shell-bg-accent-deep-glow: ${hexToRgba(themeValues.shellAccentDeep, 0.10)};
-    --shell-shadow: 0 10px 30px rgba(0, 0, 0, ${themeValues.shellShadowOpacity});
-    --shell-shadow-strong: 0 18px 48px rgba(0, 0, 0, ${themeValues.shellShadowStrongOpacity});
-    --shell-focus: 0 0 0 0.3rem ${hexToRgba(themeValues.shellAccent, 0.24)};
+    --shell-shadow: ${shadow};
+    --shell-shadow-strong: ${shadowStrong};
+    --shell-focus: 0 0 0 ${themeValues.focusRingWidth}px ${hexToRgba(themeValues.borderFocusColor, 0.24)};
+    --shell-focus-inset: inset 0 0 0 ${themeValues.focusRingWidth}px ${hexToRgba(themeValues.borderFocusColor, 0.24)};
     --shell-radius-s: ${themeValues.shellRadiusS}px;
     --shell-radius-m: ${themeValues.shellRadiusM}px;
     --shell-radius-l: ${themeValues.shellRadiusL}px;
     --shell-radius-xl: ${themeValues.shellRadiusXL}px;
+    --shell-panel-radius-outer: ${themeValues.panelRadiusOuter}px;
+    --shell-panel-radius-inner: ${themeValues.panelRadiusInner}px;
+    --shell-card-radius-outer: ${themeValues.cardRadiusOuter}px;
+    --shell-card-radius-inner: ${themeValues.cardRadiusInner}px;
+    --shell-control-radius-outer: ${themeValues.controlRadiusOuter}px;
+    --shell-control-radius-inner: ${themeValues.controlRadiusInner}px;
+    --shell-button-radius-outer: ${themeValues.buttonRadiusOuter}px;
+    --shell-button-radius-inner: ${themeValues.buttonRadiusInner}px;
+    --shell-input-radius-outer: ${themeValues.inputRadiusOuter}px;
+    --shell-input-radius-inner: ${themeValues.inputRadiusInner}px;
+    --shell-modal-radius-outer: ${themeValues.modalRadiusOuter}px;
+    --shell-modal-radius-inner: ${themeValues.modalRadiusInner}px;
+    --shell-radius-inset: ${themeValues.radiusInset}px;
     --shell-header-height: ${themeValues.headerHeight}px;
     --shell-panel-border-width: ${themeValues.panelBorderWidth}px;
+    --shell-control-border-width: ${themeValues.controlBorderWidth}px;
+    --shell-focus-ring-width: ${themeValues.focusRingWidth}px;
     --shell-blur: ${themeValues.shellBlur}px;
-  `;
+  `.split('\n').map((line) => (line.trim() ? line.replace(/^    /, indent) : line)).join('\n');
+}
+
+function previewVars(themeValues) {
+  return themeCssVariables(themeValues);
 }
 
 function colorTokenToWindowsAbgrDword(color) {
@@ -1500,6 +2077,794 @@ This script also aligns Windows accent surfaces with --shell-bg.
 */`;
 }
 
+function buildComprehensiveOverrideCss() {
+  return `
+/* Comprehensive token coverage for Gizmo.Client.UI shell, login and popups. */
+[client-theme] {
+  color: var(--shell-body-text) !important;
+}
+
+[client-theme] a,
+[client-theme] .giz-login-new-user > a,
+[client-theme] .giz-login-forgot-password > a,
+[client-theme] .giz-user-links-item:hover,
+[client-theme] .giz-button--text:hover {
+  color: var(--shell-link) !important;
+}
+
+[client-theme] a:hover,
+[client-theme] .giz-login-new-user > a:hover,
+[client-theme] .giz-login-forgot-password > a:hover,
+[client-theme] .giz-button--outline:hover,
+[client-theme] .giz-header__modules-menu-item > a.active {
+  color: var(--shell-link-hover) !important;
+}
+
+[client-theme] h1,
+[client-theme] h2,
+[client-theme] h3,
+[client-theme] .giz-login-title,
+[client-theme] .giz-nav-title,
+[client-theme] .giz-section__header,
+[client-theme] .giz-order__items__header,
+[client-theme] .giz-profile-user-details__header,
+[client-theme] .giz-profile-user-purchases__header,
+[client-theme] .giz-profile-section__header,
+[client-theme] .giz-app-card__title,
+[client-theme] .giz-product-card__price,
+[client-theme] .giz-alternative-login__qr-description__title {
+  color: var(--shell-heading) !important;
+  font-family: var(--shell-font-display) !important;
+  font-weight: var(--shell-font-weight-heading) !important;
+}
+
+[client-theme],
+[client-theme] p,
+[client-theme] span,
+[client-theme] input,
+[client-theme] textarea,
+[client-theme] button,
+[client-theme] .giz-header,
+[client-theme] .giz-app-card,
+[client-theme] .giz-product-card,
+[client-theme] .giz-login-card,
+[client-theme] .giz-order,
+[client-theme] .giz-profile {
+  color: var(--shell-body-text);
+}
+
+[client-theme] .giz-login-subtitle,
+[client-theme] .giz-login-subtitle--sign-up,
+[client-theme] .giz-input-label,
+[client-theme] .giz-empty-state__text,
+[client-theme] .giz-order-summary-text,
+[client-theme] .giz-product-card__title,
+[client-theme] .giz-app-card__content__footer-category,
+[client-theme] .giz-profile-section-item__info__title,
+[client-theme] .giz-version__title,
+[client-theme] .giz-alternative-login__qr-description__subtitle,
+[client-theme] .giz-login-adv__text {
+  color: var(--shell-heading-soft) !important;
+}
+
+[client-theme] .giz-menu-notifications__footer,
+[client-theme] .giz-menu-notifications__footer__action,
+[client-theme] .giz-app-details-card-brand-info {
+  color: var(--shell-text-soft) !important;
+}
+
+[client-theme] .giz-icon,
+[client-theme] [class^="giz-icon"],
+[client-theme] [class*=" giz-icon"],
+[client-theme] .giz-preview-icon,
+[client-theme] svg.giz-icon,
+[client-theme] svg,
+[client-theme] .giz-filters-icon,
+[client-theme] .giz-button__icon-left,
+[client-theme] .giz-button__icon-right,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear .giz-icon,
+[client-theme] .giz-header__user-menu-item__icon,
+[client-theme] .giz-profile-section-item__icon,
+[client-theme] .giz-input__icon-left,
+[client-theme] .giz-input__icon-right {
+  color: var(--shell-icon) !important;
+}
+
+[client-theme] .giz-icon [fill]:not([fill="none"]),
+[client-theme] [class^="giz-icon"] [fill]:not([fill="none"]),
+[client-theme] [class*=" giz-icon"] [fill]:not([fill="none"]),
+[client-theme] .giz-preview-icon [fill]:not([fill="none"]),
+[client-theme] svg.giz-icon [fill]:not([fill="none"]),
+[client-theme] svg [fill]:not([fill="none"]),
+[client-theme] .giz-button svg [fill]:not([fill="none"]),
+[client-theme] .giz-input-root svg [fill]:not([fill="none"]),
+[client-theme] .giz-profile-section-item__icon svg [fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+[client-theme] .giz-icon [stroke]:not([stroke="none"]),
+[client-theme] [class^="giz-icon"] [stroke]:not([stroke="none"]),
+[client-theme] [class*=" giz-icon"] [stroke]:not([stroke="none"]),
+[client-theme] .giz-preview-icon [stroke]:not([stroke="none"]),
+[client-theme] svg.giz-icon [stroke]:not([stroke="none"]),
+[client-theme] svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-button svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-input-root svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-profile-section-item__icon svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+[client-theme] .giz-header__modules-menu-item > a .giz-icon,
+[client-theme] .giz-header__modules-menu-item > a [class^="giz-icon"],
+[client-theme] .giz-header__modules-menu-item > a [class*=" giz-icon"],
+[client-theme] .giz-client-tab-item svg,
+[client-theme] .giz-profile-navigation-item > a svg,
+[client-theme] .giz-input-root svg,
+[client-theme] .giz-login__login .giz-input-root .giz-icon,
+[client-theme] .giz-login__login .giz-input-root svg {
+  color: var(--shell-icon-muted) !important;
+}
+
+[client-theme] .giz-header__modules-menu-item > a.active .giz-icon,
+[client-theme] .giz-header__modules-menu-item > a.active [class^="giz-icon"],
+[client-theme] .giz-header__modules-menu-item > a.active [class*=" giz-icon"],
+[client-theme] .giz-client-tab-item.active svg,
+[client-theme] .giz-profile-navigation-item > a.active svg,
+[client-theme] .giz-header__user-menu-item .giz-icon,
+[client-theme] .giz-user-links-item:hover .giz-icon,
+[client-theme] .giz-user-links-item:hover svg {
+  color: var(--shell-icon-active) !important;
+}
+
+[client-theme] .success .giz-icon,
+[client-theme] .success [class^="giz-icon"],
+[client-theme] .success [class*=" giz-icon"],
+[client-theme] .passed,
+[client-theme] .giz-alert--success .giz-icon {
+  color: var(--shell-icon-success) !important;
+}
+
+[client-theme] .warning .giz-icon,
+[client-theme] .warning [class^="giz-icon"],
+[client-theme] .warning [class*=" giz-icon"],
+[client-theme] .giz-alert--warning .giz-icon {
+  color: var(--shell-icon-warning) !important;
+}
+
+[client-theme] .danger .giz-icon,
+[client-theme] .danger [class^="giz-icon"],
+[client-theme] .danger [class*=" giz-icon"],
+[client-theme] .disconnected,
+[client-theme] .giz-alert--danger .giz-icon {
+  color: var(--shell-icon-danger) !important;
+}
+
+[client-theme] .giz-input-root,
+[client-theme] .giz-input-root--outline,
+[client-theme] .giz-global-search,
+[client-theme] .giz-select__root,
+[client-theme] .giz-multi-select__root,
+[client-theme] .giz-button--outline,
+[client-theme] .giz-back-button,
+[client-theme] .giz-login-method.giz-button-group,
+[client-theme] .giz-recovery-method.giz-button-group,
+[client-theme] .quick-launcher-switch {
+  border-color: var(--shell-border-color) !important;
+  border-width: var(--shell-control-border-width) !important;
+  border-style: solid !important;
+}
+
+[client-theme] .giz-input-root,
+[client-theme] .giz-input-root--outline,
+[client-theme] .giz-global-search,
+[client-theme] .giz-select__root,
+[client-theme] .giz-multi-select__root {
+  border-radius: var(--shell-input-radius-outer) !important;
+}
+
+[client-theme] .giz-button--outline,
+[client-theme] .giz-back-button,
+[client-theme] .giz-button-group,
+[client-theme] .giz-combo-button,
+[client-theme] .giz-login-method.giz-button-group,
+[client-theme] .giz-recovery-method.giz-button-group,
+[client-theme] .quick-launcher-switch {
+  border-radius: var(--shell-button-radius-outer) !important;
+}
+
+[client-theme] .giz-button-group .giz-button,
+[client-theme] .giz-combo-button > button {
+  border-radius: var(--shell-button-radius-inner) !important;
+}
+
+[client-theme] .giz-input-root:hover,
+[client-theme] .giz-input-root--outline:hover,
+[client-theme] .giz-global-search:hover,
+[client-theme] .giz-button--outline:hover,
+[client-theme] .giz-back-button:hover,
+[client-theme] .giz-input-language-menu .giz-input-root:hover,
+[client-theme] .giz-client-language-menu .giz-input-root:hover {
+  border-color: var(--shell-border-hover) !important;
+}
+
+[client-theme] .giz-input-root:focus-within,
+[client-theme] .giz-input-root--outline:focus-within,
+[client-theme] .giz-input-root.active,
+[client-theme] .giz-input-root--outline.active,
+[client-theme] .giz-input-root.giz-active,
+[client-theme] .giz-input-root--outline.giz-active,
+[client-theme] .giz-global-search:focus-within,
+[client-theme] .giz-global-search.active,
+[client-theme] .giz-global-search.giz-active,
+[client-theme] .giz-button:focus-visible,
+[client-theme] .giz-back-button:focus-visible {
+  border-color: var(--shell-border-focus) !important;
+  box-shadow: var(--shell-focus) !important;
+}
+
+[client-theme] .giz-header__global-search,
+[client-theme] .giz-header__global-search:hover,
+[client-theme] .giz-header__global-search:focus-within,
+[client-theme] .giz-header__global-search.active,
+[client-theme] .giz-header__global-search.giz-active {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+[client-theme] .giz-input-root:focus-within,
+[client-theme] .giz-input-root--outline:focus-within,
+[client-theme] .giz-input-root.active,
+[client-theme] .giz-input-root--outline.active,
+[client-theme] .giz-input-root.giz-active,
+[client-theme] .giz-input-root--outline.giz-active {
+  box-shadow: var(--shell-focus-inset) !important;
+  outline: 0 !important;
+}
+
+[client-theme] .giz-input-label {
+  background: var(--shell-bg-elevated) !important;
+  background-color: var(--shell-bg-elevated) !important;
+  border-radius: var(--shell-input-radius-inner) !important;
+  padding-inline: 0.25rem !important;
+  position: relative;
+  z-index: 1;
+}
+
+[client-theme] .giz-dialog .giz-input-label,
+[client-theme] .giz-user-online-deposit .giz-input-label,
+[client-theme] .giz-login__login .giz-input-label {
+  background: var(--shell-popup-bg) !important;
+  background-color: var(--shell-popup-bg) !important;
+}
+
+[client-theme] .giz-container .giz-app__header,
+[client-theme] .giz-home-apps__header__quick-launch,
+[client-theme] .giz-home-apps__header__ads,
+[client-theme] .giz-profile-navigation,
+[client-theme] .giz-order__items,
+[client-theme] .giz-order__notes,
+[client-theme] .giz-order__totals,
+[client-theme] .giz-login-card,
+[client-theme] .giz-drawer-content,
+[client-theme] .giz-user-menu-button,
+[client-theme] .user-menu-item-button--box {
+  border-color: var(--shell-border-color) !important;
+  border-width: var(--shell-panel-border-width) !important;
+  border-style: solid !important;
+  border-radius: var(--shell-panel-radius-outer) !important;
+  box-shadow: var(--shell-shadow) !important;
+}
+
+[client-theme] .giz-app-card,
+[client-theme] .giz-product-card,
+[client-theme] .giz-home__header__ads,
+[client-theme] .giz-home-apps__header__ads,
+[client-theme] .live-news-pill,
+[client-theme] .live-ad-card,
+[client-theme] .giz-profile-section,
+[client-theme] .giz-profile-section-item,
+[client-theme] .giz-data-grid,
+[client-theme] .giz-alert {
+  border-color: var(--shell-border-color) !important;
+  border-radius: var(--shell-card-radius-outer) !important;
+  box-shadow: var(--shell-shadow) !important;
+}
+
+[client-theme] .giz-app-card__content,
+[client-theme] .giz-product-card__content,
+[client-theme] .giz-card-body,
+[client-theme] .giz-order__items__body {
+  border-radius: var(--shell-card-radius-inner) !important;
+}
+
+[client-theme] .giz-container .giz-app__header,
+[client-theme] .giz-home__header__quick-launch,
+[client-theme] .giz-home__header__ads,
+[client-theme] .giz-home-apps__header,
+[client-theme] .giz-home-apps__header__quick-launch,
+[client-theme] .giz-home-apps__header__ads,
+[client-theme] .giz-shop__products__header,
+[client-theme] .giz-shop__products__header__tab,
+[client-theme] .giz-profile-navigation,
+[client-theme] .giz-order__items,
+[client-theme] .giz-order__notes,
+[client-theme] .giz-order__totals,
+[client-theme] .giz-login-card,
+[client-theme] .giz-drawer-content {
+  isolation: isolate !important;
+  position: relative !important;
+  z-index: 30 !important;
+}
+
+[client-theme] .giz-container .giz-app__header > *,
+[client-theme] .giz-home__header__quick-launch > *,
+[client-theme] .giz-home__header__ads > *,
+[client-theme] .giz-home-apps__header > *,
+[client-theme] .giz-home-apps__header__quick-launch > *,
+[client-theme] .giz-home-apps__header__ads > *,
+[client-theme] .giz-shop__products__header > *,
+[client-theme] .giz-shop__products__header__tab > *,
+[client-theme] .giz-profile-navigation > *,
+[client-theme] .giz-order__items > *,
+[client-theme] .giz-order__notes > *,
+[client-theme] .giz-order__totals > *,
+[client-theme] .giz-login-card > *,
+[client-theme] .giz-drawer-content > * {
+  position: relative;
+  z-index: 1;
+}
+
+[client-theme] .giz-app-card__content__image,
+[client-theme] .giz-app-card__content__image__hovered,
+[client-theme] .giz-app-card__content__image img,
+[client-theme] .giz-app-card__content__image picture,
+[client-theme] .giz-app-card__content__image picture img,
+[client-theme] .giz-app-card__content__image .giz-image,
+[client-theme] .giz-app-card__content__image .giz-default-image {
+  border-radius: var(--shell-card-radius-inner) !important;
+  overflow: hidden !important;
+  clip-path: inset(0 round var(--shell-card-radius-inner)) !important;
+}
+
+[client-theme] .giz-home__header__ads,
+[client-theme] .giz-home-apps__header__ads,
+[client-theme] .live-news-pill,
+[client-theme] .live-ad-card,
+[client-theme] .live-ad-card--side,
+[client-theme] .live-ad-card--left,
+[client-theme] .live-ad-card--right,
+[client-theme] .live-ad-card--focus,
+[client-theme] .live-ad-card--monster,
+[client-theme] .live-ad-card--poster,
+[client-theme] .live-ad-card--cry,
+[client-theme] .no-image-placeholder {
+  background: var(--shell-product-card-bg) !important;
+  background-color: var(--shell-product-card-bg) !important;
+}
+
+[client-theme] .giz-dropdown-menu__content,
+[client-theme] .giz-select__dropdown,
+[client-theme] .giz-multi-select__dropdown,
+[client-theme] .giz-combo-button__dropdown,
+[client-theme] .giz-global-search-dropdown,
+[client-theme] .giz-client-tooltip,
+[client-theme] .giz-tooltip,
+[client-theme] .giz-password-tooltip,
+[client-theme] .giz-user-online-deposit,
+[client-theme] .giz-menu-notifications,
+[client-theme] .giz-user-links,
+[client-theme] .giz-active-apps,
+[client-theme] .giz-notifications {
+  background: var(--shell-popup-bg) !important;
+  border-color: var(--shell-border-strong-color) !important;
+  border-width: var(--shell-panel-border-width) !important;
+  border-style: solid !important;
+  border-radius: var(--shell-panel-radius-outer) !important;
+  box-shadow: var(--shell-shadow-strong) !important;
+}
+
+[client-theme] .giz-user-online-deposit__submitted__qr__label,
+[client-theme] .giz-user-online-deposit__submitted__action__label {
+  background: var(--shell-popup-bg) !important;
+  background-color: var(--shell-popup-bg) !important;
+  color: var(--shell-popup-text) !important;
+}
+
+[client-theme] .giz-dialog > .giz-card,
+[client-theme] .giz-dialog .giz-card,
+[client-theme] .giz-client-dialog,
+[client-theme] .giz-user-agreement-dialog {
+  background: var(--shell-popup-bg) !important;
+  border-color: var(--shell-border-strong-color) !important;
+  border-width: var(--shell-panel-border-width) !important;
+  border-style: solid !important;
+  border-radius: var(--shell-modal-radius-outer) !important;
+  box-shadow: var(--shell-shadow-strong) !important;
+}
+
+[client-theme] .giz-dialog > .giz-card .giz-card-body,
+[client-theme] .giz-dialog .giz-card .giz-card-body,
+[client-theme] .giz-client-dialog__body {
+  border-radius: var(--shell-modal-radius-inner) !important;
+}
+
+[client-theme] .giz-button {
+  border-radius: var(--shell-button-radius-outer) !important;
+}
+
+[client-theme] .giz-login-method.giz-button-group .giz-button,
+[client-theme] .giz-recovery-method.giz-button-group .giz-button,
+[client-theme] .quick-launcher-switch .giz-button {
+  border-radius: var(--shell-button-radius-inner) !important;
+}
+
+[client-theme] .giz-main-container,
+[client-theme] .giz-login__login,
+[client-theme] .giz-login__adv {
+  background-color: transparent !important;
+}
+
+[client-theme] .giz-login__login {
+  background:
+    radial-gradient(circle at top, var(--shell-bg-accent-glow), transparent 34%),
+    linear-gradient(180deg, var(--shell-login-panel-bg) 0%, var(--shell-bg) 100%) !important;
+  color: var(--shell-body-text) !important;
+}
+
+[client-theme] .giz-login__adv,
+[client-theme] .giz-login__adv__background {
+  background: transparent !important;
+  background-color: transparent !important;
+  position: relative;
+}
+
+[client-theme] .giz-login__adv__background img {
+  object-fit: cover;
+}
+
+[client-theme] .giz-login-card {
+  background: var(--shell-login-card-bg) !important;
+  color: var(--shell-body-text) !important;
+  border-color: var(--shell-border-color) !important;
+}
+
+[client-theme] .giz-login-card__header,
+[client-theme] .giz-login-card__body,
+[client-theme] .giz-login-card__footer,
+[client-theme] .giz-alternative-login,
+[client-theme] .giz-alternative-login__qr,
+[client-theme] .giz-input-language-menu,
+[client-theme] .giz-client-language-menu,
+[client-theme] .giz-server {
+  color: var(--shell-body-text) !important;
+}
+
+[client-theme] .giz-alternative-login__separator,
+[client-theme] .giz-alternative-login__separator > span {
+  background: var(--shell-bg) !important;
+  color: var(--shell-login-qr-text) !important;
+}
+
+[client-theme] .giz-alternative-login__separator::before {
+  border-bottom-color: var(--shell-login-separator) !important;
+}
+
+[client-theme] .giz-alternative-login__qr-description__title {
+  color: var(--shell-login-qr-title) !important;
+}
+
+[client-theme] .giz-alternative-login__qr-description__subtitle {
+  color: var(--shell-login-qr-text) !important;
+}
+
+[client-theme] .giz-password-tooltip {
+  background: var(--shell-popup-bg) !important;
+  border-color: var(--shell-border-strong-color) !important;
+  border-radius: var(--shell-panel-radius-inner) !important;
+  box-shadow: var(--shell-shadow-strong) !important;
+}
+
+[client-theme] .giz-password-tooltip::before {
+  border-color: var(--shell-popup-bg) !important;
+}
+
+[client-theme] .giz-login-overlay,
+[client-theme] .giz-drawer > .giz-overlay,
+[client-theme] .giz-dialog {
+  background: var(--shell-login-overlay-bg) !important;
+}
+
+[client-theme] .giz-dropdown-menu {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+[client-theme] .giz-dropdown-menu__content.giz-user-links {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: max-content !important;
+}
+
+[client-theme] .giz-dropdown-menu__content.giz-active-apps {
+  height: auto !important;
+  max-height: min(38rem, calc(100vh - var(--shell-header-height) - 2rem)) !important;
+}
+
+[client-theme] .giz-dropdown-menu__content.giz-active-apps .giz-active-apps__body {
+  min-height: 10rem !important;
+  max-height: 28rem !important;
+}
+
+[client-theme] .giz-header__modules-menu-item > a,
+[client-theme] .giz-header__modules-menu-item > a .giz-icon,
+[client-theme] .giz-header__modules-menu-item > a [class^="giz-icon"],
+[client-theme] .giz-header__modules-menu-item > a [class*=" giz-icon"],
+[client-theme] .giz-header__user-menu-item,
+[client-theme] .giz-header__user-menu-item .giz-icon,
+[client-theme] .giz-header__user-menu-item__icon,
+[client-theme] .giz-header__user-menu-item .user-menu-item-button--box,
+[client-theme] .giz-header__user-menu-item .giz-user-menu-button,
+[client-theme] .giz-user-links-item__icon,
+[client-theme] .giz-user-links-item__icon .giz-icon,
+[client-theme] .giz-profile-section-item__icon,
+[client-theme] .giz-profile-section-item__icon svg,
+[client-theme] .giz-profile-navigation-item > a,
+[client-theme] .giz-profile-navigation-item > a .giz-icon,
+[client-theme] .giz-client-tab-item,
+[client-theme] .giz-client-tab-item svg {
+  color: var(--shell-icon) !important;
+}
+
+[client-theme] .giz-header__modules-menu-item > a.active,
+[client-theme] .giz-header__modules-menu-item > a.active .giz-icon,
+[client-theme] .giz-header__modules-menu-item > a.active [class^="giz-icon"],
+[client-theme] .giz-header__modules-menu-item > a.active [class*=" giz-icon"],
+[client-theme] .giz-user-dropdown.open .giz-user-menu-button,
+[client-theme] .giz-user-dropdown.open .giz-user-menu-button .giz-icon,
+[client-theme] .giz-user-online-deposit-dropdown.open .user-menu-item-button--box,
+[client-theme] .giz-notifications-dropdown.open .user-menu-item-button--box,
+[client-theme] .giz-active-apps-dropdown.open .user-menu-item-button--box,
+[client-theme] .giz-profile-navigation-item > a.active,
+[client-theme] .giz-profile-navigation-item > a.active .giz-icon,
+[client-theme] .giz-client-tab-item.active,
+[client-theme] .giz-client-tab-item.active svg {
+  color: var(--shell-icon-active) !important;
+}
+
+[client-theme] .giz-user-links-item:hover,
+[client-theme] .giz-user-links-item:hover .giz-user-links-item__icon,
+[client-theme] .giz-user-links-item:hover .giz-icon,
+[client-theme] .giz-user-links-item:hover svg {
+  color: var(--shell-user-links-hover) !important;
+}
+
+[client-theme] .giz-header__modules-menu-item > a svg,
+[client-theme] .giz-header__user-menu-item svg,
+[client-theme] .giz-user-links-item__icon svg,
+[client-theme] .giz-profile-section-item__icon svg,
+[client-theme] .giz-profile-navigation-item > a svg,
+[client-theme] .giz-client-tab-item svg,
+[client-theme] .giz-button svg,
+[client-theme] .giz-input-root svg,
+[client-theme] .giz-app-card svg,
+[client-theme] .giz-app-card__content__image svg,
+[client-theme] .giz-app-details-card svg,
+[client-theme] .preview-placeholder-icon--app {
+  color: inherit !important;
+}
+
+[client-theme] .giz-app-card .giz-default-image,
+[client-theme] .giz-app-card .giz-default-image svg,
+[client-theme] .giz-app-card svg,
+[client-theme] .giz-app-card__content__image svg,
+[client-theme] .giz-app-card__content__image__hovered svg,
+[client-theme] .giz-app-details-card svg,
+[client-theme] .giz-app-details-card__image svg,
+[client-theme] .giz-app-details-card-brand svg,
+[client-theme] .preview-placeholder-icon--app {
+  color: var(--shell-icon) !important;
+}
+
+[client-theme] .giz-header__modules-menu-item > a svg [fill]:not([fill="none"]),
+[client-theme] .giz-header__modules-menu-item > a svg path[fill]:not([fill="none"]),
+[client-theme] .giz-header__user-menu-item svg [fill]:not([fill="none"]),
+[client-theme] .giz-header__user-menu-item svg path[fill]:not([fill="none"]),
+[client-theme] .giz-user-links-item__icon svg [fill]:not([fill="none"]),
+[client-theme] .giz-user-links-item__icon svg path[fill]:not([fill="none"]),
+[client-theme] .giz-profile-section-item__icon svg [fill]:not([fill="none"]),
+[client-theme] .giz-profile-section-item__icon svg path[fill]:not([fill="none"]),
+[client-theme] .giz-profile-navigation-item > a svg [fill]:not([fill="none"]),
+[client-theme] .giz-profile-navigation-item > a svg path[fill]:not([fill="none"]),
+[client-theme] .giz-client-tab-item svg [fill]:not([fill="none"]),
+[client-theme] .giz-client-tab-item svg path[fill]:not([fill="none"]),
+[client-theme] .giz-button svg [fill]:not([fill="none"]),
+[client-theme] .giz-button svg path[fill]:not([fill="none"]),
+[client-theme] .giz-input-root svg [fill]:not([fill="none"]),
+[client-theme] .giz-input-root svg path[fill]:not([fill="none"]),
+[client-theme] .giz-app-card svg *:not([fill="none"]),
+[client-theme] .giz-app-card svg use,
+[client-theme] .giz-app-card svg path:not([fill="none"]),
+[client-theme] .giz-app-card svg [fill]:not([fill="none"]),
+[client-theme] .giz-app-card svg path[fill]:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg *:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg use,
+[client-theme] .giz-app-card__content__image svg path:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg [fill]:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg path[fill]:not([fill="none"]),
+[client-theme] .giz-app-details-card svg *:not([fill="none"]),
+[client-theme] .giz-app-details-card svg use,
+[client-theme] .giz-app-details-card svg path:not([fill="none"]),
+[client-theme] .giz-app-details-card svg [fill]:not([fill="none"]),
+[client-theme] .giz-app-details-card svg path[fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+[client-theme] .giz-header__modules-menu-item > a svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-header__modules-menu-item > a svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-header__user-menu-item svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-header__user-menu-item svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-user-links-item__icon svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-user-links-item__icon svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-profile-section-item__icon svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-profile-section-item__icon svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-profile-navigation-item > a svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-profile-navigation-item > a svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-client-tab-item svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-client-tab-item svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-button svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-button svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-input-root svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-input-root svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-app-card svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-app-card svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-app-card__content__image svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-app-card__content__image svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-app-details-card svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-app-details-card svg path[stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear .giz-icon,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg path {
+  color: var(--shell-icon) !important;
+}
+
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg [fill]:not([fill="none"]),
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg path[fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg path[stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+[client-theme] .giz-chip.active,
+[client-theme] .giz-chip.active *,
+[client-theme] .giz-chip.selected,
+[client-theme] .giz-chip.selected *,
+[client-theme] .giz-chip.giz-active,
+[client-theme] .giz-chip.giz-active *,
+[client-theme] .giz-chip[aria-selected="true"],
+[client-theme] .giz-chip[aria-selected="true"] * {
+  color: var(--shell-selected-text) !important;
+}
+
+[client-theme] .giz-app-card .giz-default-image,
+[client-theme] .giz-app-card .giz-default-image svg,
+[client-theme] .giz-app-card svg,
+[client-theme] .giz-app-card__content__image svg,
+[client-theme] .giz-app-card__content__image__hovered svg,
+[client-theme] .giz-app-details-card svg,
+[client-theme] .giz-app-details-card__image svg,
+[client-theme] .giz-app-details-card-brand svg,
+[client-theme] .preview-placeholder-icon--app {
+  color: var(--shell-icon) !important;
+}
+
+[client-theme] .giz-app-card svg *:not([fill="none"]),
+[client-theme] .giz-app-card svg use,
+[client-theme] .giz-app-card svg path:not([fill="none"]),
+[client-theme] .giz-app-card svg [fill]:not([fill="none"]),
+[client-theme] .giz-app-card svg path[fill]:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg *:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg use,
+[client-theme] .giz-app-card__content__image svg path:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg [fill]:not([fill="none"]),
+[client-theme] .giz-app-card__content__image svg path[fill]:not([fill="none"]),
+[client-theme] .giz-app-details-card svg *:not([fill="none"]),
+[client-theme] .giz-app-details-card svg use,
+[client-theme] .giz-app-details-card svg path:not([fill="none"]),
+[client-theme] .giz-app-details-card svg [fill]:not([fill="none"]),
+[client-theme] .giz-app-details-card svg path[fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+[client-theme] .giz-app-card svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-app-card svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-app-card__content__image svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-app-card__content__image svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-app-details-card svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-app-details-card svg path[stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+[client-theme] .giz-product-card .giz-default-image,
+[client-theme] .giz-product-card .giz-default-image svg,
+[client-theme] .giz-product-card__content__image svg,
+[client-theme] .giz-product-card__content__image--time svg,
+[client-theme] .giz-product-details__product__info__image .giz-default-image,
+[client-theme] .giz-product-details__product__info__image svg,
+[client-theme] .giz-product-time-image-wrapper,
+[client-theme] .giz-product-time-image-wrapper svg,
+[client-theme] .giz-product-time-image svg,
+[client-theme] .giz-time-product-details svg,
+[client-theme] .giz-time-product-time svg,
+[client-theme] .giz-time-product-time-availabile svg,
+[client-theme] .giz-time-product-host-group svg,
+[client-theme] .giz-timeline svg,
+[client-theme] .giz-timeline-header svg,
+[client-theme] .giz-bundle-product-details svg {
+  color: var(--shell-icon) !important;
+}
+
+[client-theme] .giz-product-card svg [fill]:not([fill="none"]),
+[client-theme] .giz-product-card svg path[fill]:not([fill="none"]),
+[client-theme] .giz-product-card__content__image svg [fill]:not([fill="none"]),
+[client-theme] .giz-product-card__content__image svg path[fill]:not([fill="none"]),
+[client-theme] .giz-product-details__product__info__image svg [fill]:not([fill="none"]),
+[client-theme] .giz-product-details__product__info__image svg path[fill]:not([fill="none"]),
+[client-theme] .giz-product-time-image-wrapper svg [fill]:not([fill="none"]),
+[client-theme] .giz-product-time-image-wrapper svg path[fill]:not([fill="none"]),
+[client-theme] .giz-time-product-details svg [fill]:not([fill="none"]),
+[client-theme] .giz-time-product-details svg path[fill]:not([fill="none"]),
+[client-theme] .giz-timeline svg [fill]:not([fill="none"]),
+[client-theme] .giz-timeline svg path[fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+[client-theme] .giz-product-card svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-product-card svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-product-card__content__image svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-product-card__content__image svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-product-details__product__info__image svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-product-details__product__info__image svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-product-time-image-wrapper svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-product-time-image-wrapper svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-time-product-details svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-time-product-details svg path[stroke]:not([stroke="none"]),
+[client-theme] .giz-timeline svg [stroke]:not([stroke="none"]),
+[client-theme] .giz-timeline svg path[stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+[client-theme] .giz-product-card__content__image .giz-default-image,
+[client-theme] .giz-product-details__product__info__image .giz-default-image {
+  overflow: hidden !important;
+}
+
+[client-theme] .giz-product-card__content__image .giz-default-image img,
+[client-theme] .giz-product-details__product__info__image .giz-default-image img,
+[client-theme] .giz-product-time-image-wrapper img {
+  filter: brightness(0) saturate(100%) drop-shadow(400px 0 0 var(--shell-icon)) !important;
+  transform: translateX(-400px) !important;
+}
+
+[client-theme] .giz-host-locked,
+[client-theme] .giz-host-locked__message {
+  color: var(--shell-heading) !important;
+}
+`;
+}
+
 function generateCss(themeValues) {
   themeValues = deriveThemeColors(themeValues);
   return `/*
@@ -1510,8 +2875,8 @@ function generateCss(themeValues) {
 ${generateWindowsTaskbarRegistryComment(themeValues)}
 
 :root {
-  --shell-wallpaper-image: ${wallpaperCssImage(themeValues)};
-  --shell-wallpaper-name: ${wallpaperCssName(themeValues)};
+  --shell-wallpaper-image: none;
+  --shell-wallpaper-name: "";
   --shell-wallpaper-blur: ${themeValues.shellBlur}px;
 }
 
@@ -1523,9 +2888,6 @@ html {
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
-${normalizeWallpaperDataUrl(themeValues.wallpaperImage) ? `  background-image:
-    linear-gradient(rgba(4, 12, 19, 0.18), rgba(4, 12, 19, 0.32)),
-    var(--shell-wallpaper-image) !important;` : ''}
 }
 
 html::before {
@@ -1539,44 +2901,7 @@ html::before {
 }
 
 [client-theme] {
-  --shell-bg: ${themeValues.shellBg};
-  --shell-bg-elevated: ${themeValues.shellBgElevated};
-  --shell-bg-elevated-2: ${themeValues.shellBgElevated2};
-  --shell-bg-glass: ${themeValues.shellBgGlass};
-  --shell-bg-soft: ${themeValues.shellBgSoft};
-  --shell-border: ${themeValues.shellBorder};
-  --shell-border-strong: ${themeValues.shellBorderStrong};
-  --shell-text: ${themeValues.shellText};
-  --shell-text-soft: ${themeValues.shellTextSoft};
-  --shell-text-ghost: ${themeValues.shellTextGhost};
-  --shell-accent: ${themeValues.shellAccent};
-  --shell-accent-hover: ${themeValues.shellAccentHover};
-  --shell-accent-deep: ${themeValues.shellAccentDeep};
-  --shell-success: ${themeValues.shellSuccess};
-  --shell-warning: ${themeValues.shellWarning};
-  --shell-danger: ${themeValues.shellDanger};
-  --shell-user-links-hover: ${themeValues.userLinksHoverColor};
-  --shell-timeline-item: ${themeValues.timelineItemColor};
-  --shell-time-product-expiration-text: ${themeValues.timeProductExpirationTextColor};
-  --shell-time-product-expiration-bg: ${themeValues.timeProductExpirationBg};
-  --shell-app-card-bg: ${themeValues.appCardBg};
-  --shell-product-card-bg: ${themeValues.productCardBg};
-  --shell-popup-bg: ${themeValues.popupBg};
-  --shell-button-inactive-bg: ${themeValues.buttonInactiveBg};
-  --shell-font-ui: ${themeValues.uiFontFamily};
-  --shell-font-display: ${themeValues.displayFontFamily};
-  --shell-font-size-base: ${themeValues.baseFontSize}px;
-  --shell-font-weight-heading: ${themeValues.headingFontWeight};
-  --shell-shadow: 0 10px 30px rgba(0, 0, 0, ${themeValues.shellShadowOpacity});
-  --shell-shadow-strong: 0 18px 48px rgba(0, 0, 0, ${themeValues.shellShadowStrongOpacity});
-  --shell-focus: 0 0 0 0.3rem ${hexToRgba(themeValues.shellAccent, 0.24)};
-  --shell-radius-s: ${themeValues.shellRadiusS}px;
-  --shell-radius-m: ${themeValues.shellRadiusM}px;
-  --shell-radius-l: ${themeValues.shellRadiusL}px;
-  --shell-radius-xl: ${themeValues.shellRadiusXL}px;
-  --shell-header-height: ${themeValues.headerHeight}px;
-  --shell-panel-border-width: ${themeValues.panelBorderWidth}px;
-  --shell-blur: ${themeValues.shellBlur}px;
+${themeCssVariables(themeValues, '  ')}
 }
 
 body {
@@ -1605,17 +2930,22 @@ body {
   font-weight: var(--shell-font-weight-heading);
 }
 
-[client-theme] .giz-background > img {
-  display: none !important;
-}
-
 [client-theme] .giz-background::after {
   background:
     linear-gradient(180deg, ${hexToRgba(themeValues.shellBg, 0.08)} 0%, ${hexToRgba(themeValues.shellBg, 0.42)} 58%, ${hexToRgba(themeValues.shellBg, 0.72)} 100%),
     radial-gradient(circle at top left, ${hexToRgba(themeValues.shellAccent, 0.12)}, transparent 35%),
     radial-gradient(circle at top right, ${hexToRgba(themeValues.shellAccentDeep, 0.10)}, transparent 32%) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  -webkit-backdrop-filter: blur(var(--shell-wallpaper-blur)) !important;
+  backdrop-filter: blur(var(--shell-wallpaper-blur)) !important;
+}
+
+[client-theme] .giz-login__adv__background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(var(--shell-wallpaper-blur)) !important;
+  backdrop-filter: blur(var(--shell-wallpaper-blur)) !important;
 }
 
 [client-theme] .giz-container .giz-app__header {
@@ -1623,34 +2953,102 @@ body {
   background-color: ${themeValues.shellBgElevated2};
   border-bottom: var(--shell-panel-border-width) solid var(--shell-border);
   box-shadow: var(--shell-shadow);
-  backdrop-filter: blur(var(--shell-blur));
+  -webkit-backdrop-filter: blur(var(--shell-blur)) !important;
+  backdrop-filter: blur(var(--shell-blur)) !important;
   height: var(--shell-header-height);
 }
 
+[client-theme],
+[client-theme] .giz-app,
 [client-theme] .giz-home-apps,
+[client-theme] .giz-home-apps-wrapper,
 [client-theme] .giz-shop,
+[client-theme] .giz-shop-wrapper,
 [client-theme] .giz-profile,
+[client-theme] .giz-profile__body,
+[client-theme] .giz-profile__body-wrapper,
+[client-theme] .giz-profile-user-details,
+[client-theme] .giz-profile-user-purchases,
+[client-theme] .giz-order,
+[client-theme] .giz-order__body,
 [client-theme] .giz-main-container,
 [client-theme] .giz-app__body,
+[client-theme] .giz-apps,
 [client-theme] .giz-apps__body,
+[client-theme] .giz-apps__body__content,
 [client-theme] .giz-home__body,
-[client-theme] .giz-shop__products__body {
+[client-theme] .giz-shop__body,
+[client-theme] .giz-shop__products,
+[client-theme] .giz-shop__products__body,
+[client-theme] .giz-product-details,
+[client-theme] .giz-product-details__body,
+[client-theme] .giz-product-details__content,
+[client-theme] .giz-product-details__product,
+[client-theme] .giz-product-details__product__info,
+[client-theme] .giz-product-details__product__info__additional {
   background: transparent !important;
   background-color: transparent !important;
 }
 
-[client-theme] .giz-data-grid,
+[client-theme],
+[client-theme] .giz-main-container,
+[client-theme] .giz-app__body,
+[client-theme] .giz-apps__body,
+[client-theme] .giz-home__body,
+[client-theme] .giz-shop__body,
+[client-theme] .giz-shop__products__body,
+[client-theme] .giz-profile,
+[client-theme] .giz-profile__body,
+[client-theme] .giz-profile__body-wrapper,
+[client-theme] .giz-product-details__body {
+  isolation: isolate;
+  position: relative;
+  z-index: 1;
+}
+
+[client-theme]::before,
+[client-theme] .giz-main-container::before,
+[client-theme] .giz-app__body::before,
+[client-theme] .giz-apps__body::before,
+[client-theme] .giz-home__body::before,
+[client-theme] .giz-shop__body::before,
+[client-theme] .giz-shop__products__body::before,
+[client-theme] .giz-profile::before,
+[client-theme] .giz-profile__body::before,
+[client-theme] .giz-profile__body-wrapper::before,
+[client-theme] .giz-product-details__body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(var(--shell-wallpaper-blur)) !important;
+  backdrop-filter: blur(var(--shell-wallpaper-blur)) !important;
+}
+
+[client-theme] .giz-data-grid {
+  background: var(--shell-bg-elevated) !important;
+  background-color: var(--shell-bg-elevated) !important;
+  color: var(--shell-text) !important;
+}
+
+[client-theme] .giz-data-grid > thead,
+[client-theme] .giz-data-grid > thead > tr,
 [client-theme] .giz-data-grid > thead td,
-[client-theme] .giz-data-grid > thead th {
-  background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%) !important;
-  background-color: var(--shell-accent) !important;
-  color: #ffffff !important;
+[client-theme] .giz-data-grid > thead th,
+[client-theme] .giz-data-grid .giz-data-grid-header,
+[client-theme] .giz-data-grid .giz-data-grid-header-row,
+[client-theme] .giz-data-grid [class*="header"] > tr:first-child,
+[client-theme] .giz-data-grid [class*="header-row"] {
+  background: var(--shell-bg-elevated-2) !important;
+  background-color: var(--shell-bg-elevated-2) !important;
+  color: var(--shell-text) !important;
 }
 
 [client-theme] .giz-data-grid,
 [client-theme] .giz-data-grid th,
 [client-theme] .giz-data-grid td {
-  color: #ffffff !important;
+  color: var(--shell-text) !important;
 }
 
 [client-theme] .giz-icon--medium {
@@ -1701,7 +3099,10 @@ body {
 [client-theme] .giz-app-card__content__footer-category,
 [client-theme] .giz-product-card__title,
 [client-theme] .giz-timeline-header,
-[client-theme] .giz-input-label {
+[client-theme] .giz-input-label,
+[client-theme] .giz-menu-notifications__footer,
+[client-theme] .giz-menu-notifications__footer__action,
+[client-theme] .giz-app-details-card-brand-info {
   color: var(--shell-text-soft) !important;
 }
 
@@ -1712,10 +3113,87 @@ body {
   box-shadow: none !important;
 }
 
+[client-theme] .giz-section__header__filters .giz-button-group,
+[client-theme] .giz-section__header__filters .giz-button-group .giz-button,
+[client-theme] .giz-section__header__filters .giz-combo-button,
+[client-theme] .giz-section__header__filters .giz-combo-button > button,
+[client-theme] .giz-section__header__filters .giz-select__root,
+[client-theme] .giz-section__header__filters .giz-multi-select__root,
+[client-theme] .giz-section__header__filters .giz-chip,
+[client-theme] .giz-apps-filters .giz-button-group,
+[client-theme] .giz-apps-filters .giz-button-group .giz-button,
+[client-theme] .giz-apps-filters .giz-combo-button,
+[client-theme] .giz-apps-filters .giz-combo-button > button,
+[client-theme] .giz-apps-filters .giz-select__root,
+[client-theme] .giz-apps-filters .giz-multi-select__root,
+[client-theme] .giz-apps-filters .giz-chip,
+[client-theme] [class*="sort"] .giz-button-group,
+[client-theme] [class*="sort"] .giz-button-group .giz-button,
+[client-theme] [class*="sort"] .giz-combo-button,
+[client-theme] [class*="sort"] .giz-combo-button > button,
+[client-theme] .giz-chip {
+  background: var(--shell-filter-utility-bg) !important;
+  background-color: var(--shell-filter-utility-bg) !important;
+  border-color: var(--shell-border-color) !important;
+  color: var(--shell-text) !important;
+}
+
+[client-theme] .giz-chip {
+  border-width: var(--shell-control-border-width) !important;
+  border-style: solid !important;
+  border-radius: var(--shell-input-radius-outer) !important;
+}
+
+[client-theme] .giz-chip,
+[client-theme] .giz-chip span,
+[client-theme] .giz-chip .giz-chip__label,
+[client-theme] .giz-chip .giz-chip__content,
+[client-theme] .giz-chip [class*="label"],
+[client-theme] .giz-chip [class*="content"],
+[client-theme] .giz-chip [class*="text"] {
+  color: var(--shell-text) !important;
+}
+
+[client-theme] .giz-chip .giz-icon,
+[client-theme] .giz-chip [class^="giz-icon"],
+[client-theme] .giz-chip [class*=" giz-icon"],
+[client-theme] .giz-chip svg {
+  color: var(--shell-icon) !important;
+}
+
+[client-theme] .giz-chip.active,
+[client-theme] .giz-chip.selected,
+[client-theme] .giz-chip.giz-active,
+[client-theme] .giz-chip[aria-selected="true"] {
+  background: var(--shell-selected-bg) !important;
+  background-color: var(--shell-selected-bg) !important;
+  color: var(--shell-selected-text) !important;
+  border-color: var(--shell-selected-bg) !important;
+}
+
+[client-theme] .giz-chip.active,
+[client-theme] .giz-chip.active *,
+[client-theme] .giz-chip.selected,
+[client-theme] .giz-chip.selected *,
+[client-theme] .giz-chip.giz-active,
+[client-theme] .giz-chip.giz-active *,
+[client-theme] .giz-chip[aria-selected="true"],
+[client-theme] .giz-chip[aria-selected="true"] * {
+  color: var(--shell-selected-text) !important;
+}
+
+[client-theme] .giz-filters-icon,
+[client-theme] .giz-filters-icon svg,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear .giz-icon,
+[client-theme] .giz-chip .giz-icon-button.giz-input-button-clear svg {
+  color: var(--shell-icon) !important;
+}
+
 [client-theme] .giz-header__modules-menu-item > a .giz-icon--large,
 [client-theme] .giz-client-tab-item.active svg,
 [client-theme] .giz-profile-navigation-item > a.active svg {
-  color: var(--shell-text-soft);
+  color: var(--shell-icon-muted) !important;
 }
 
 [client-theme] .giz-header__modules-menu-item > a.active,
@@ -1735,7 +3213,7 @@ body {
 [client-theme] .giz-header__modules-menu-item > a.active .giz-icon--large,
 [client-theme] .giz-client-tab-item.active svg,
 [client-theme] .giz-profile-navigation-item > a.active svg {
-  color: var(--shell-accent);
+  color: var(--shell-icon-active) !important;
 }
 
 [client-theme] .giz-header__modules-menu-item > a.active::before,
@@ -1773,6 +3251,22 @@ body {
   color: var(--shell-text-soft) !important;
 }
 
+[client-theme] .giz-input-label {
+  background: var(--shell-bg-elevated) !important;
+  background-color: var(--shell-bg-elevated) !important;
+  border-radius: var(--shell-input-radius-inner) !important;
+  padding-inline: 0.25rem !important;
+  position: relative;
+  z-index: 1;
+}
+
+[client-theme] .giz-dialog .giz-input-label,
+[client-theme] .giz-user-online-deposit .giz-input-label,
+[client-theme] .giz-login__login .giz-input-label {
+  background: var(--shell-popup-bg) !important;
+  background-color: var(--shell-popup-bg) !important;
+}
+
 [client-theme] .giz-input-control .giz-input-root input::placeholder,
 [client-theme] .giz-main-container .giz-login__login .giz-input-root input::placeholder {
   color: var(--shell-text-ghost);
@@ -1780,7 +3274,7 @@ body {
 
 [client-theme] .giz-input-root--outline {
   border: ${themeValues.panelBorderWidth}px solid var(--shell-border-strong);
-  border-radius: ${themeValues.shellRadiusS / 10}rem;
+  border-radius: var(--shell-input-radius-outer);
   background-color: var(--shell-bg-soft);
 }
 
@@ -1792,18 +3286,26 @@ body {
 }
 
 [client-theme] .giz-input-root--outline:hover {
-  border-color: ${hexToRgba(themeValues.shellAccentHover, 0.45)};
+  border-color: var(--shell-border-hover) !important;
 }
 
-[client-theme] .giz-input-root--outline:focus-within {
-  border-color: var(--shell-accent);
-  box-shadow: var(--shell-focus);
+[client-theme] .giz-input-root:focus-within,
+[client-theme] .giz-input-root--outline:focus-within,
+[client-theme] .giz-input-root.active,
+[client-theme] .giz-input-root--outline.active,
+[client-theme] .giz-input-root.giz-active,
+[client-theme] .giz-input-root--outline.giz-active {
+  border-color: var(--shell-border-focus) !important;
+  box-shadow: var(--shell-focus-inset) !important;
+  outline: 0 !important;
 }
 
 [client-theme] .giz-user-menu-button,
 [client-theme] .user-menu-item-button--box,
 [client-theme] .giz-app__header,
 [client-theme] .giz-container .giz-app__header,
+[client-theme] .giz-home__header__quick-launch,
+[client-theme] .giz-home__header__ads,
 [client-theme] .giz-home-apps__header__quick-launch,
 [client-theme] .giz-home-apps__header__ads,
 [client-theme] .giz-shop__products__header__tab,
@@ -1817,9 +3319,12 @@ body {
   border: ${themeValues.panelBorderWidth}px solid var(--shell-border);
   border-radius: ${themeValues.shellRadiusL / 10}rem;
   box-shadow: var(--shell-shadow);
-  backdrop-filter: blur(${themeValues.shellBlur}px);
+  -webkit-backdrop-filter: blur(var(--shell-blur)) !important;
+  backdrop-filter: blur(var(--shell-blur)) !important;
 }
 
+[client-theme] .giz-home__header__quick-launch,
+[client-theme] .giz-home__header__ads,
 [client-theme] .giz-home-apps__header__quick-launch,
 [client-theme] .giz-home-apps__header__ads,
 [client-theme] .giz-shop__products__header__tab,
@@ -1829,6 +3334,25 @@ body {
 [client-theme] .giz-order__totals,
 [client-theme] .giz-login-card,
 [client-theme] .giz-drawer-content {
+  position: relative;
+  z-index: 30 !important;
+  isolation: isolate !important;
+}
+
+[client-theme] .giz-container .giz-app__header > *,
+[client-theme] .giz-home-apps__header > *,
+[client-theme] .giz-home-apps__header__quick-launch > *,
+[client-theme] .giz-home-apps__header__ads > *,
+[client-theme] .giz-home__header__quick-launch > *,
+[client-theme] .giz-home__header__ads > *,
+[client-theme] .giz-shop__products__header > *,
+[client-theme] .giz-shop__products__header__tab > *,
+[client-theme] .giz-profile-navigation > *,
+[client-theme] .giz-order__items > *,
+[client-theme] .giz-order__notes > *,
+[client-theme] .giz-order__totals > *,
+[client-theme] .giz-login-card > *,
+[client-theme] .giz-drawer-content > * {
   position: relative;
   z-index: 1;
 }
@@ -1879,6 +3403,12 @@ body {
   z-index: 1000;
 }
 
+[client-theme] .giz-dock-item-tooltip {
+  position: fixed !important;
+  isolation: isolate !important;
+  z-index: 2147483647 !important;
+}
+
 [client-theme] .giz-app__header,
 [client-theme] .giz-container .giz-app__header {
   background: ${themeValues.shellBgElevated2};
@@ -1907,7 +3437,7 @@ body {
 [client-theme] .quick-launcher-switch {
   background: var(--shell-bg-soft);
   border: ${themeValues.panelBorderWidth}px solid var(--shell-border);
-  border-radius: ${themeValues.shellRadiusM / 10}rem;
+  border-radius: var(--shell-button-radius-outer);
   padding: 0.125rem;
 }
 
@@ -1915,7 +3445,7 @@ body {
 [client-theme] .giz-recovery-method.giz-button-group {
   background: var(--shell-popup-bg);
   border: ${themeValues.panelBorderWidth}px solid var(--shell-border-strong);
-  border-radius: ${themeValues.shellRadiusM / 10}rem;
+  border-radius: var(--shell-button-radius-outer);
   padding: 0.125rem;
   box-shadow: inset 0 0 0 1px ${hexToRgba(themeValues.shellAccentDeep, 0.08)};
 }
@@ -1932,14 +3462,14 @@ body {
 [client-theme] .quick-launcher-switch .giz-button {
   background: var(--shell-button-inactive-bg);
   color: var(--shell-text-soft);
-  border-radius: ${themeValues.shellRadiusM / 10}rem;
+  border-radius: var(--shell-button-radius-inner);
 }
 
 [client-theme] .giz-login-method.giz-button-group .giz-button,
 [client-theme] .giz-recovery-method.giz-button-group .giz-button {
   background: var(--shell-button-inactive-bg);
   color: var(--shell-text-soft);
-  border-radius: ${themeValues.shellRadiusM / 10}rem;
+  border-radius: var(--shell-button-radius-inner);
 }
 
 [client-theme] .giz-main-container .giz-login__login .quick-launcher-switch.giz-button-group .giz-button,
@@ -2032,6 +3562,34 @@ body {
   background-color: ${themeValues.appCardBg};
 }
 
+[client-theme] .giz-app-card__content__image,
+[client-theme] .giz-app-card__content__image__hovered,
+[client-theme] .giz-app-card__content__image img,
+[client-theme] .giz-app-card__content__image picture,
+[client-theme] .giz-app-card__content__image picture img,
+[client-theme] .giz-app-card__content__image .giz-image,
+[client-theme] .giz-app-card__content__image .giz-default-image {
+  border-radius: var(--shell-card-radius-inner) !important;
+  overflow: hidden !important;
+  clip-path: inset(0 round var(--shell-card-radius-inner)) !important;
+}
+
+[client-theme] .giz-home__header__ads,
+[client-theme] .giz-home-apps__header__ads,
+[client-theme] .live-news-pill,
+[client-theme] .live-ad-card,
+[client-theme] .live-ad-card--side,
+[client-theme] .live-ad-card--left,
+[client-theme] .live-ad-card--right,
+[client-theme] .live-ad-card--focus,
+[client-theme] .live-ad-card--monster,
+[client-theme] .live-ad-card--poster,
+[client-theme] .live-ad-card--cry,
+[client-theme] .no-image-placeholder {
+  background: var(--shell-product-card-bg) !important;
+  background-color: var(--shell-product-card-bg) !important;
+}
+
 [client-theme] .giz-product-card {
   background-color: ${themeValues.productCardBg};
 }
@@ -2082,7 +3640,15 @@ body {
   background: ${themeValues.popupBg};
   border: ${themeValues.panelBorderWidth}px solid var(--shell-border-strong);
   box-shadow: var(--shell-shadow-strong);
-  backdrop-filter: blur(${themeValues.shellBlur}px);
+  -webkit-backdrop-filter: blur(var(--shell-blur)) !important;
+  backdrop-filter: blur(var(--shell-blur)) !important;
+}
+
+[client-theme] .giz-user-online-deposit__submitted__qr__label,
+[client-theme] .giz-user-online-deposit__submitted__action__label {
+  background: var(--shell-popup-bg) !important;
+  background-color: var(--shell-popup-bg) !important;
+  color: var(--shell-popup-text) !important;
 }
 
 [client-theme] .giz-header__user-menu-item {
@@ -2170,6 +3736,28 @@ body {
   color: ${themeValues.shellAccent};
 }
 
+[client-theme] .giz-user-online-deposit .giz-button-group .giz-button.selected,
+[client-theme] .giz-user-online-deposit .giz-button-group .giz-button.active,
+[client-theme] .giz-user-online-deposit-dialog .giz-button-group .giz-button.selected,
+[client-theme] .giz-user-online-deposit-dialog .giz-button-group .giz-button.active,
+[client-theme] .giz-user-online-deposit .quick-select .giz-button.selected,
+[client-theme] .giz-user-online-deposit .quick-select .giz-button.active,
+[client-theme] .giz-user-online-deposit-dialog .quick-select .giz-button.selected,
+[client-theme] .giz-user-online-deposit-dialog .quick-select .giz-button.active {
+  background: var(--shell-selected-bg) !important;
+  background-color: var(--shell-selected-bg) !important;
+  color: var(--shell-selected-text) !important;
+  border-color: var(--shell-selected-bg) !important;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--shell-selected-bg) 28%, transparent) !important;
+}
+
+[client-theme] .giz-user-online-deposit .giz-button-group .giz-button.selected *,
+[client-theme] .giz-user-online-deposit .giz-button-group .giz-button.active *,
+[client-theme] .giz-user-online-deposit-dialog .giz-button-group .giz-button.selected *,
+[client-theme] .giz-user-online-deposit-dialog .giz-button-group .giz-button.active * {
+  color: var(--shell-selected-text) !important;
+}
+
 .giz-client-tooltip,
 .giz-tooltip,
 .giz-dock-item-tooltip,
@@ -2179,7 +3767,15 @@ body {
   color: ${themeValues.shellText};
   border: ${themeValues.panelBorderWidth}px solid ${themeValues.shellBorderStrong};
   box-shadow: 0 18px 48px rgba(0, 0, 0, ${Math.min(themeValues.shellShadowStrongOpacity + 0.08, 0.88)});
-  backdrop-filter: blur(${themeValues.shellBlur}px);
+  -webkit-backdrop-filter: blur(var(--shell-blur)) !important;
+  backdrop-filter: blur(var(--shell-blur)) !important;
+}
+
+[client-theme] .giz-dock-item-tooltip,
+.giz-dock-item-tooltip {
+  position: fixed !important;
+  isolation: isolate !important;
+  z-index: 2147483647 !important;
 }
 
 .giz-client-tooltip,
@@ -2205,18 +3801,89 @@ body {
   color: var(--shell-text-soft);
 }
 
+[client-theme] .giz-select__dropdown .giz-list-item.active,
+[client-theme] .giz-select__dropdown .giz-list-item.selected,
+[client-theme] .giz-multi-select__dropdown .giz-multi-select-item.selected,
+[client-theme] .giz-combo-button__dropdown .giz-list-item.active,
+[client-theme] .giz-combo-button__dropdown .giz-list-item.selected,
+[client-theme] .giz-section__header__filters .giz-button-group .giz-button.active,
+[client-theme] .giz-section__header__filters .giz-button-group .giz-button.selected,
+[client-theme] .giz-apps-filters .giz-button-group .giz-button.active,
+[client-theme] .giz-apps-filters .giz-button-group .giz-button.selected,
+[client-theme] .quick-launcher-switch .giz-button.active,
+[client-theme] .quick-launcher-switch .giz-button.selected,
+[client-theme] .giz-login-method.giz-button-group .giz-button.active,
+[client-theme] .giz-login-method.giz-button-group .giz-button.selected,
+[client-theme] .giz-recovery-method.giz-button-group .giz-button.active,
+[client-theme] .giz-recovery-method.giz-button-group .giz-button.selected,
+[client-theme] .giz-time-product-host-group.active {
+  background: var(--shell-selected-bg) !important;
+  background-color: var(--shell-selected-bg) !important;
+  color: var(--shell-selected-text) !important;
+}
+
+[client-theme] .giz-select__dropdown .giz-list-item.active,
+[client-theme] .giz-combo-button__dropdown .giz-list-item.active,
+[client-theme] .giz-section__header__filters .giz-button-group .giz-button.active,
+[client-theme] .giz-apps-filters .giz-button-group .giz-button.active,
+[client-theme] .quick-launcher-switch .giz-button.active,
+[client-theme] .giz-login-method.giz-button-group .giz-button.active,
+[client-theme] .giz-recovery-method.giz-button-group .giz-button.active,
+[client-theme] .giz-time-product-host-group.active {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+[client-theme] .giz-select__dropdown .giz-list-item.active svg,
+[client-theme] .giz-select__dropdown .giz-list-item.selected svg,
+[client-theme] .giz-multi-select__dropdown .giz-multi-select-item.selected svg,
+[client-theme] .giz-combo-button__dropdown .giz-list-item.active svg,
+[client-theme] .giz-combo-button__dropdown .giz-list-item.selected svg,
+[client-theme] .giz-section__header__filters .giz-button-group .giz-button.active svg,
+[client-theme] .giz-section__header__filters .giz-button-group .giz-button.selected svg,
+[client-theme] .giz-apps-filters .giz-button-group .giz-button.active svg,
+[client-theme] .giz-apps-filters .giz-button-group .giz-button.selected svg,
+[client-theme] .quick-launcher-switch .giz-button.active svg,
+[client-theme] .quick-launcher-switch .giz-button.selected svg,
+[client-theme] .giz-login-method.giz-button-group .giz-button.active svg,
+[client-theme] .giz-login-method.giz-button-group .giz-button.selected svg,
+[client-theme] .giz-recovery-method.giz-button-group .giz-button.active svg,
+[client-theme] .giz-recovery-method.giz-button-group .giz-button.selected svg {
+  color: var(--shell-selected-text) !important;
+}
+
 [client-theme] .giz-product-card:hover .giz-button--fill.accent.giz-product-card-primary-button {
   background: linear-gradient(135deg, var(--shell-accent) 0%, var(--shell-accent-deep) 100%);
   color: #ffffff;
   box-shadow: 0 8px 22px ${hexToRgba(themeValues.shellAccentDeep, 0.24)};
 }
 
+[client-theme] .giz-app-card__content__image__hovered,
+[client-theme] .giz-product-card__content__image__hovered {
+  border-radius: inherit !important;
+  overflow: hidden !important;
+}
+
+[client-theme] .giz-app-card__content--hovered,
+[client-theme] .giz-product-card__content--hovered {
+  border-radius: var(--shell-card-radius-inner) !important;
+  overflow: hidden !important;
+}
+
 [client-theme] .giz-user-links-item:hover .giz-user-links-item__icon svg {
-  color: var(--shell-user-links-hover);
+  color: var(--shell-user-links-hover) !important;
 }
 
 [client-theme] .giz-user-links-item:hover {
-  color: var(--shell-user-links-hover);
+  color: var(--shell-user-links-hover) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+[client-theme] .giz-user-links-item:hover .giz-user-links-item__icon {
+  color: var(--shell-user-links-hover) !important;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 [client-theme] .giz-product-details__product__info__image .giz-default-image {
@@ -2224,7 +3891,7 @@ body {
 }
 
 [client-theme] .giz-product-details__product__info__image .giz-default-image img {
-  filter: brightness(0) saturate(100%) drop-shadow(400px 0 0 var(--shell-accent));
+  filter: brightness(0) saturate(100%) drop-shadow(400px 0 0 var(--shell-icon));
   transform: translateX(-400px);
 }
 
@@ -2254,7 +3921,9 @@ body {
 }
 
 [client-theme] .giz-timeline-item {
-  color: var(--shell-timeline-item);
+  color: var(--shell-timeline-item) !important;
+  background: var(--shell-timeline-item-bg) !important;
+  border-radius: var(--shell-input-radius-inner) !important;
 }
 
 [client-theme] .giz-timeline-item::before {
@@ -2266,11 +3935,14 @@ body {
   border-left-color: var(--shell-timeline-item);
 }
 
-[client-theme] .giz-time-product-expiration {
+[client-theme] .giz-time-product-expiration,
+[client-theme] .giz-product-details__product__info__additional__availability,
+[client-theme] .giz-product-details__product__info__additional__expirations__body .giz-product-expiration {
   padding: 0.1rem 0.4rem;
-  color: var(--shell-time-product-expiration-text);
-  background: var(--shell-time-product-expiration-bg);
-  border-radius: 0.4rem;
+  color: var(--shell-time-product-expiration-text) !important;
+  background: var(--shell-time-product-expiration-bg) !important;
+  background-color: var(--shell-time-product-expiration-bg) !important;
+  border-radius: var(--shell-input-radius-inner) !important;
   margin-bottom: 0.8rem;
   text-align: right;
   font-weight: 500;
@@ -2455,9 +4127,8 @@ body {
 
 [client-theme] .giz-login__adv,
 [client-theme] .giz-login__adv__background {
-  background:
-    radial-gradient(circle at 30% 20%, ${hexToRgba(themeValues.shellAccent, 0.16)}, transparent 34%),
-    linear-gradient(145deg, ${themeValues.shellBgElevated2} 0%, ${themeValues.shellBg} 100%);
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 [client-theme] .giz-login__adv__background > img[src=""] {
@@ -2530,6 +4201,8 @@ body {
   background: ${hexToRgba(themeValues.shellAccent, 0.42)};
   border-radius: 999px;
 }
+
+${buildComprehensiveOverrideCss(themeValues)}
 `;
 }
 
@@ -2623,7 +4296,7 @@ function normalizeImportedThemeValue(key, value) {
     return normalizeThemeColorValue(key, value) ?? String(value).trim();
   }
 
-  if (['baseFontSize', 'headingFontWeight', 'shellRadiusS', 'shellRadiusM', 'shellRadiusL', 'shellRadiusXL', 'headerHeight', 'panelBorderWidth', 'shellBlur'].includes(key)) {
+  if (NUMERIC_THEME_KEYS.has(key)) {
     const match = String(value).trim().match(/-?\d+(?:\.\d+)?/);
     return match ? Number(match[0]) : null;
   }
@@ -3067,6 +4740,28 @@ resetWallpaperBtn?.addEventListener('click', () => {
   draftTheme.wallpaperName = '';
   syncWallpaperControls();
   markPendingChanges();
+});
+
+createThemeFromWallpaperBtn?.addEventListener('click', async () => {
+  const dataUrl = normalizeWallpaperDataUrl(draftTheme.wallpaperImage);
+  if (!dataUrl) return;
+
+  if (createThemeFromWallpaperBtn instanceof HTMLButtonElement) createThemeFromWallpaperBtn.disabled = true;
+  setWallpaperStatus('Создаю тему из обоев...');
+  try {
+    const palette = await createWallpaperPalette(dataUrl);
+    draftTheme = deriveThemeColors({
+      ...draftTheme,
+      ...palette,
+    });
+    syncControlValues();
+    markPendingChanges();
+    setWallpaperStatus(`Тема создана из обоев: ${draftTheme.wallpaperName || 'Пользовательские обои'}`);
+  } catch (error) {
+    setWallpaperStatus(error instanceof Error ? error.message : 'Не удалось создать тему из обоев.', true);
+  } finally {
+    if (createThemeFromWallpaperBtn instanceof HTMLButtonElement) createThemeFromWallpaperBtn.disabled = false;
+  }
 });
 
 importCssBtn.addEventListener('click', () => {

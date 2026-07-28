@@ -46,7 +46,6 @@
             <span>Preset</span>
             <select id="presetSelect" aria-label="Выбрать пресет темы"></select>
           </label>
-          <span class="theme-status-badge">Client theme</span>
           <button id="resetThemeBtn" class="toolbar-button" type="button">↻ Сбросить</button>
           <button id="importCssBtn" class="toolbar-button" type="button">↑ Импорт CSS</button>
           <button id="downloadCssBtn" class="toolbar-button" type="button">↓ Скачать CSS</button>
@@ -73,6 +72,7 @@
               <div id="wallpaperPreview" class="wallpaper-control__preview" role="img" aria-label="Предпросмотр стандартных обоев Gizmo"></div>
               <div class="wallpaper-control__actions">
                 <button id="uploadWallpaperBtn" class="toolbar-button toolbar-button--primary" type="button">↑ Загрузить обои</button>
+                <button id="createThemeFromWallpaperBtn" class="toolbar-button toolbar-button--accent wallpaper-control__theme-button" type="button" disabled>Создать тему из обоев</button>
                 <button id="resetWallpaperBtn" class="toolbar-button" type="button" disabled>Вернуть стандартные</button>
               </div>
               <p id="wallpaperStatus" class="wallpaper-control__status" role="status" aria-live="polite">Стандартные обои Gizmo</p>
@@ -80,30 +80,101 @@
             </div>
           </section>
 
-          <section class="control-section" aria-labelledby="colorsHeading">
+          <section class="control-section" aria-labelledby="surfacesHeading">
             <div class="control-section__heading">
-              <h2 id="colorsHeading">② Цвета</h2>
-              <span>16</span>
+              <h2 id="surfacesHeading">② Поверхности</h2>
+              <span>10</span>
             </div>
-            <p>Основные поверхности, текст, акцент и статусы. Производные оттенки рассчитываются автоматически.</p>
-            <div class="control-grid" id="colorControls"></div>
+            <p>Фон клиента, панели, карточки, popup, sort/filter utility, glass и неактивные поверхности.</p>
+            <div class="control-grid" id="surfaceColorControls"></div>
           </section>
 
-          <section class="control-section" aria-labelledby="fontsHeading">
+          <section class="control-section" aria-labelledby="typographyHeading">
             <div class="control-section__heading">
-              <h2 id="fontsHeading">③ Шрифты</h2>
+              <h2 id="typographyHeading">③ Типографика</h2>
+              <span>12</span>
             </div>
-            <p>Шрифт интерфейса, заголовков и базовый размер текста.</p>
+            <p>Шрифты, размеры, заголовки, body text, вторичный текст, ссылки и ghost-текст.</p>
             <div class="control-grid" id="fontControls"></div>
+            <div class="control-grid" id="typographyColorControls"></div>
           </section>
 
-          <section class="control-section" aria-labelledby="effectsHeading">
+          <section class="control-section" aria-labelledby="iconsHeading">
             <div class="control-section__heading">
-              <h2 id="effectsHeading">④ Эффекты</h2>
+              <h2 id="iconsHeading">④ Иконки</h2>
+              <span>6</span>
             </div>
-            <p>Радиусы, размеры, blur и тени оболочки.</p>
-            <div class="range-grid" id="rangeControls"></div>
+            <p>Обычные, приглушённые, активные и статусные иконки, включая SVG fill/stroke.</p>
+            <div class="control-grid" id="iconColorControls"></div>
           </section>
+
+          <section class="control-section" aria-labelledby="accentHeading">
+            <div class="control-section__heading">
+              <h2 id="accentHeading">⑤ Акцент и статусы</h2>
+              <span>6</span>
+            </div>
+            <p>CTA-gradient, hover, success, warning, danger, Timeline и Expiration.</p>
+            <div class="control-grid" id="accentColorControls"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="bordersHeading">
+            <div class="control-section__heading">
+              <h2 id="bordersHeading">⑥ Обводка</h2>
+              <span>9</span>
+            </div>
+            <p>Цвет, прозрачность и ширина обводки для controls, карточек, окон и focus-состояний.</p>
+            <div class="control-grid" id="borderColorControls"></div>
+            <div class="range-grid" id="borderRangeControls"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="radiusHeading">
+            <div class="control-section__heading">
+              <h2 id="radiusHeading">⑦ Скругления</h2>
+              <span>7</span>
+            </div>
+            <p>Внешние радиусы панелей, карточек, controls и окон. Внутренние радиусы считаются автоматически.</p>
+            <div class="range-grid" id="radiusRangeControls"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="shadowHeading">
+            <div class="control-section__heading">
+              <h2 id="shadowHeading">⑧ Тени</h2>
+              <span>9</span>
+            </div>
+            <p>Цвет, прозрачность, offset, blur и spread для обычных карточек и popup/window.</p>
+            <div class="control-grid" id="shadowColorControls"></div>
+            <div class="range-grid" id="shadowRangeControls"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="loginHeading">
+            <div class="control-section__heading">
+              <h2 id="loginHeading">⑨ Экран входа</h2>
+              <span>7</span>
+            </div>
+            <p>Отдельные поверхности и текст login layout: hero, panel, card, overlay, QR и separator.</p>
+            <div class="control-grid" id="loginColorControls"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="componentsHeading">
+            <div class="control-section__heading">
+              <h2 id="componentsHeading">⑩ Компоненты</h2>
+              <span>5</span>
+            </div>
+            <p>Специальные компоненты Gizmo: user links, timeline, selected states, product expiration, app/product cards.</p>
+            <div class="control-grid" id="componentColorControls"></div>
+          </section>
+
+          <section class="control-section" aria-labelledby="layoutHeading">
+            <div class="control-section__heading">
+              <h2 id="layoutHeading">⑪ Layout</h2>
+              <span>2</span>
+            </div>
+            <p>Высота header и blur фоновых/glass-поверхностей.</p>
+            <div class="range-grid" id="layoutRangeControls"></div>
+          </section>
+
+          <div class="control-grid" id="colorControls" hidden></div>
+          <div class="range-grid" id="rangeControls" hidden></div>
         </aside>
 
         <main class="workspace">
@@ -593,134 +664,6 @@
                   </div>
                 </div>
 
-                <div class="preview-popup-card preview-popup-card--audit">
-                  <div class="preview-popup-title">Popup / tooltip audit</div>
-                  <div class="preview-popup-surface-grid">
-                    <div class="preview-popup-surface giz-global-search-dropdown">
-                      <div class="preview-popup-surface-label">.giz-global-search-dropdown</div>
-                      <div class="giz-global-search-dropdown__body">
-                        <div class="giz-global-search-section">
-                          <div class="giz-global-search-section__header">
-                            <span>Поиск</span>
-                            <span class="giz-global-search-section__header__more">Все результаты</span>
-                          </div>
-                          <div class="giz-global-search-section__body preview-search-grid">
-                            <div class="giz-global-search-result-card">
-                              <div class="giz-global-search-result-card__image"></div>
-                              <div class="giz-global-search-result-card__category">APP</div>
-                              <div class="giz-global-search-result-card__title">Counter-Strike 2</div>
-                            </div>
-                            <div class="giz-global-search-result-card">
-                              <div class="giz-global-search-result-card__image"></div>
-                              <div class="giz-global-search-result-card__category">SHOP</div>
-                              <div class="giz-global-search-result-card__title">Weekend Pack</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="preview-popup-surface giz-menu-notifications">
-                      <div class="giz-menu-notifications__header">Уведомления <span>2 новых</span></div>
-                      <div class="giz-menu-notifications__body">
-                        <div class="giz-menu-notification-item">
-                          <div class="giz-menu-notification-item__text">Скидка на пакет выходного дня</div>
-                          <div class="giz-menu-notification-item__icon">●</div>
-                          <div class="giz-menu-notification-item__details"><span class="giz-menu-notification-item__details__time">сейчас</span><span class="giz-menu-notification-item__details__action">Открыть</span></div>
-                        </div>
-                      </div>
-                      <div class="giz-menu-notifications__footer"><span class="giz-menu-notifications__footer__action">Все уведомления</span></div>
-                    </div>
-
-                    <div class="preview-popup-surface giz-user-links">
-                      <div class="preview-popup-surface-label">.giz-user-links</div>
-                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-user"></use></svg></span><span>Профиль</span></div>
-                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></span><span>Заблокировать ПК</span></div>
-                      <div class="giz-user-links-item"><span class="giz-user-links-item__icon"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-exit"></use></svg></span><span>Выход</span></div>
-                    </div>
-
-                    <div class="preview-popup-surface preview-popup-surface--timeline giz-timeline">
-                      <div class="preview-popup-surface-label">.giz-timeline-item / .giz-time-product-expiration</div>
-                      <div class="giz-timeline-header"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-package"></use></svg><span>Описание пакета времени</span></div>
-                      <div class="giz-timeline-item">
-                        <div class="giz-time-product-time"><svg class="giz-preview-icon" aria-hidden="true"><use href="#icon-clock"></use></svg><span>60 минут игрового времени</span></div>
-                      </div>
-                      <div class="giz-timeline-item">
-                        <div class="giz-time-product-details"><span>Доступен для покупки</span><span>Ежедневно, 10:00–23:00</span></div>
-                      </div>
-                      <div class="giz-timeline-item">
-                        <div class="giz-time-product-details">
-                          <span>Истекает</span>
-                          <div class="giz-time-product-expirations"><span class="giz-time-product-expiration">через 30 дней</span></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="preview-popup-surface preview-popup-surface--selector-colors">
-                      <div class="preview-popup-surface-label">Product / Profile selectors</div>
-                      <div class="preview-selector-color-grid">
-                        <div class="giz-product-details__product__info__image preview-product-time-image">
-                          <div class="giz-default-image">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='39' fill='%2356BFDB' fill-opacity='.2'/%3E%3Cpath d='M50 18a32 32 0 1 0 32 32A32 32 0 0 0 50 18Zm0 8a24 24 0 1 1-24 24 24 24 0 0 1 24-24Zm-3 10v17l14 8 4-7-10-5V36Z' fill='%2356BFDB'/%3E%3C/svg%3E" alt="Пример изображения пакета времени" />
-                          </div>
-                          <div class="giz-product-time-image__time">
-                            <div class="giz-product-time-image__time__number">60</div>
-                            <div class="giz-product-time-image__time__text">минут</div>
-                          </div>
-                        </div>
-                        <div class="giz-profile-section preview-profile-selector-demo">
-                          <div class="giz-profile-section__header">Контактная информация</div>
-                          <div class="giz-profile-section-item">
-                            <div class="giz-profile-section-item__icon">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h16v14H4V5Zm2 2v1.2l6 4.2 6-4.2V7H6Zm12 10v-6.4l-6 4.2-6-4.2V17h12Z" fill="#FAFAFA" /></svg>
-                            </div>
-                            <div class="giz-profile-section-item__info"><div class="giz-profile-section-item__info__title">Email</div><div class="giz-profile-section-item__info__text">user@gizmo.local</div></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="preview-popup-surface giz-active-apps">
-                      <div class="giz-active-apps__header">Активные приложения</div>
-                      <div class="giz-active-apps__body">
-                        <div class="giz-active-app-card">
-                          <div class="giz-active-app-card__info">
-                            <div class="giz-active-app-card__info__category">GAME</div>
-                            <div class="giz-active-app-card__info__title">GTA V</div>
-                          </div>
-                          <div class="preview-active-app-actions giz-combo-button">
-                            <button class="giz-button giz-button--fill primary left-button">Играть</button>
-                            <button class="giz-button giz-button--fill primary right-button">⋯</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="preview-popup-surface preview-popup-surface--tooltip-demo">
-                      <div class="preview-popup-surface-label">Tooltip arrows</div>
-                      <div class="preview-tooltip-stack">
-                        <div class="preview-tooltip-anchor">
-                          <div class="giz-client-tooltip giz-client-tooltip--open giz-client-tooltip--top">Client tooltip<span class="giz-client-tooltip-pin"></span></div>
-                        </div>
-                        <div class="preview-tooltip-anchor">
-                          <div class="giz-tooltip giz-tooltip--bottom">Combo tooltip</div>
-                        </div>
-                        <div class="preview-tooltip-anchor giz-password-tooltip-root">
-                          <div class="giz-password-tooltip">
-                            <div class="giz-password-tooltip__body">
-                              <div class="giz-password-tooltip__body__title">Пароль</div>
-                              <div class="giz-password-tooltip__body__messages">Минимум 8 символов</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="preview-inactive-button-demo">
-                        <button class="giz-button preview-button-inactive">Неактивная кнопка</button>
-                        <button class="giz-button giz-button--fill accent disabled">Disabled fill</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
             <div id="realPreviewShell" class="real-preview-shell">

@@ -49,7 +49,11 @@ def main() -> None:
     url = f"http://{args.bind}:{args.port}/"
 
     runtime_marker = PROJECT_ROOT / "real-client" / "configurator-runtime.json"
-    if not runtime_marker.is_file():
+    try:
+        has_runtime_marker = runtime_marker.is_file()
+    except OSError:
+        has_runtime_marker = False
+    if not has_runtime_marker:
         print("Warning: Real Host.Web runtime is not synchronized; Demo Preview remains available.")
 
     print(f"Gizmo Shell Configurator: {url}")

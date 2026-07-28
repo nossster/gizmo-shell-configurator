@@ -5,15 +5,17 @@ SPA-приложение для визуальной настройки обол
 ## v1.3.1 — Custom wallpaper и полноэкранный blur
 
 - добавлена безопасная загрузка пользовательских JPG, PNG и WebP до 8 МБ;
-- wallpaper сразу применяется к настоящему `Gizmo.Client.UI.Host.Web` и встраивается в Generated CSS;
-- CSS Export → Import восстанавливает изображение и имя файла;
+- добавлена генерация палитры темы из загруженных обоев;
+- wallpaper сразу применяется к preview настоящего `Gizmo.Client.UI.Host.Web`, но не встраивается в Generated CSS;
+- CSS Export сохраняет цвета и эффекты темы, а пользовательские обои остаются preview-only;
 - blur равномерно покрывает весь viewport, а UI остаётся чётким;
 - пользовательские обои сохраняются при смене preset и удаляются только отдельным или общим сбросом.
 
 ## Что умеет
 
-- визуально настраивать shell-палитру из 16 цветов;
+- визуально настраивать расширенную shell-палитру из 51 цветового токена;
 - загружать пользовательские обои и возвращать стандартный wallpaper Gizmo;
+- создавать тему из загруженных обоев одним действием;
 - показывать название активного wallpaper и сохранять его при смене preset;
 - сразу применять валидные изменения к live preview и Generated CSS без кнопки «Применить»;
 - использовать настоящий `Gizmo.Client.UI.Host.Web` как единственную preview surface;
@@ -26,11 +28,13 @@ SPA-приложение для визуальной настройки обол
 - показывать hover/click-детали карточек приложений с пакетом времени и ценой;
 - использовать встроенный SVG-спрайт вместо emoji и растровых изображений;
 - принимать точные `HEX`/`RGBA`-значения и прозрачность во всех color controls;
+- отдельно управлять цветом и прозрачностью иконок, заголовков, ссылок, обводок, теней и login layout;
+- настраивать внешние радиусы панелей, карточек, controls и окон с автоматическим расчётом внутренних радиусов;
+- вводить числовые значения слайдеров с клавиатуры;
 - импортировать существующий CSS override прямо в preview;
 - экспортировать готовый CSS-файл для загрузки в custom CSS интерфейса Gizmo Client;
 - добавлять в экспортируемый CSS комментарий с готовым пользовательским `.reg`-скриптом для цвета панели задач Windows;
 - использовать 11 пересобранных пресетов на общей компактной системе токенов;
-- проверять popup / dialog / tooltip поверхности через встроенный audit preview.
 
 ## Основные файлы
 
@@ -41,7 +45,7 @@ SPA-приложение для визуальной настройки обол
 - `scripts/build-real-client.py` — временная fixture-подготовка, publish и синхронизация demo-login runtime;
 - `scripts/package_release.py` — сборка и проверка standalone ZIP вместе с полным Host.Web runtime;
 - `scripts/serve.py` — локальный static server с правильными MIME types для Blazor WebAssembly;
-- `start-configurator.bat` — запуск конфигуратора двойным кликом в Windows;
+- `start-configurator.bat` — запуск конфигуратора двойным кликом в Windows, включая первичную сборку `real-client/`;
 - `package.json` — минимальные scripts для проверки JS.
 
 ## Настоящий Gizmo Client preview
@@ -59,17 +63,23 @@ CSS. Кнопка **Скачать CSS** сохраняет тот же CSS, к�
 Первый запуск Blazor runtime может занять несколько секунд. Generated folders `real-client/`
 и `_framework/` не хранятся в Git, но включаются в standalone-архив.
 
-## Компактная палитра
+## Расширенная палитра
 
-В панели доступны 16 значений: четыре поверхности, два цвета текста,
-две точки акцентного градиента, контрастный акцент, одна граница, отдельный цвет
-предупреждения, три отдельных цвета для `.giz-timeline-item` и
-`.giz-time-product-expiration`, а также два остальных статуса. Warning больше
-не меняет Timeline и Expiration. Для Expiration отдельно настраиваются текст и фон.
-Glass/soft surfaces,
-strong border, ghost text, карточки, hover-ссылки и disabled-кнопки рассчитываются автоматически. Старые CSS-переменные
-сохраняются в экспорте, поэтому существующие селекторы Gizmo Client продолжают
-работать.
+В панели доступны 51 цветовой токен: поверхности, карточки, popup, filter/sort utility,
+основной/вторичный/ghost-текст, заголовки, ссылки, акценты, все состояния
+иконок, все состояния обводки, selected/active элементы, цвет тени, Timeline, Expiration, статусы
+и отдельные поверхности экрана входа.
+Warning больше не меняет Timeline и Expiration. Для Timeline и Expiration отдельно
+настраиваются текст/линия и фон. Старые CSS-переменные сохраняются в экспорте,
+поэтому существующие селекторы Gizmo Client продолжают работать.
+
+Контролы разнесены по явным разделам: поверхности, типографика, иконки,
+акцент и статусы, обводка, скругления, тени, экран входа, специальные
+компоненты и layout. Скругления управляют внешними радиусами панелей,
+карточек, controls и окон. Внутренние радиусы рассчитываются автоматически
+через разницу `radiusInset`, чтобы вложенные поверхности оставались визуально
+согласованными. Тени управляются одним набором параметров: цвет, прозрачность,
+смещение, размытие и spread для обычных и сильных popup/window теней.
 
 В начале Generated CSS находится закомментированный блок
 `gizmo-taskbar-color.reg`. Он использует `--shell-bg`, переводит RGB в Windows
@@ -79,11 +89,22 @@ ABGR DWORD и изменяет только пользовательские к�
 
 ### Windows
 
-Запустить `start-configurator.bat` двойным кликом. По умолчанию откроется
-`http://127.0.0.1:8920/`. Для другого порта:
+Запустить `start-configurator.bat` двойным кликом. Батник проверяет `real-client/`.
+Если настоящий Host.Web runtime ещё не собран, он ищет полноценные исходники
+`Gizmo.Client.UI` рядом с конфигуратором (`..\Gizmo.Client.UI` или
+`..\Gizmo.Client.UI-full`), выполняет `scripts\build-real-client.py`, затем
+запускает локальный сервер. По умолчанию откроется `http://127.0.0.1:8920/`.
+Для другого порта:
 
 ```bat
 start-configurator.bat 8899
+```
+
+Если исходники лежат в другом месте:
+
+```bat
+set GIZMO_CLIENT_UI_SOURCE=C:\path\to\Gizmo.Client.UI
+start-configurator.bat
 ```
 
 ### Linux/macOS
@@ -98,6 +119,10 @@ python3 scripts/serve.py --port 8899
 - `http://127.0.0.1:8899`
 
 ### Обновление настоящего Host.Web runtime
+
+Для первого запуска нужен полноценный `git clone --recursive` репозитория
+`GAMP/Gizmo.Client.UI`. GitHub ZIP недостаточен: он создаёт папки `Submodules`,
+но оставляет их пустыми, поэтому `Gizmo.Client.UI.Host.Web` не собирается.
 
 Если исходники `Gizmo.Client.UI` находятся рядом с конфигуратором:
 
@@ -119,6 +144,10 @@ Shop используют нативные Blazor-карточки, а не HTML
 npm run build:real-client -- --source-root /path/to/Gizmo.Client.UI
 npm run sync:real-client -- --source /path/to/publish/wwwroot
 ```
+
+`sync:real-client` не собирает клиент. Эта команда только копирует уже
+опубликованный `Gizmo.Client.UI.Host.Web/bin/Release/net6.0/publish/wwwroot`
+в локальную папку `real-client/`.
 
 При синхронизации `appsettings.*.json` удаляются, а API/realtime endpoints в
 основном `appsettings.json` заменяются на localhost-заглушки. Standalone preview
@@ -148,11 +177,11 @@ npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.3.1.zip
 - packager contracts: `npm run test:package`;
 - полный E2E-набор: `npm test`;
 - E2E проверяет компактную палитру, производные токены, все пресеты,
-  wallpaper upload, полноэкранный blur, Export → Import, Windows ABGR DWORD,
+  wallpaper upload, preview-only background layer, Export → Import, Windows ABGR DWORD,
   10 preview-маршрутов и настоящий Host.Web;
 - real-host E2E проверяет Blazor `[client-theme]`, live CSS variable,
   вход `demo / demo`, маршруты Home/Apps/Shop/Profile, preview wallpaper,
-  отсутствие browser errors и содержимое скачанного CSS;
+  сохранение native wallpaper в скачанном CSS и отсутствие browser errors;
 - визуальная проверка выполнялась через Playwright screenshots;
 - проверены все 10 маршрутов, интерактивная корзина и формы;
 - в Demo Preview отсутствуют `<img>`, `data:image`, emoji и runtime console errors.

@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -479,8 +481,25 @@ def apply_fixture_patches(source_root: Path) -> None:
 
 
 def run(command: list[str], *, cwd: Path) -> None:
+    if os.name == "nt" and command[0].lower() == "npm":
+        command = ["npm.cmd", *command[1:]]
     print("+", " ".join(command), flush=True)
     subprocess.run(command, cwd=cwd, check=True)
+
+
+def copy_source_tree(source_root: Path, worktree: Path) -> None:
+    print(f"+ copy {source_root} {worktree}", flush=True)
+    shutil.copytree(
+        source_root,
+        worktree,
+        ignore=shutil.ignore_patterns(
+            "bin",
+            "obj",
+            "node_modules",
+            ".vs",
+            ".vscode/.ropeproject",
+        ),
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -502,10 +521,26 @@ def main() -> int:
         worktree = Path(temp_dir) / "source"
         worktree_registered = False
         try:
-            run(["git", "worktree", "prune"], cwd=source_root)
-            run(["git", "worktree", "add", "--detach", str(worktree), "HEAD"], cwd=source_root)
-            worktree_registered = True
-            run(["git", "submodule", "update", "--init", "--recursive"], cwd=worktree)
+            if (source_root / ".git").exists():
+                try:
+                    run(["git", "worktree", "prune"], cwd=source_root)
+                    run(["git", "worktree", "add", "--detach", str(worktree), "HEAD"], cwd=source_root)
+                    worktree_registered = True
+                    run(["git", "submodule", "update", "--init", "--recursive"], cwd=worktree)
+                except subprocess.CalledProcessError:
+                    if worktree_registered:
+                        subprocess.run(
+                            ["git", "worktree", "remove", "--force", "--force", str(worktree)],
+                            cwd=source_root,
+                            check=False,
+                        )
+                        worktree_registered = False
+                    if worktree.exists():
+                        shutil.rmtree(worktree)
+                    print("build-real-client: git worktree is unavailable; falling back to source copy.")
+                    copy_source_tree(source_root, worktree)
+            else:
+                copy_source_tree(source_root, worktree)
 
             apply_fixture_patches(worktree)
             client_project = worktree / "Gizmo.Client.UI"
