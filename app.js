@@ -2275,7 +2275,8 @@ function buildComprehensiveOverrideCss() {
 
 [client-theme] .giz-button-group .giz-button,
 [client-theme] .giz-combo-button > button {
-  border-radius: var(--shell-button-radius-inner) !important;
+  border-radius: var(--shell-button-radius-outer) !important;
+  overflow: hidden !important;
 }
 
 [client-theme] .giz-input-root:hover,
@@ -2500,12 +2501,14 @@ function buildComprehensiveOverrideCss() {
 
 [client-theme] .giz-button {
   border-radius: var(--shell-button-radius-outer) !important;
+  overflow: hidden !important;
 }
 
 [client-theme] .giz-login-method.giz-button-group .giz-button,
 [client-theme] .giz-recovery-method.giz-button-group .giz-button,
 [client-theme] .quick-launcher-switch .giz-button {
-  border-radius: var(--shell-button-radius-inner) !important;
+  border-radius: var(--shell-button-radius-outer) !important;
+  overflow: hidden !important;
 }
 
 [client-theme] .giz-main-container,
@@ -3490,20 +3493,36 @@ body {
 [client-theme] .quick-launcher-switch .giz-button {
   background: var(--shell-button-inactive-bg);
   color: var(--shell-text-soft);
-  border-radius: var(--shell-button-radius-inner);
+  border-radius: var(--shell-button-radius-outer) !important;
+  overflow: hidden !important;
 }
 
 [client-theme] .giz-login-method.giz-button-group .giz-button,
 [client-theme] .giz-recovery-method.giz-button-group .giz-button {
   background: var(--shell-button-inactive-bg);
   color: var(--shell-text-soft);
-  border-radius: var(--shell-button-radius-inner);
+  border-radius: var(--shell-button-radius-outer) !important;
+  overflow: hidden !important;
 }
 
 [client-theme] .giz-main-container .giz-login__login .quick-launcher-switch.giz-button-group .giz-button,
 [client-theme] .giz-login-card__body .quick-launcher-switch.giz-button-group .giz-button {
   background: var(--shell-button-inactive-bg);
   color: var(--shell-text-soft);
+}
+
+[client-theme] .quick-select .giz-button,
+[client-theme] .quick-select button,
+[client-theme] .giz-user-online-deposit .quick-select .giz-button,
+[client-theme] .giz-user-online-deposit .quick-select button,
+[client-theme] .giz-user-online-deposit-dialog .quick-select .giz-button,
+[client-theme] .giz-user-online-deposit-dialog .quick-select button,
+[client-theme] .giz-user-online-deposit .giz-button-group .giz-button,
+[client-theme] .giz-user-online-deposit-dialog .giz-button-group .giz-button,
+[client-theme] .giz-product-card .giz-button,
+[client-theme] .giz-product-card button {
+  border-radius: var(--shell-button-radius-outer) !important;
+  overflow: hidden !important;
 }
 
 [client-theme] .quick-launcher-switch .giz-button.selected,

@@ -185,7 +185,9 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('[client-theme] .giz-button {');
   expect(css).toContain('border-radius: var(--shell-button-radius-outer) !important;');
   expect(css).toContain('[client-theme] .quick-launcher-switch .giz-button');
-  expect(css).toContain('border-radius: var(--shell-button-radius-inner)');
+  expect(css).toContain('[client-theme] .quick-select .giz-button');
+  expect(css).toContain('[client-theme] .giz-user-online-deposit-dialog .quick-select button');
+  expect(css).toContain('overflow: hidden !important;');
   expect(css).toContain('[client-theme] .giz-chip .giz-chip__label');
   expect(css).toContain('[client-theme] .giz-chip .giz-icon');
   expect(css).toContain('[client-theme] .giz-chip.active');
