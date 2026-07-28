@@ -121,8 +121,7 @@ python3 scripts/serve.py --port 8899
 ### Docker
 
 ```bash
-docker build -t gizmo-shell-configurator:1.4.0 .
-docker run --rm -p 8920:8920 --name gizmo-shell-configurator gizmo-shell-configurator:1.4.0
+docker compose up --build -d
 ```
 
 Открыть:
@@ -136,6 +135,18 @@ root-level `_framework/`, а затем кладёт готовый Real Host.We
 
 ```bash
 docker build --build-arg GIZMO_CLIENT_UI_REF=<commit-or-branch> -t gizmo-shell-configurator:1.4.0 .
+```
+
+Для другого host-порта:
+
+```bash
+GIZMO_CONFIGURATOR_PORT=8899 docker compose up --build -d
+```
+
+Остановить:
+
+```bash
+docker compose down
 ```
 
 ### Обновление настоящего Host.Web runtime
