@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import re
 import stat
 import tempfile
 import unittest
@@ -113,6 +114,51 @@ class PackageReleaseTests(unittest.TestCase):
     def test_build_refuses_to_overwrite_project_source(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "must be placed under dist"):
             package_release.build_archive(package_release.PROJECT_ROOT / "README.md")
+
+    def test_release_manifest_includes_every_linked_frontend_asset(self) -> None:
+        index_text = (package_release.PROJECT_ROOT / "index.html").read_text(encoding="utf-8")
+        linked_assets = {
+            Path(asset)
+            for asset in re.findall(r'(?:href|src)="\./([^"?#]+)', index_text)
+            if Path(asset).suffix in {".css", ".js"}
+        }
+
+        self.assertTrue(linked_assets)
+        self.assertEqual(linked_assets - set(package_release.ROOT_FILES), set())
+
+    def test_release_manifest_contains_only_runtime_files(self) -> None:
+        self.assertEqual(
+            set(package_release.ROOT_FILES),
+            {
+                Path("README.md"),
+                Path("app.js"),
+                Path("index.html"),
+                Path("scripts/build-real-client.py"),
+                Path("scripts/serve.py"),
+                Path("scripts/sync-real-client.py"),
+                Path("start-configurator.bat"),
+                Path("styles.css"),
+            },
+        )
+        self.assertEqual(
+            package_release.TREE_DIRECTORIES,
+            (Path("_framework"), Path("real-client")),
+        )
+
+    def test_docker_image_copies_every_linked_frontend_asset(self) -> None:
+        index_text = (package_release.PROJECT_ROOT / "index.html").read_text(encoding="utf-8")
+        dockerfile_text = (package_release.PROJECT_ROOT / "Dockerfile").read_text(encoding="utf-8")
+        dockerignore_text = (package_release.PROJECT_ROOT / ".dockerignore").read_text(encoding="utf-8")
+        linked_assets = {
+            asset
+            for asset in re.findall(r'(?:href|src)="\./([^"?#]+)', index_text)
+            if Path(asset).suffix in {".css", ".js"}
+        }
+
+        self.assertRegex(dockerfile_text, r"(?m)^COPY \. \.$")
+        for asset in linked_assets:
+            with self.subTest(asset=asset):
+                self.assertNotRegex(dockerignore_text, rf"(?m)^{re.escape(asset)}$")
 
     def test_local_runtime_validation_propagates_failure(self) -> None:
         failed_check = CompletedProcess(

@@ -1239,8 +1239,8 @@ input {
 .giz-data-grid > thead > tr,
 .giz-data-grid > thead td,
 .giz-data-grid > thead th {
-  background: var(--shell-bg-elevated-2) !important;
-  background-color: var(--shell-bg-elevated-2) !important;
+  background: var(--shell-bg-elevated) !important;
+  background-color: var(--shell-bg-elevated) !important;
   color: var(--shell-text) !important;
 }
 

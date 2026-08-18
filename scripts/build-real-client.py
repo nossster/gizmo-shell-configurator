@@ -176,6 +176,327 @@ PATCHES = (
         }""",
     ),
     (
+        Path("Gizmo.Client.UI/Pages/Home.razor.cs"),
+        """        protected override void OnInitialized()
+        {
+            this.SubscribeChange(ViewState);
+
+            base.OnInitialized();
+        }""",
+        """        protected override async Task OnInitializedAsync()
+        {
+            this.SubscribeChange(ViewState);
+            this.SubscribeChange(NewsViewState);
+
+            await NewsViewService.ConfigureDemoFeedsAsync();
+            await HomePageService.RefilterAsync(default);
+            await base.OnInitializedAsync();
+        }""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Home.razor.cs"),
+        """        [Inject]
+        HomePageViewState ViewState { get; set; }
+
+        [Inject]
+        AdvertisementsViewService AdvertisementsViewStateService { get; set; }""",
+        """        [Inject]
+        HomePageViewState ViewState { get; set; }
+
+        [Inject]
+        FeedsViewState NewsViewState { get; set; }
+
+        [Inject]
+        Gizmo.Client.View.Services.FeedsViewService NewsViewService { get; set; }
+
+        [Inject]
+        AdvertisementsViewService AdvertisementsViewStateService { get; set; }""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/View/Services/FeedsViewService.cs"),
+        """        private int GetRotateMills()
+        {""",
+        """        public Task ConfigureDemoFeedsAsync()
+        {
+            if (ViewState.Items.Any())
+                return Task.CompletedTask;
+
+            var channel = ServiceProvider.GetRequiredService<FeedChannelViewState>();
+            channel.Description = "Gizmo Demo News";
+
+            var items = new List<FeedViewState>();
+
+            var launchNews = ServiceProvider.GetRequiredService<FeedViewState>();
+            launchNews.Title = "Native demo catalog";
+            launchNews.Summary = "<strong>Native demo catalog</strong><br/>Applications and products use real Razor cards and deterministic view states.";
+            launchNews.PublishDate = new DateTime(2026, 8, 5, 9, 0, 0);
+            items.Add(launchNews);
+
+            var themeNews = ServiceProvider.GetRequiredService<FeedViewState>();
+            themeNews.Title = "Live theme preview";
+            themeNews.Summary = "<strong>Live theme preview</strong><br/>Text-only news cards make every background and hover-color change immediately visible.";
+            themeNews.PublishDate = new DateTime(2026, 8, 5, 10, 0, 0);
+            items.Add(themeNews);
+
+            var detailsNews = ServiceProvider.GetRequiredService<FeedViewState>();
+            detailsNews.Title = "Application details ready";
+            detailsNews.Summary = "<strong>Application details ready</strong><br/>Open any application card to inspect its description, publisher, dates, links and executable.";
+            detailsNews.PublishDate = new DateTime(2026, 8, 5, 11, 0, 0);
+            items.Add(detailsNews);
+
+            foreach (var item in items)
+                _feedLookup.Add(item, channel);
+
+            ViewState.Items = items;
+            ViewState.CurrentFeedChannel = channel;
+            ViewState.CurrentFeed = items[0];
+            ViewState.IsInitialized = true;
+            DebounceViewStateChanged();
+            return Task.CompletedTask;
+        }
+
+        private int GetRotateMills()
+        {""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/View/Services/AppDetailsPageViewService.cs"),
+        """        #region OVERRIDES
+
+        protected override Task OnInitializing(CancellationToken ct)""",
+        """        public async Task LoadAsync(int applicationId, CancellationToken cancellationToken = default)
+        {
+            ViewState.Application = await _appLookupService.GetStateAsync(applicationId, false, cancellationToken);
+            ViewState.Executables = await _appExeLookupService.GetFilteredStatesAsync(applicationId, cancellationToken);
+            DebounceViewStateChanged();
+        }
+
+        #region OVERRIDES
+
+        protected override Task OnInitializing(CancellationToken ct)""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/View/Services/AppDetailsPageViewService.cs"),
+        """                        ViewState.Application = await _appLookupService.GetStateAsync(id, false, cancellationToken);
+                        ViewState.Executables = await _appExeLookupService.GetFilteredStatesAsync(id, cancellationToken);
+                        DebounceViewStateChanged();""",
+        "                        await LoadAsync(id, cancellationToken);",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Apps/AppDetails.razor.cs"),
+        """            this.SubscribeChange(ViewState);
+
+            try""",
+        """            this.SubscribeChange(ViewState);
+            await AppDetailsPageService.LoadAsync(ApplicationId);
+
+            try""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Components/Apps/ApplicationCard.razor"),
+        "<div class=\"giz-app-card\">",
+        "<div class=\"giz-app-card\" @onclick=\"OpenDetails\">",
+    ),
+    (
+        Path("Gizmo.Client.UI/Components/Apps/ApplicationCard.razor"),
+        """                <IconButton Variant=\"ButtonVariants.Text\" SVGIcon=\"Icons.Open_Client\" Size=\"ButtonSizes.Small\" @onclick=\"OpenDetails\" />""",
+        """                <div style=\"display: contents;\" @onclick:stopPropagation=\"true\">
+                    <IconButton Variant=\"ButtonVariants.Text\" SVGIcon=\"Icons.Open_Client\" Size=\"ButtonSizes.Small\" @onclick=\"OpenDetails\" />
+                </div>""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Home.razor.cs"),
+        """        public override void Dispose()
+        {
+            this.UnsubscribeChange(ViewState);
+
+            base.Dispose();
+        }""",
+        """        public override void Dispose()
+        {
+            this.UnsubscribeChange(ViewState);
+            this.UnsubscribeChange(NewsViewState);
+
+            base.Dispose();
+        }""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/View/Services/ClientLocalizationViewService.cs"),
+        "            ViewState.CurrentCulture = GetViewStatesCulture(\"el\");",
+        "            ViewState.CurrentCulture = GetViewStatesCulture(\"en\");",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/View/States/FeedsViewState.cs"),
+        """        public FeedChannelViewState? CurrentFeedChannel
+        {
+            get;internal set;
+        }""",
+        """        public FeedChannelViewState? CurrentFeedChannel
+        {
+            get;internal set;
+        }
+
+        /// <summary>
+        /// Gets the deterministic text-only items used by the standalone demo news section.
+        /// </summary>
+        public IEnumerable<FeedViewState> Items { get; internal set; } = Enumerable.Empty<FeedViewState>();""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Components/Common/NewsRotatorItem.razor"),
+        """    <div class=\"giz-news-rotator-item__image\">
+        <div class=\"giz-news-rotator-item__image__feed\">
+            @if (!string.IsNullOrEmpty(_image))
+            {
+                <img src=\"@_image\" />
+            }
+            else
+            {
+                <img src=\"_content/Gizmo.Client.UI/img/no-image.svg\" alt='loading' class=\"giz-no-image\" />
+            }
+        </div>
+    </div>""",
+        """    @if (!string.IsNullOrEmpty(_image))
+    {
+        <div class=\"giz-news-rotator-item__image\">
+            <div class=\"giz-news-rotator-item__image__feed\">
+                <img src=\"@_image\" />
+            </div>
+        </div>
+    }""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Apps/AppDetails.razor"),
+        "<div class=\"giz-app-details\">",
+        """@if (ViewState.Application != null)
+{
+<div class=\"giz-app-details\">""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Apps/AppDetails.razor"),
+        """    </div>
+</div>""",
+        """    </div>
+</div>
+}""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Pages/Home.razor"),
+        "            <div class=\"giz-home__body__popular\">\n"
+        + "                \n"
+        + "                @if (ViewState.PopularProducts.Any())",
+        """            <div class=\"giz-home__body__popular\">
+
+                @if (NewsViewState.Items.Any())
+                {
+                    <div class=\"giz-section giz-demo-news-section\">
+                        <div class=\"giz-section__header\">Latest news</div>
+                        <div class=\"giz-section__body giz-demo-news-grid\">
+                            @foreach (var newsItem in NewsViewState.Items)
+                            {
+                                <NewsRotatorItem @key=\"newsItem\"
+                                                 Class=\"giz-demo-news-card\"
+                                                 Title=\"@newsItem.Title\"
+                                                 Summary=\"@newsItem.Summary\" />
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (ViewState.PopularProducts.Any())""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Components/Common/QuickLauncherQuickLaunch.razor.cs"),
+        "using Gizmo.Client.UI.View.States;",
+        "using Gizmo.Client.UI.View.Services;\nusing Gizmo.Client.UI.View.States;",
+    ),
+    (
+        Path("Gizmo.Client.UI/Components/Common/QuickLauncherQuickLaunch.razor.cs"),
+        """        [Inject]
+        QuickLaunchViewState ViewState { get; set; }
+
+        protected override void OnInitialized()
+        {
+            this.SubscribeChange(ViewState);
+
+            base.OnInitialized();
+        }""",
+        """        [Inject]
+        QuickLaunchViewState ViewState { get; set; }
+
+        [Inject]
+        QuickLaunchViewService ViewService { get; set; }
+
+        protected override async System.Threading.Tasks.Task OnInitializedAsync()
+        {
+            this.SubscribeChange(ViewState);
+
+            await ViewService.RefilterAsync(default);
+            await base.OnInitializedAsync();
+        }""",
+    ),
+    (
+        Path("Gizmo.Client.UI/Components/Common/QuickLauncherFavorites.razor.cs"),
+        """        [Inject]
+        FavoritesViewState ViewState { get; set; }
+
+        protected override void OnInitialized()
+        {
+            this.SubscribeChange(ViewState);
+
+\t\t\tbase.OnInitialized();
+        }""",
+        """        [Inject]
+        FavoritesViewState ViewState { get; set; }
+
+        [Inject]
+        FavoritesViewService ViewService { get; set; }
+
+        protected override async System.Threading.Tasks.Task OnInitializedAsync()
+        {
+            this.SubscribeChange(ViewState);
+
+            await ViewService.RefilterAsync(default);
+            await base.OnInitializedAsync();
+        }""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/View/Services/FeedsViewService.cs"),
+        """        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            await InitializeIfRequired(cancellationToken);
+            await base.OnNavigatedIn(navigationParameters, cancellationToken);
+        }""",
+        """        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            await ConfigureDemoFeedsAsync();
+            await base.OnNavigatedIn(navigationParameters, cancellationToken);
+        }""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/ImageService.cs"),
+        """        public async ValueTask<string> ImageSourceGetAsync(ImageType imageType, int imageId, CancellationToken cToken)
+        {
+            var imageData = await ImageCachedDataGetAsync(imageType, imageId, cToken);
+
+            return imageData is null
+                ? string.Empty
+                : $"data:image/png;base64,{Convert.ToBase64String(imageData)}";
+        }""",
+        """        public ValueTask<string> ImageSourceGetAsync(ImageType imageType, int imageId, CancellationToken cToken) =>
+            ValueTask.FromResult(string.Empty);""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/ImageService.cs"),
+        """                var isCached = TryAddImageToCache(hash, data);
+
+                if (!isCached)
+                {
+                    _logger.LogError("Failed adding image to cache.");
+                }""",
+        """                // A concurrent request may have cached the same image while this request was loading.
+                // ConcurrentDictionary.TryAdd returning false is therefore an expected cache race, not an error.
+                TryAddImageToCache(hash, data);""",
+    ),
+    (
         Path("Gizmo.Client.UI/Shared/MenuUserLinks.razor"),
         '<a href="@ClientRoutes.UserProfileRoute" class="giz-user-links-item"',
         '<a href="@ClientRoutes.ToHref(ClientRoutes.UserProfileRoute)" class="giz-user-links-item"',
@@ -196,6 +517,151 @@ PATCHES = (
 )
 
 RANGE_PATCHES = (
+    (
+        Path("Gizmo.Client.UI/Components/Common/NewsRotator.razor"),
+        "        @if (ViewState.IsInitializing)",
+        "    </div>\n</div>",
+        """        @if (ViewState.IsInitialized == true && ViewState.CurrentFeed != null)
+        {
+            <NewsRotatorItem Image="@ViewState.CurrentFeed.Image.Url" Title="@ViewState.CurrentFeed.Title" Summary="@ViewState.CurrentFeed.Summary" Url="@ViewState.CurrentFeed.Link?.Url" ChannelImage="@ViewState.CurrentFeedChannel?.Image?.Url" />
+        }
+        else
+        {
+            <NewsRotatorItem Title="Gizmo Shell Demo"
+                             Summary="Native news, applications, products and launch controls are ready for live theme preview." />
+        }""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "            _applicationEnterprises = Enumerable.Range(1, 5).Select(i => new UserApplicationEnterpriseModel()",
+        "            _userApplicationCategories = Enumerable.Range(1, 5).Select(i => new UserApplicationCategoryModel()",
+        """            _applicationEnterprises = new List<UserApplicationEnterpriseModel>()
+            {
+                new() { Id = 1, Name = "Valve" },
+                new() { Id = 2, Name = "Valve Corporation" },
+                new() { Id = 3, Name = "Epic Games" },
+                new() { Id = 4, Name = "Riot Games" }
+            };""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "            _userApplicationLinks = new List<UserApplicationLinkModel>()",
+        "            List<string> executableNames = new List<string>()",
+        """            _userApplicationLinks = new List<UserApplicationLinkModel>()
+            {
+                new() { Id = 1, ApplicationId = 1, Caption = "Official information", Description = "Product overview and release notes", Url = "https://example.invalid/apps/cs2", DisplayOrder = 1 },
+                new() { Id = 2, ApplicationId = 1, Caption = "Player support", Description = "Help and account information", Url = "https://example.invalid/apps/cs2/support", DisplayOrder = 2 },
+                new() { Id = 3, ApplicationId = 2, Caption = "Official information", Description = "Product overview and release notes", Url = "https://example.invalid/apps/dota-2", DisplayOrder = 1 },
+                new() { Id = 4, ApplicationId = 2, Caption = "Player support", Description = "Help and account information", Url = "https://example.invalid/apps/dota-2/support", DisplayOrder = 2 },
+                new() { Id = 5, ApplicationId = 3, Caption = "Official information", Description = "Product overview and release notes", Url = "https://example.invalid/apps/fortnite", DisplayOrder = 1 },
+                new() { Id = 6, ApplicationId = 3, Caption = "Player support", Description = "Help and account information", Url = "https://example.invalid/apps/fortnite/support", DisplayOrder = 2 },
+                new() { Id = 7, ApplicationId = 4, Caption = "Official information", Description = "Product overview and release notes", Url = "https://example.invalid/apps/valorant", DisplayOrder = 1 },
+                new() { Id = 8, ApplicationId = 4, Caption = "Player support", Description = "Help and account information", Url = "https://example.invalid/apps/valorant/support", DisplayOrder = 2 }
+            };""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "            List<string> executableNames = new List<string>()",
+        "            #region PRODUCT GROUPS",
+        """            _userExecutables = new List<UserExecutableModel>()
+            {
+                new()
+                {
+                    Id = 1,
+                    ApplicationId = 1,
+                    Caption = "CS2",
+                    Description = "Launch Counter-Strike 2",
+                    PersonalFiles = Enumerable.Empty<UserExecutablePersonalFileModel>(),
+                    ImageId = 1,
+                    Accessible = true,
+                    Options = ExecutableOptionType.QuickLaunch
+                },
+                new()
+                {
+                    Id = 2,
+                    ApplicationId = 2,
+                    Caption = "Dota 2",
+                    Description = "Launch Dota 2",
+                    PersonalFiles = Enumerable.Empty<UserExecutablePersonalFileModel>(),
+                    ImageId = 2,
+                    Accessible = true,
+                    Options = ExecutableOptionType.QuickLaunch
+                },
+                new()
+                {
+                    Id = 3,
+                    ApplicationId = 3,
+                    Caption = "Fortnite",
+                    Description = "Launch Fortnite",
+                    PersonalFiles = Enumerable.Empty<UserExecutablePersonalFileModel>(),
+                    ImageId = 3,
+                    Accessible = true,
+                    Options = ExecutableOptionType.QuickLaunch
+                },
+                new()
+                {
+                    Id = 4,
+                    ApplicationId = 4,
+                    Caption = "Valorant",
+                    Description = "Launch Valorant",
+                    PersonalFiles = Enumerable.Empty<UserExecutablePersonalFileModel>(),
+                    ImageId = 4,
+                    Accessible = true,
+                    Options = ExecutableOptionType.QuickLaunch
+                }
+            };""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "        public Task<IEnumerable<PopularApplicationModel>> UserPopularApplicationsGetAsync(UserPopularApplicationsFilter filters, CancellationToken cancellationToken = default)",
+        "        public Task<IEnumerable<PopularExecutableModel>> UserPopularExecutablesGetAsync(UserPopularExecutablesFilter filters, CancellationToken cancellationToken = default)",
+        """        public Task<IEnumerable<PopularApplicationModel>> UserPopularApplicationsGetAsync(UserPopularApplicationsFilter filters, CancellationToken cancellationToken = default)
+        {
+            var popular = Enumerable.Range(1, 4).Select(i => new PopularApplicationModel()
+            {
+                Id = i,
+                TotalExecutionTime = 500 - (i * 50)
+            }).AsEnumerable();
+
+            return Task.FromResult(popular);
+        }
+
+""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "        public Task<IEnumerable<PopularExecutableModel>> UserPopularExecutablesGetAsync(UserPopularExecutablesFilter filters, CancellationToken cancellationToken = default)",
+        "        public Task<IEnumerable<PopularProductModel>> UserPopularProductsGetAsync(UserPopularProductsFilter filters, CancellationToken cancellationToken = default)",
+        """        public Task<IEnumerable<PopularExecutableModel>> UserPopularExecutablesGetAsync(UserPopularExecutablesFilter filters, CancellationToken cancellationToken = default)
+        {
+            var popular = Enumerable.Range(1, 4).Select(i => new PopularExecutableModel()
+            {
+                Id = i,
+                TotalExecutionTime = 400 - (i * 40)
+            }).AsEnumerable();
+
+            return Task.FromResult(popular);
+        }
+
+""",
+    ),
+    (
+        Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
+        "        public Task<IEnumerable<PopularProductModel>> UserPopularProductsGetAsync(UserPopularProductsFilter filters, CancellationToken cancellationToken = default)",
+        "        public Task<HostQRCodeResult> HostQRCodeGeneratAsync(CancellationToken cancellationToken = default)",
+        """        public Task<IEnumerable<PopularProductModel>> UserPopularProductsGetAsync(UserPopularProductsFilter filters, CancellationToken cancellationToken = default)
+        {
+            var popular = Enumerable.Range(101, 4).Select(i => new PopularProductModel()
+            {
+                Id = i,
+                TotalPurchases = 500 - ((i - 100) * 50)
+            }).AsEnumerable();
+
+            return Task.FromResult(popular);
+        }
+
+""",
+    ),
     (
         Path("Submodules/Gizmo.Client.UI.Services/Gizmo.Client.UI.Services/Client/TestClient.cs"),
         "            _userApplicationCategories = Enumerable.Range(1, 5).Select(i => new UserApplicationCategoryModel()",
@@ -221,7 +687,8 @@ RANGE_PATCHES = (
                     Title = "CS2",
                     Description = "Competitive tactical action for the demo application catalog.",
                     PublisherId = 1,
-                    AddDate = DateTime.Now.AddDays(-4),
+                    ImageId = 1,
+                    AddDate = new DateTime(2023, 9, 28),
                     ReleaseDate = new DateTime(2023, 9, 27)
                 },
                 new()
@@ -231,7 +698,8 @@ RANGE_PATCHES = (
                     Title = "Dota 2",
                     Description = "Team strategy title rendered by the real Gizmo application card.",
                     PublisherId = 2,
-                    AddDate = DateTime.Now.AddDays(-3),
+                    ImageId = 2,
+                    AddDate = new DateTime(2013, 7, 10),
                     ReleaseDate = new DateTime(2013, 7, 9)
                 },
                 new()
@@ -241,7 +709,8 @@ RANGE_PATCHES = (
                     Title = "Fortnite",
                     Description = "Battle royale demo entry with the native hover and category UI.",
                     PublisherId = 3,
-                    AddDate = DateTime.Now.AddDays(-2),
+                    ImageId = 3,
+                    AddDate = new DateTime(2017, 7, 22),
                     ReleaseDate = new DateTime(2017, 7, 21)
                 },
                 new()
@@ -251,7 +720,8 @@ RANGE_PATCHES = (
                     Title = "Valorant",
                     Description = "Tactical team shooter used for deterministic theme preview coverage.",
                     PublisherId = 4,
-                    AddDate = DateTime.Now.AddDays(-1),
+                    ImageId = 4,
+                    AddDate = new DateTime(2020, 6, 3),
                     ReleaseDate = new DateTime(2020, 6, 2)
                 }
             };""",
@@ -269,6 +739,7 @@ RANGE_PATCHES = (
                     ProductType = ProductType.Product,
                     Name = "Cola",
                     Description = "Chilled soft drink rendered by the native Gizmo product card.",
+                    DefaultImageId = 101,
                     Price = 3.50m,
                     PurchaseOptions = PurchaseOptionType.And,
                     OrderOptions = OrderOptionType.None,
@@ -282,6 +753,7 @@ RANGE_PATCHES = (
                     ProductType = ProductType.Product,
                     Name = "Energy",
                     Description = "Demo beverage with live price, hover and quantity controls.",
+                    DefaultImageId = 102,
                     Price = 4.90m,
                     PurchaseOptions = PurchaseOptionType.And,
                     OrderOptions = OrderOptionType.None,
@@ -295,6 +767,7 @@ RANGE_PATCHES = (
                     ProductType = ProductType.Product,
                     Name = "Sandwich",
                     Description = "Fresh sandwich entry for native shop-card theme coverage.",
+                    DefaultImageId = 103,
                     Price = 8.50m,
                     PurchaseOptions = PurchaseOptionType.And,
                     OrderOptions = OrderOptionType.None,
@@ -308,6 +781,7 @@ RANGE_PATCHES = (
                     ProductType = ProductType.Product,
                     Name = "Snack",
                     Description = "Compact snack product used to complete the four-card demo row.",
+                    DefaultImageId = 104,
                     Price = 2.90m,
                     PurchaseOptions = PurchaseOptionType.And,
                     OrderOptions = OrderOptionType.None,

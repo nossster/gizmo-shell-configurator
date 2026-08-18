@@ -16,22 +16,18 @@ from pathlib import Path, PurePosixPath
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_PREFIX = "gizmo-shell-configurator"
 ROOT_FILES = (
-    Path(".gitattributes"),
-    Path(".gitignore"),
     Path("README.md"),
     Path("app.js"),
     Path("index.html"),
-    Path("package-lock.json"),
-    Path("package.json"),
-    Path("playwright.config.js"),
+    Path("scripts/build-real-client.py"),
+    Path("scripts/serve.py"),
+    Path("scripts/sync-real-client.py"),
     Path("start-configurator.bat"),
     Path("styles.css"),
 )
 TREE_DIRECTORIES = (
     Path("_framework"),
     Path("real-client"),
-    Path("scripts"),
-    Path("tests"),
 )
 EXCLUDED_PARTS = {
     ".git",
@@ -57,6 +53,9 @@ REQUIRED_RUNTIME_FILES = (
     Path("real-client/_framework/Gizmo.Client.UI.dll"),
     Path("real-client/_framework/Gizmo.Web.Components.dll"),
     Path("real-client/_content/Gizmo.Client.UI/img/background.jpg"),
+    Path("real-client/_content/Gizmo.Client.UI/img/no-app-image.svg"),
+    Path("real-client/_content/Gizmo.Client.UI/img/no-product-image.svg"),
+    Path("real-client/_content/Gizmo.Client.UI/img/no-exe-image.svg"),
     Path("real-client/appsettings.json"),
     Path("_framework/Gizmo.Client.UI.dll"),
     Path("_framework/Gizmo.Web.Components.dll"),

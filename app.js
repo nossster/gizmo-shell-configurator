@@ -15,7 +15,7 @@ const DEFAULT_THEME = {
   shellSuccess: '#10AE79',
   shellWarning: '#E68200',
   shellDanger: '#F73B3B',
-  iconColor: '#FAFAFA',
+  iconColor: '#3F8CFF',
   iconMutedColor: 'rgba(255, 255, 255, 0.60)',
   iconActiveColor: '#3F8CFF',
   iconSuccessColor: '#10AE79',
@@ -463,7 +463,7 @@ function deriveThemeColors(themeValues) {
   setDefault('shellBgSoft', mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.18) ?? resolved.shellBgElevated2);
   setDefault('shellBorderStrong', mixColorTokens(resolved.shellBorder, resolved.shellAccentHover, 0.35) ?? resolved.shellBorder);
   setDefault('shellTextGhost', setColorAlpha(resolved.shellTextSoft, textSoftAlpha * 0.54) ?? resolved.shellTextSoft);
-  setDerivedDefault('iconColor', resolved.shellText, 'shellText');
+  setDerivedDefault('iconColor', resolved.shellAccent, 'shellAccent');
   setDerivedDefault('iconMutedColor', resolved.shellTextSoft, 'shellTextSoft');
   setDerivedDefault('iconActiveColor', resolved.shellAccent, 'shellAccent');
   setDerivedDefault('iconSuccessColor', resolved.shellSuccess, 'shellSuccess');
@@ -3051,8 +3051,8 @@ body {
 [client-theme] .giz-data-grid .giz-data-grid-header-row,
 [client-theme] .giz-data-grid [class*="header"] > tr:first-child,
 [client-theme] .giz-data-grid [class*="header-row"] {
-  background: var(--shell-bg-elevated-2) !important;
-  background-color: var(--shell-bg-elevated-2) !important;
+  background: var(--shell-bg-elevated) !important;
+  background-color: var(--shell-bg-elevated) !important;
   color: var(--shell-text) !important;
 }
 

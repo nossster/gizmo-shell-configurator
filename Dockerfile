@@ -22,6 +22,12 @@ RUN git clone --recursive --shallow-submodules --depth 1 ${GIZMO_CLIENT_UI_REPOS
 
 FROM python:3.12-alpine
 
+ARG BUILD_VERSION=dev
+LABEL org.opencontainers.image.title="Gizmo Shell Configurator" \
+      org.opencontainers.image.version="$BUILD_VERSION" \
+      org.opencontainers.image.source="https://github.com/nossster/gizmo-shell-configurator" \
+      org.opencontainers.image.description="Standalone Gizmo theme configurator with live Host.Web preview"
+
 WORKDIR /app
 
 COPY . .

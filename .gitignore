@@ -22,6 +22,7 @@ dock-*.png
 *.zip
 
 # Generated screenshots / audits
+artifacts/
 preview-*.png
 screenshot-*.png
 live-client-*.png

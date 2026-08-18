@@ -12,3 +12,8 @@ artifacts/
 *.log
 __pycache__/
 *.pyc
+.hermes/
+CLAUDE.md
+component-preview.css
+wallpaper-theme.js
+docker/

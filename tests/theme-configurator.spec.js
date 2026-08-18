@@ -71,6 +71,10 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
+test('color picker swatches use a 1px outline', async ({ page }) => {
+  await expect(page.locator('.color-picker-shell').first()).toHaveCSS('border-top-width', '1px');
+});
+
 async function fillColor(page, key, value) {
   const input = page.locator(`[data-color-text="${key}"]`);
   await input.fill(value);
@@ -205,7 +209,7 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('background: var(--shell-selected-bg) !important;');
   expect(css).toContain('color: var(--shell-selected-text) !important;');
   expect(css).toContain('[client-theme] .giz-data-grid > thead th');
-  expect(css).toContain('background: var(--shell-bg-elevated-2) !important;');
+  expect(css).toContain('background: var(--shell-bg-elevated) !important;');
   expect(css).toContain('[client-theme] .giz-home__header__ads');
   expect(css).toContain('[client-theme] .live-ad-card--monster');
   expect(css).toContain('background: var(--shell-product-card-bg) !important;');
@@ -539,8 +543,8 @@ test('wallpaper upload applies to real Host.Web preview without embedding in exp
   await expect(page.locator('#cssOutput')).not.toHaveValue(/data:image\/png;base64,/);
 });
 
-test('real Host.Web home does not receive injected demo content', async ({ page }) => {
-  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify clean Host.Web content.');
+test('real Host.Web home uses the native news rotator without a configurator overlay', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify native Host.Web content.');
   test.setTimeout(90_000);
 
   const realPreview = page.frameLocator('#realPreviewFrame');
@@ -550,7 +554,7 @@ test('real Host.Web home does not receive injected demo content', async ({ page 
 
   await expect(realPreview.locator('#gizmoConfiguratorDemoLayer')).toHaveCount(0);
   await expect(realPreview.locator('.gizmo-configurator-demo-main')).toHaveCount(0);
-  await expect(realPreview.locator('.giz-news-rotator')).toHaveCount(0);
+  await expect(realPreview.locator('.giz-news-rotator')).toHaveCount(1);
 });
 
 test('text color controls recolor real Host.Web typography instead of only nearby icons', async ({ page }) => {
@@ -670,5 +674,18 @@ test('real Host.Web receives live CSS and exports the same theme without Gizmo S
   await expect(realPreview.locator('.giz-profile-user-purchases')).toContainText('3 Hour Gaming Pass');
   await expect(realPreview.locator('.giz-profile-user-purchases')).toContainText('Cola, Sandwich');
   await expect(realPreview.locator('.giz-profile-user-purchases')).toContainText('Energy');
+  const purchasesSurfaceColors = await realPreview.locator('.giz-profile__body').evaluate((profile) => {
+    const navigation = profile.querySelector('.giz-profile-navigation');
+    const grid = profile.querySelector('.giz-data-grid');
+    const header = grid?.querySelector('thead th');
+    if (!navigation || !grid || !header) throw new Error('Profile purchases surface is incomplete');
+    return {
+      navigation: getComputedStyle(navigation).backgroundColor,
+      grid: getComputedStyle(grid).backgroundColor,
+      header: getComputedStyle(header).backgroundColor,
+    };
+  });
+  expect(purchasesSurfaceColors.grid).toBe(purchasesSurfaceColors.navigation);
+  expect(purchasesSurfaceColors.header).toBe(purchasesSurfaceColors.navigation);
   expect(browserErrors).toEqual([]);
 });
