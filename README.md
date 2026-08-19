@@ -2,6 +2,14 @@
 
 SPA-приложение для визуальной настройки оболочки `Gizmo.Client.UI` с live preview и экспортом готового CSS override.
 
+## v1.4.2 — Единая тема карточек и состояний hover
+
+- основные панели, карточки приложений и товаров используют одну семантическую поверхность;
+- штатные app/game/executable placeholders на карточках, страницах деталей и launch-actions наследуют цвет темы;
+- Quick Launch сохраняет форму иконок без прямоугольной подложки, а tooltip остаётся непрозрачным;
+- hover-детали товаров и пакетов времени отображают текст без отдельного фона поверх тематического слоя карточки;
+- mobile toolbar, поиск, quick/advanced режимы, history и reset-контролы упрощают настройку без отдельного Apply.
+
 ## v1.4.1 — Consistent data grid and native placeholders
 
 - заголовок таблицы покупок использует тот же фон, что и профильная панель над ней;
@@ -140,7 +148,7 @@ root-level `_framework/`, а затем кладёт готовый Real Host.We
 финального образа. Для фиксации конкретной ревизии исходников Gizmo:
 
 ```bash
-docker build --build-arg GIZMO_CLIENT_UI_REF=<commit-or-branch> -t gizmo-shell-configurator:1.4.0 .
+docker build --build-arg GIZMO_CLIENT_UI_REF=<commit-or-branch> -t gizmo-shell-configurator:1.4.2 .
 ```
 
 Для другого host-порта:
@@ -195,7 +203,7 @@ npm run sync:real-client -- --source /path/to/publish/wwwroot
 После `npm run build:real-client` собрать полный release ZIP можно командой:
 
 ```bash
-npm run package:release -- --output /path/to/gizmo-shell-configurator-v1.3.1.zip
+npm run package:release -- --output /path/to/gizmo-shell-configurator-v1.4.2.zip
 ```
 
 Packager использует явный allowlist, включает generated `real-client/` и
@@ -205,7 +213,7 @@ assemblies, localhost-only endpoints и все JavaScript bridge-файлы
 любой обязательный asset отсутствует. Повторная проверка готового файла:
 
 ```bash
-npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.3.1.zip
+npm run package:release -- --check /path/to/gizmo-shell-configurator-v1.4.2.zip
 ```
 
 ## Проверка

@@ -5339,3 +5339,349 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* UX navigation, recovery and responsive editor improvements. */
+.editor-toolbar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.toolbar-button--icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  padding: 0;
+  font-size: 18px;
+}
+
+.editor-toolbar__more {
+  display: none;
+}
+
+.settings-discovery {
+  display: grid;
+  gap: 10px;
+  padding: 14px 24px;
+  background: #14181e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.control-search {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: #9aa8bd;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.control-search input {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  color: #edf2fa;
+  background: #0f1318;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.control-search input::placeholder {
+  color: #718099;
+}
+
+.control-search input:focus {
+  border-color: #438fff;
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(67, 143, 255, 0.16);
+}
+
+.settings-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 3px;
+  background: #0f1318;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.settings-mode-switch__button {
+  min-height: 30px;
+  color: #8f9bb0;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.settings-mode-switch__button.is-active {
+  color: #f7f9fc;
+  background: rgba(67, 143, 255, 0.20);
+  box-shadow: inset 0 0 0 1px rgba(121, 173, 255, 0.24);
+}
+
+.settings-discovery__status {
+  margin: 0;
+  color: #8ea0ba;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.settings-section,
+.color-settings-group {
+  min-width: 0;
+}
+
+.settings-section > summary,
+.color-settings-group > summary {
+  list-style: none;
+}
+
+.settings-section > summary::-webkit-details-marker,
+.color-settings-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.control-section__summary,
+.color-settings-group__header {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.control-section__summary::after,
+.color-settings-group__header::after {
+  content: '›';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  color: #7897c4;
+  font-size: 19px;
+  line-height: 1;
+  transform: translateY(-50%) rotate(0deg);
+  transition: transform 140ms ease;
+}
+
+.settings-section[open] > .control-section__summary::after,
+.color-settings-group[open] > .color-settings-group__header::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.control-section__summary:focus-visible,
+.color-settings-group__header:focus-visible {
+  outline: 2px solid rgba(121, 173, 255, 0.8);
+  outline-offset: 4px;
+}
+
+.control-section__summary .control-section__heading,
+.color-settings-group__header {
+  padding-right: 24px;
+}
+
+.color-settings-group__header > div {
+  min-width: 0;
+}
+
+.control-section__heading h2,
+.color-settings-group__header h3 {
+  font-size: 13px;
+}
+
+.control-section > p,
+.color-settings-group__header p {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.wallpaper-control__status,
+.wallpaper-control__hint,
+.settings-discovery__status {
+  font-size: 12px;
+}
+
+.wallpaper-control__hint {
+  margin: -4px 0 0;
+  color: #7f91ac;
+  line-height: 1.4;
+}
+
+.theme-control-card {
+  grid-template-columns: minmax(116px, 0.9fr) minmax(0, 1.1fr);
+}
+
+.theme-control-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.theme-control-card__summary strong {
+  font-size: 13px;
+}
+
+.theme-control-card__actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.theme-control-card:hover .theme-control-card__actions,
+.theme-control-card:focus-within .theme-control-card__actions {
+  opacity: 1;
+}
+
+.theme-control-card__action {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: #aebbd0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.theme-control-card__action:hover,
+.theme-control-card__action:focus-visible {
+  color: #f6f8fc;
+  background: rgba(67, 143, 255, 0.18);
+  border-color: rgba(121, 173, 255, 0.6);
+  outline: none;
+}
+
+.color-input-row input[type='text'],
+.range-number-field,
+.range-number-field input,
+.theme-control-card select {
+  font-size: 12px;
+}
+
+.color-input-row input[type='text']::placeholder {
+  color: #627188;
+}
+
+.color-alpha-row > span,
+.color-alpha-row output,
+.gradient-color-control__stop-label,
+.range-field__header strong {
+  font-size: 11px;
+}
+
+@media (max-width: 1050px) {
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .editor-toolbar {
+    overflow: visible;
+  }
+
+  .controls-panel,
+  .workspace {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .editor-workspace {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .editor-topbar {
+    flex: 0 0 auto;
+    min-height: 68px;
+    height: auto;
+    gap: 10px;
+  }
+
+  .editor-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+    gap: 8px;
+    padding: 0;
+  }
+
+  .preset-picker {
+    min-width: 0;
+  }
+
+  .preset-picker > span {
+    display: none;
+  }
+
+  .editor-toolbar__more {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    min-width: 40px;
+    padding: 0;
+    font-size: 22px;
+  }
+
+  .editor-toolbar__actions {
+    display: none;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding-top: 2px;
+  }
+
+  .editor-toolbar.is-actions-open .editor-toolbar__actions {
+    display: grid;
+  }
+
+  .editor-toolbar__actions .toolbar-button {
+    min-width: 0;
+  }
+
+  .settings-discovery,
+  .control-section,
+  .controls-panel__heading {
+    padding-inline: 16px;
+  }
+
+  .control-search {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .controls-panel {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .workspace,
+  .preview-stage {
+    overflow: visible;
+  }
+
+  .preview-panel {
+    padding: 16px 12px 28px;
+  }
+
+  .theme-control-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .theme-control-card__actions {
+    opacity: 1;
+  }
+}

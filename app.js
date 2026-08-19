@@ -89,6 +89,9 @@ const DEFAULT_THEME = {
   shadowStrongSpread: 0,
 };
 
+const APP_PLACEHOLDER_MASK = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxtYXNrIGlkPSJtYXNrMF8xMjNfNjY1IiBzdHlsZT0ibWFzay10eXBlOmFscGhhIiBtYXNrVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNDU0OTRDIi8+CjwvbWFzaz4KPGcgbWFzaz0idXJsKCNtYXNrMF8xMjNfNjY1KSI+CjxwYXRoIGQ9Ik0xNS4zMTI2IDc5LjE2NjhDMTIuNjczNyA3OS4xNjY4IDEwLjYwNzggNzguMjgxNCA5LjExNDcyIDc2LjUxMDZDNy42MjE2NiA3NC43Mzk3IDcuMDgzNDcgNzIuMjkxOCA3LjUwMDEzIDY5LjE2NjhMMTIuNTAwMSAzNC4yNzFDMTMuMDU1NyAzMC41OTA0IDE0Ljc3NDQgMjcuNDMwNyAxNy42NTY0IDI0Ljc5MThDMjAuNTM4MyAyMi4xNTI5IDIzLjgxOTYgMjAuODMzNSAyNy41MDAxIDIwLjgzMzVINzIuNjA0M0M3Ni4yODQ5IDIwLjgzMzUgNzkuNTY2MSAyMi4xNTI5IDgyLjQ0ODEgMjQuNzkxOEM4NS4zMyAyNy40MzA3IDg3LjA0ODcgMzAuNTkwNCA4Ny42MDQzIDM0LjI3MUw5Mi41MDAxIDY5LjE2NjhDOTIuOTE2OCA3Mi4yOTE4IDkyLjM3ODYgNzQuNzM5NyA5MC44ODU2IDc2LjUxMDZDODkuMzkyNSA3OC4yODE0IDg3LjMyNjUgNzkuMTY2OCA4NC42ODc2IDc5LjE2NjhDODMuMDkwNCA3OS4xNjY4IDgxLjczNjMgNzguOTA2NCA4MC42MjUxIDc4LjM4NTZDNzkuNTE0IDc3Ljg2NDcgNzguNTc2NSA3Ny4yMjI0IDc3LjgxMjYgNzYuNDU4NUw2Ni45NzkzIDY1LjYyNTJIMzMuMDIxTDIyLjE4NzYgNzYuNDU4NUMyMS40MjM3IDc3LjIyMjQgMjAuNDg2MiA3Ny44NjQ3IDE5LjM3NTEgNzguMzg1NkMxOC4yNjQgNzguOTA2NCAxNi45MDk5IDc5LjE2NjggMTUuMzEyNiA3OS4xNjY4Wk03Mi45MTY4IDU0LjE2NjhDNzQuMDI3OSA1NC4xNjY4IDc1LjAwMDEgNTMuNzUwMiA3NS44MzM1IDUyLjkxNjhDNzYuNjY2OCA1Mi4wODM1IDc3LjA4MzUgNTEuMTExMyA3Ny4wODM1IDUwLjAwMDJDNzcuMDgzNSA0OC44ODkxIDc2LjY2NjggNDcuOTE2OCA3NS44MzM1IDQ3LjA4MzVDNzUuMDAwMSA0Ni4yNTAyIDc0LjAyNzkgNDUuODMzNSA3Mi45MTY4IDQ1LjgzMzVDNzEuODA1NyA0NS44MzM1IDcwLjgzMzUgNDYuMjUwMiA3MC4wMDAxIDQ3LjA4MzVDNjkuMTY2OCA0Ny45MTY4IDY4Ljc1MDEgNDguODg5MSA2OC43NTAxIDUwLjAwMDJDNjguNzUwMSA1MS4xMTEzIDY5LjE2NjggNTIuMDgzNSA3MC4wMDAxIDUyLjkxNjhDNzAuODMzNSA1My43NTAyIDcxLjgwNTcgNTQuMTY2OCA3Mi45MTY4IDU0LjE2NjhaTTY0LjA2MjYgNDAuNjI1MkM2NS4xNzM3IDQwLjYyNTIgNjYuMTQ2IDQwLjIwODUgNjYuOTc5MyAzOS4zNzUyQzY3LjgxMjYgMzguNTQxOCA2OC4yMjkzIDM3LjU2OTYgNjguMjI5MyAzNi40NTg1QzY4LjIyOTMgMzUuMzQ3NCA2Ny44MTI2IDM0LjM3NTIgNjYuOTc5MyAzMy41NDE4QzY2LjE0NiAzMi43MDg1IDY1LjE3MzcgMzIuMjkxOCA2NC4wNjI2IDMyLjI5MThDNjIuOTUxNSAzMi4yOTE4IDYxLjk3OTMgMzIuNzA4NSA2MS4xNDYgMzMuNTQxOEM2MC4zMTI2IDM0LjM3NTIgNTkuODk2IDM1LjM0NzQgNTkuODk2IDM2LjQ1ODVDNTkuODk2IDM3LjU2OTYgNjAuMzEyNiAzOC41NDE4IDYxLjE0NiAzOS4zNzUyQzYxLjk3OTMgNDAuMjA4NSA2Mi45NTE1IDQwLjYyNTIgNjQuMDYyNiA0MC42MjUyWk0zMy44NTQzIDUzLjY0NkMzNC42MTgyIDUzLjY0NiAzNS4yNDMyIDUzLjQwMjkgMzUuNzI5MyA1Mi45MTY4QzM2LjIxNTQgNTIuNDMwNyAzNi40NTg1IDUxLjgwNTcgMzYuNDU4NSA1MS4wNDE4VjQ1LjgzMzVINDEuNjY2OEM0Mi40MzA3IDQ1LjgzMzUgNDMuMDU1NyA0NS41OTA0IDQzLjU0MTggNDUuMTA0M0M0NC4wMjc5IDQ0LjYxODIgNDQuMjcxIDQzLjk5MzIgNDQuMjcxIDQzLjIyOTNDNDQuMjcxIDQyLjQ2NTQgNDQuMDI3OSA0MS44NDA0IDQzLjU0MTggNDEuMzU0M0M0My4wNTU3IDQwLjg2ODIgNDIuNDMwNyA0MC42MjUyIDQxLjY2NjggNDAuNjI1MkgzNi40NTg1VjM1LjQxNjhDMzYuNDU4NSAzNC42NTI5IDM2LjIxNTQgMzQuMDI3OSAzNS43MjkzIDMzLjU0MThDMzUuMjQzMiAzMy4wNTU3IDM0LjYxODIgMzIuODEyNyAzMy44NTQzIDMyLjgxMjdDMzMuMDkwNCAzMi44MTI3IDMyLjQ2NTQgMzMuMDU1NyAzMS45NzkzIDMzLjU0MThDMzEuNDkzMiAzNC4wMjc5IDMxLjI1MDEgMzQuNjUyOSAzMS4yNTAxIDM1LjQxNjhWNDAuNjI1MkgyNi4wNDE4QzI1LjI3NzkgNDAuNjI1MiAyNC42NTI5IDQwLjg2ODIgMjQuMTY2OCA0MS44NDA0IDIzLjY4MDcgNDEuODQwNCAyMy40Mzc2IDQyLjQ2NTQgMjMuNDM3NiA0My4yMjkzQzIzLjQzNzYgNDMuOTkzMiAyMy42ODA3IDQ0LjYxODIgMjQuMTY2OCA0NS4xMDQzQzI0LjY1MjkgNDUuNTkwNCAyNS4yNzc5IDQ1LjgzMzUgMjYuMDQxOCA0NS44MzM1SDMxLjI1MDFWNTEuMDQxOEMzMS4yNTAxIDUxLjgwNTcgMzEuNDkzMiA1Mi40MzA3IDMxLjk3OTMgNTIuOTE2OEMzMi40NjU0IDUzLjQwMjkgMzMuMDkwNCA1My42NDYgMzMuODU0MyA1My42NDZaIiBmaWxsPSIjNDU0OTRDIi8+CjwvZz4KPC9zdmc+Cg==';
+const EXECUTABLE_PLACEHOLDER_MASK = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTYgMzJDMTUuNDUgMzIgMTQuOTc5MiAzMS44MDQyIDE0LjU4NzUgMzEuNDEyNUMxNC4xOTU4IDMxLjAyMDggMTQgMzAuNTUgMTQgMzBWMThDMTQgMTcuNDUgMTQuMTk1OCAxNi45NzkyIDE0LjU4NzUgMTYuNTg3NUMxNC45NzkyIDE2LjE5NTggMTUuNDUgMTYgMTYgMTZIMzJDMzIuNTUgMTYgMzMuMDIwOCAxNi4xOTU4IDMzLjQxMjUgMTYuNTg3NUMzMy44MDQyIDE2Ljk3OTIgMzQgMTcuNDUgMzQgMThWMzBDMzQgMzAuNTUgMzMuODA0MiAzMS4wMjA4IDMzLjQxMjUgMzEuNDEyNUMzMy4wMjA4IDMxLjgwNDIgMzIuNTUgMzIgMzIgMzJIMTZaTTE2IDMwSDMyVjIwSDE2VjMwWiIvPjwvc3ZnPg==';
+
 const PRESETS = {
   'original-gizmo': {
     label: 'Reference · Original Gizmo',
@@ -491,8 +494,8 @@ function deriveThemeColors(themeValues) {
   setDerivedDefault('timelineItemBg', setColorAlpha(resolved.shellAccent, 0) ?? 'rgba(0, 0, 0, 0)', 'shellAccent');
   setDerivedDefault('timeProductExpirationTextColor', resolved.shellText, 'shellText');
   setDerivedDefault('timeProductExpirationBg', setColorAlpha(resolved.shellAccent, 0.32) ?? resolved.shellAccent, 'shellAccent');
-  setDefault('appCardBg', resolved.shellBgElevated);
-  setDefault('productCardBg', resolved.shellBgElevated2);
+  resolved.appCardBg = resolved.shellBgElevated;
+  resolved.productCardBg = resolved.shellBgElevated;
   setDerivedDefault('popupTextColor', resolved.shellTextSoft, 'shellTextSoft');
   setDerivedDefault('filterUtilityBg', resolved.shellBgElevated2, 'shellBgElevated2');
   setDefault('buttonInactiveBg', mixColorTokens(resolved.shellBgElevated2, resolved.shellAccent, 0.24) ?? resolved.shellBgElevated2);
@@ -546,18 +549,16 @@ const COLOR_FIELD_GROUPS = [
     id: 'backgrounds',
     target: 'surfaceColorControls',
     title: 'Основа интерфейса',
-    description: 'Основной фон, панели, карточки, popup и мягкие поверхности.',
+    description: 'Основной фон, общие панели и карточки, popup и мягкие поверхности.',
     fields: [
       ['shellBg', 'Основной фон'],
-      ['shellBgElevated', 'Панели и карточки'],
-      ['shellBgElevated2', 'Header и поднятые поверхности'],
-      ['shellBgGlass', 'Glass-поверхность'],
-      ['shellBgSoft', 'Мягкая поверхность'],
-      ['popupBg', 'Popup и модальные окна'],
-      ['popupTextColor', 'Popup/модальные окна · текст'],
-      ['appCardBg', 'Карточки приложений'],
-      ['productCardBg', 'Карточки товаров'],
-      ['filterUtilityBg', 'Sort/filter utility блок'],
+      ['shellBgElevated', 'Основные панели и карточки'],
+      ['shellBgElevated2', 'Верхняя панель и поднятые поверхности'],
+      ['shellBgGlass', 'Стеклянные поверхности'],
+      ['shellBgSoft', 'Мягкие поверхности'],
+      ['popupBg', 'Диалоги и всплывающие окна'],
+      ['popupTextColor', 'Диалоги и всплывающие окна — текст'],
+      ['filterUtilityBg', 'Панель фильтров'],
       ['buttonInactiveBg', 'Неактивные кнопки'],
     ],
   },
@@ -569,12 +570,12 @@ const COLOR_FIELD_GROUPS = [
     fields: [
       ['shellText', 'Основной текст'],
       ['shellTextSoft', 'Вторичный текст'],
-      ['shellTextGhost', 'Placeholder и ghost-текст'],
+      ['shellTextGhost', 'Подсказки и placeholder-текст'],
       ['bodyTextColor', 'Текст интерфейса'],
       ['headingColor', 'Заголовки'],
       ['headingTextSoft', 'Подзаголовки'],
       ['linkColor', 'Ссылки'],
-      ['linkHoverColor', 'Ссылки при hover'],
+      ['linkHoverColor', 'Ссылки при наведении'],
     ],
   },
   {
@@ -597,9 +598,9 @@ const COLOR_FIELD_GROUPS = [
       ['iconColor', 'Иконки'],
       ['iconMutedColor', 'Приглушённые иконки'],
       ['iconActiveColor', 'Активные иконки'],
-      ['iconSuccessColor', 'Success иконки'],
-      ['iconWarningColor', 'Warning иконки'],
-      ['iconDangerColor', 'Danger иконки'],
+      ['iconSuccessColor', 'Иконки успешного состояния'],
+      ['iconWarningColor', 'Иконки предупреждения'],
+      ['iconDangerColor', 'Иконки ошибки'],
     ],
   },
   {
@@ -637,16 +638,16 @@ const COLOR_FIELD_GROUPS = [
   {
     id: 'timeline-expiration',
     target: 'componentColorControls',
-    title: 'Timeline и Expiration',
+    title: 'Таймлайн и срок действия',
     description: 'Отдельные цвета компонентов, не связанные с Warning и другими статусами.',
     fields: [
-      ['timelineItemColor', '.giz-timeline-item'],
-      ['timelineItemBg', '.giz-timeline-item · фон'],
-      ['timeProductExpirationTextColor', '.giz-time-product-expiration · текст'],
-      ['timeProductExpirationBg', '.giz-time-product-expiration · фон'],
-      ['userLinksHoverColor', '.giz-user-links hover'],
-      ['selectedStateBg', 'Selected/active · фон'],
-      ['selectedStateTextColor', 'Selected/active · текст'],
+      ['timelineItemColor', 'Таймлайн — текст'],
+      ['timelineItemBg', 'Таймлайн — фон'],
+      ['timeProductExpirationTextColor', 'Срок действия пакета — текст'],
+      ['timeProductExpirationBg', 'Срок действия пакета — фон'],
+      ['userLinksHoverColor', 'Пользовательские ссылки при наведении'],
+      ['selectedStateBg', 'Выбранные элементы — фон'],
+      ['selectedStateTextColor', 'Выбранные элементы — текст'],
     ],
   },
   {
@@ -662,16 +663,16 @@ const COLOR_FIELD_GROUPS = [
   {
     id: 'login',
     target: 'loginColorControls',
-    title: 'Login layout',
+    title: 'Экран входа',
     description: 'Отдельные цвета экрана входа: hero, panel, card, overlay, QR и separator.',
     fields: [
-      ['loginPanelBg', 'Login panel'],
-      ['loginHeroBg', 'Login hero'],
-      ['loginCardBg', 'Login card'],
-      ['loginOverlayBg', 'Lock overlay'],
-      ['loginSeparatorColor', 'Separator'],
-      ['loginQrTitleColor', 'QR заголовок'],
-      ['loginQrTextColor', 'QR текст'],
+      ['loginPanelBg', 'Панель входа'],
+      ['loginHeroBg', 'Фоновая hero-панель'],
+      ['loginCardBg', 'Карточка входа'],
+      ['loginOverlayBg', 'Фон блокировки'],
+      ['loginSeparatorColor', 'Разделитель'],
+      ['loginQrTitleColor', 'QR-код — заголовок'],
+      ['loginQrTextColor', 'QR-код — текст'],
     ],
   },
 ];
@@ -697,13 +698,13 @@ const RANGE_FIELDS = [
   ['panelRadiusOuter', 'Внешний радиус панелей', 0, 56, 1, 'px', 'radiusRangeControls'],
   ['cardRadiusOuter', 'Внешний радиус карточек', 0, 48, 1, 'px', 'radiusRangeControls'],
   ['buttonRadiusOuter', 'Внешний радиус кнопок', 0, 32, 1, 'px', 'radiusRangeControls'],
-  ['inputRadiusOuter', 'Внешний радиус input', 0, 32, 1, 'px', 'radiusRangeControls'],
+  ['inputRadiusOuter', 'Внешний радиус полей ввода', 0, 32, 1, 'px', 'radiusRangeControls'],
   ['modalRadiusOuter', 'Внешний радиус окон', 0, 64, 1, 'px', 'radiusRangeControls'],
   ['radiusInset', 'Авто-разница внутреннего радиуса', 0, 24, 1, 'px', 'radiusRangeControls'],
   ['headerHeight', 'Высота верхней панели', 48, 92, 1, 'px', 'layoutRangeControls'],
   ['shellBlur', 'Размытие фона и glass-панелей', 0, 24, 1, 'px', 'layoutRangeControls'],
-  ['panelBorderWidth', 'Толщина контуров элементов', 0, 3, 1, 'px', 'borderRangeControls'],
-  ['controlBorderWidth', 'Толщина контуров controls', 0, 3, 1, 'px', 'borderRangeControls'],
+  ['panelBorderWidth', 'Толщина границ элементов', 0, 3, 1, 'px', 'borderRangeControls'],
+  ['controlBorderWidth', 'Толщина границ полей и кнопок', 0, 3, 1, 'px', 'borderRangeControls'],
   ['focusRingWidth', 'Ширина focus-ring', 0, 8, 1, 'px', 'borderRangeControls'],
   ['shellShadowOpacity', 'Непрозрачность обычной тени', 0, 0.6, 0.01, '', 'shadowRangeControls'],
   ['shellShadowStrongOpacity', 'Непрозрачность popup/window тени', 0, 0.8, 0.01, '', 'shadowRangeControls'],
@@ -736,8 +737,22 @@ const FONT_RANGE_FIELDS = [
   ['headingFontWeight', 'Вес заголовков', 600, 800, 50, ''],
 ];
 
+const QUICK_CONTROL_KEYS = new Set([
+  'shellBg', 'shellBgElevated', 'shellBgElevated2', 'shellText', 'shellTextSoft',
+  'shellAccent', 'shellAccentDeep', 'shellSuccess', 'shellWarning', 'shellDanger',
+  'panelRadiusOuter', 'cardRadiusOuter', 'buttonRadiusOuter', 'headerHeight', 'shellBlur',
+]);
+const OPACITY_CONTROL_KEYS = new Set([
+  'shellBgGlass', 'shellBgSoft', 'shellBorder', 'shellBorderStrong', 'timelineItemBg',
+  'timeProductExpirationBg', 'popupTextColor', 'loginOverlayBg', 'shadowColor',
+]);
 let draftTheme = structuredClone(DEFAULT_THEME);
 let appliedTheme = structuredClone(DEFAULT_THEME);
+let controlBaselineTheme = structuredClone(DEFAULT_THEME);
+let themeHistory = [structuredClone(DEFAULT_THEME)];
+let themeHistoryIndex = 0;
+let suppressThemeHistory = false;
+let settingsMode = 'quick';
 let activePreviewMode = 'home';
 const ALLOWED_PREVIEW_MODES = new Set([
   'home',
@@ -807,6 +822,7 @@ const ALLOWED_WALLPAPER_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'
 const WALLPAPER_DATA_URL_PATTERN = /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i;
 
 const previewRoot = document.getElementById('previewRoot');
+const controlsPanel = document.querySelector('.controls-panel');
 const cssOutput = document.getElementById('cssOutput');
 const cssOutputContainer = document.getElementById('cssOutputContainer');
 const fileNameInput = document.getElementById('fileNameInput');
@@ -818,6 +834,13 @@ const previewModeTabs = document.getElementById('previewModeTabs');
 const previewModeHint = document.getElementById('previewModeHint');
 const resetThemeBtn = document.getElementById('resetThemeBtn');
 const applyState = document.getElementById('applyState');
+const controlSearchInput = document.getElementById('controlSearchInput');
+const controlSearchStatus = document.getElementById('controlSearchStatus');
+const settingsModeButtons = Array.from(document.querySelectorAll('[data-settings-mode]'));
+const editorToolbar = document.getElementById('editorToolbar');
+const toggleEditorActionsBtn = document.getElementById('toggleEditorActionsBtn');
+const undoThemeBtn = document.getElementById('undoThemeBtn');
+const redoThemeBtn = document.getElementById('redoThemeBtn');
 const copyCssBtn = document.getElementById('copyCssBtn');
 const downloadCssBtn = document.getElementById('downloadCssBtn');
 const toggleCssOutputBtn = document.getElementById('toggleCssOutputBtn');
@@ -836,6 +859,7 @@ const createThemeFromWallpaperBtn = document.getElementById('createThemeFromWall
 const resetWallpaperBtn = document.getElementById('resetWallpaperBtn');
 const wallpaperPreview = document.getElementById('wallpaperPreview');
 const wallpaperStatus = document.getElementById('wallpaperStatus');
+const wallpaperActionHint = document.getElementById('wallpaperActionHint');
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -1209,6 +1233,11 @@ function syncWallpaperControls() {
 
   if (resetWallpaperBtn instanceof HTMLButtonElement) resetWallpaperBtn.disabled = !dataUrl;
   if (createThemeFromWallpaperBtn instanceof HTMLButtonElement) createThemeFromWallpaperBtn.disabled = !dataUrl;
+  if (wallpaperActionHint instanceof HTMLElement) {
+    wallpaperActionHint.textContent = dataUrl
+      ? 'Обои готовы — можно создать палитру из изображения.'
+      : 'Сначала загрузите обои, затем можно создать палитру.';
+  }
   setWallpaperStatus(dataUrl ? `Пользовательские обои: ${fileName}` : 'Стандартные обои Gizmo');
 }
 
@@ -1302,17 +1331,25 @@ function createPresetOptions() {
       wallpaperImage,
       wallpaperName,
     };
+    controlBaselineTheme = structuredClone(preset.values);
+    recordThemeHistory();
     renderAll(true, true);
   });
 }
 
-function createControlCard({ title, bodyMarkup, extraClass = '' }) {
+function createControlCard({ key, title, bodyMarkup, extraClass = '', resetKeys = [key] }) {
   const wrapper = document.createElement('div');
   wrapper.className = `theme-control-card${extraClass ? ` ${extraClass}` : ''}`;
+  const controlKeys = resetKeys.filter(Boolean);
+  wrapper.dataset.controlKeys = controlKeys.join(' ');
+  wrapper.dataset.searchTerms = `${title} ${controlKeys.join(' ')}`.toLowerCase();
   wrapper.innerHTML = `
     <div class="theme-control-card__header">
       <div class="theme-control-card__summary">
         <strong>${title}</strong>
+      </div>
+      <div class="theme-control-card__actions">
+        <button type="button" class="theme-control-card__action" data-reset-control="${controlKeys.join(' ')}" aria-label="Вернуть значение пресета: ${title}" title="Вернуть значение пресета">↺</button>
       </div>
     </div>
     <div class="theme-control-card__body">${bodyMarkup}</div>
@@ -1331,18 +1368,19 @@ function createColorControls() {
     const host = findControlHost(target, colorControls);
     if (!(host instanceof HTMLElement)) return;
     hosts.add(host);
-    const section = document.createElement('section');
+    const section = document.createElement('details');
     section.className = 'color-settings-group';
     section.dataset.colorSettingsGroup = id;
+    section.open = id === 'backgrounds' || id === 'accents';
     section.setAttribute('aria-labelledby', `color-group-${id}`);
     section.innerHTML = `
-      <header class="color-settings-group__header">
+      <summary class="color-settings-group__header">
         <div>
           <h3 id="color-group-${id}">${title}</h3>
           <p>${description}</p>
         </div>
         <span class="color-settings-group__count" aria-label="${fields.length} настроек">${fields.length}</span>
-      </header>
+      </summary>
       <div class="color-settings-group__fields"></div>
     `;
 
@@ -1355,6 +1393,7 @@ function createColorControls() {
           key: 'shellAccent',
           title: 'Акцентный градиент',
           extraClass: 'gradient-color-control',
+          resetKeys: ['shellAccent', 'shellAccentDeep'],
           bodyMarkup: `
             <div class="gradient-color-control__header">
               <span>CTA, active states и glow</span>
@@ -1436,18 +1475,21 @@ function handleColorControlInput(event) {
 }
 
 function createColorInputMarkup(key, label) {
-  return `
-    <div class="color-input-row">
-      <span class="color-picker-shell">
-        <input data-color-picker="${key}" type="color" aria-label="${label}: выбор цвета" />
-      </span>
-      <input data-color-text="${key}" type="text" spellcheck="false" autocapitalize="characters" aria-label="${label}: значение цвета" />
-    </div>
+  const opacityMarkup = OPACITY_CONTROL_KEYS.has(key) ? `
     <div class="color-alpha-row">
       <span>Непрозрачность</span>
       <input id="color-alpha-${key}" data-color-alpha="${key}" type="range" min="0" max="100" step="1" aria-label="${label}: непрозрачность" />
       <output data-color-alpha-value="${key}" for="color-alpha-${key}">100%</output>
     </div>
+  ` : '';
+  return `
+    <div class="color-input-row">
+      <span class="color-picker-shell">
+        <input data-color-picker="${key}" type="color" aria-label="${label}: выбор цвета" />
+      </span>
+      <input data-color-text="${key}" type="text" placeholder="#RRGGBB или RGBA" spellcheck="false" autocapitalize="characters" aria-label="${label}: значение цвета в HEX или RGBA" />
+    </div>
+    ${opacityMarkup}
   `;
 }
 
@@ -1572,6 +1614,132 @@ function createFontControls() {
 
   fontControls.addEventListener('input', updateFontDraft);
   fontControls.addEventListener('change', updateFontDraft);
+}
+
+function themesEqual(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function updateThemeHistoryControls() {
+  if (undoThemeBtn instanceof HTMLButtonElement) undoThemeBtn.disabled = themeHistoryIndex <= 0;
+  if (redoThemeBtn instanceof HTMLButtonElement) redoThemeBtn.disabled = themeHistoryIndex >= themeHistory.length - 1;
+}
+
+function resetThemeHistory() {
+  themeHistory = [structuredClone(draftTheme)];
+  themeHistoryIndex = 0;
+  updateThemeHistoryControls();
+}
+
+function recordThemeHistory() {
+  if (suppressThemeHistory) return;
+  const snapshot = structuredClone(draftTheme);
+  const current = themeHistory[themeHistoryIndex];
+  if (current && themesEqual(current, snapshot)) return;
+  themeHistory = themeHistory.slice(0, themeHistoryIndex + 1);
+  themeHistory.push(snapshot);
+  if (themeHistory.length > 40) themeHistory.shift();
+  themeHistoryIndex = themeHistory.length - 1;
+  updateThemeHistoryControls();
+}
+
+function restoreThemeHistory(index) {
+  const snapshot = themeHistory[index];
+  if (!snapshot) return;
+  suppressThemeHistory = true;
+  themeHistoryIndex = index;
+  draftTheme = structuredClone(snapshot);
+  syncControlValues();
+  applyDraftTheme();
+  suppressThemeHistory = false;
+  updateThemeHistoryControls();
+}
+
+function resetThemeControls(keys) {
+  const resetKeys = keys.filter((key) => Object.hasOwn(controlBaselineTheme, key));
+  if (!resetKeys.length) return;
+  resetKeys.forEach((key) => {
+    draftTheme[key] = structuredClone(controlBaselineTheme[key]);
+  });
+  draftTheme = deriveThemeColors(draftTheme);
+  syncControlValues();
+  markPendingChanges();
+}
+
+function upgradeSettingsSections() {
+  if (!(controlsPanel instanceof HTMLElement)) return;
+  Array.from(controlsPanel.querySelectorAll(':scope > section.control-section')).forEach((section, index) => {
+    const details = document.createElement('details');
+    Array.from(section.attributes).forEach((attribute) => details.setAttribute(attribute.name, attribute.value));
+    details.classList.add('settings-section');
+    details.dataset.settingsSection = String(index);
+    details.open = index < 2;
+    while (section.firstChild) details.appendChild(section.firstChild);
+    section.replaceWith(details);
+
+    const heading = details.querySelector(':scope > .control-section__heading');
+    if (heading instanceof HTMLElement) {
+      const summary = document.createElement('summary');
+      summary.className = 'control-section__summary';
+      summary.appendChild(heading);
+      details.prepend(summary);
+    }
+  });
+}
+
+function updateSettingsSectionCounts() {
+  if (!(controlsPanel instanceof HTMLElement)) return;
+  controlsPanel.querySelectorAll('details.settings-section').forEach((section) => {
+    const keys = Array.from(section.querySelectorAll('.theme-control-card'))
+      .flatMap((card) => String(card.dataset.controlKeys || '').split(' ').filter(Boolean));
+    const badge = section.querySelector(':scope > summary .control-section__heading > span');
+    if (badge instanceof HTMLElement) {
+      badge.textContent = String(keys.length);
+      badge.setAttribute('aria-label', `${keys.length} настроек`);
+    }
+  });
+}
+
+function applyControlVisibility() {
+  if (!(controlsPanel instanceof HTMLElement)) return;
+  const query = String(controlSearchInput?.value || '').trim().toLowerCase();
+  let visibleCount = 0;
+
+  controlsPanel.querySelectorAll('.theme-control-card').forEach((card) => {
+    const keys = String(card.dataset.controlKeys || '').split(' ').filter(Boolean);
+    const isQuickControl = keys.some((key) => QUICK_CONTROL_KEYS.has(key));
+    const matchesMode = settingsMode === 'advanced' || isQuickControl;
+    const matchesSearch = !query || String(card.dataset.searchTerms || '').includes(query);
+    card.hidden = !matchesMode || !matchesSearch;
+    if (!card.hidden) visibleCount += 1;
+  });
+
+  controlsPanel.querySelectorAll('details.color-settings-group').forEach((group) => {
+    const hasVisibleCard = Array.from(group.querySelectorAll('.theme-control-card')).some((card) => !card.hidden);
+    group.hidden = !hasVisibleCard;
+    if (query && hasVisibleCard) group.open = true;
+  });
+
+  controlsPanel.querySelectorAll('details.settings-section').forEach((section) => {
+    if (section.classList.contains('wallpaper-section')) return;
+    const hasVisibleCard = Array.from(section.querySelectorAll('.theme-control-card')).some((card) => !card.hidden);
+    section.hidden = !hasVisibleCard;
+    if (query && hasVisibleCard) section.open = true;
+  });
+
+  settingsModeButtons.forEach((button) => {
+    const isActive = button.dataset.settingsMode === settingsMode;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+
+  if (controlSearchStatus instanceof HTMLElement) {
+    controlSearchStatus.textContent = query
+      ? `Найдено настроек: ${visibleCount}`
+      : settingsMode === 'quick'
+        ? 'Показаны основные настройки'
+        : `Показаны все настройки: ${visibleCount}`;
+  }
 }
 
 function formatAlphaValue(value) {
@@ -2430,8 +2598,7 @@ function buildComprehensiveOverrideCss() {
 [client-theme] .giz-app-card__content__image img,
 [client-theme] .giz-app-card__content__image picture,
 [client-theme] .giz-app-card__content__image picture img,
-[client-theme] .giz-app-card__content__image .giz-image,
-[client-theme] .giz-app-card__content__image .giz-default-image {
+[client-theme] .giz-app-card__content__image .giz-image {
   border-radius: var(--shell-card-radius-inner) !important;
   overflow: hidden !important;
   clip-path: inset(0 round var(--shell-card-radius-inner)) !important;
@@ -2451,6 +2618,14 @@ function buildComprehensiveOverrideCss() {
 [client-theme] .no-image-placeholder {
   background: var(--shell-product-card-bg) !important;
   background-color: var(--shell-product-card-bg) !important;
+}
+
+[client-theme] .giz-home__header__quick-launch,
+[client-theme] .giz-home__header__ads,
+[client-theme] .giz-home-apps__header__quick-launch,
+[client-theme] .giz-home-apps__header__ads {
+  background: var(--shell-bg-elevated) !important;
+  background-color: var(--shell-bg-elevated) !important;
 }
 
 [client-theme] .giz-dropdown-menu__content,
@@ -3597,16 +3772,22 @@ body {
   color: var(--shell-accent-hover);
 }
 
-[client-theme] .giz-app-card {
-  background-color: ${themeValues.appCardBg};
+[client-theme] .giz-app-card,
+[client-theme] .giz-product-card {
+  background-color: var(--shell-app-card-bg) !important;
 }
 
-[client-theme] .giz-app-card:hover {
-  background-color: ${themeValues.appCardBg};
+[client-theme] .giz-app-card:hover,
+[client-theme] .giz-product-card:hover {
+  background: linear-gradient(145deg, ${hexToRgba(themeValues.appCardBg, 0.98)} 0%, ${hexToRgba(themeValues.shellAccent, 0.20)} 100%) !important;
+  border-color: var(--shell-border-hover) !important;
+  box-shadow: var(--shell-shadow), 0 12px 28px ${hexToRgba(themeValues.shellAccent, 0.28)} !important;
 }
 
-[client-theme] .giz-app-card__content__image {
-  background-color: ${themeValues.appCardBg};
+[client-theme] .giz-app-card__content__image,
+[client-theme] .giz-product-card__content__image,
+[client-theme] .giz-product-card__content__image--time {
+  background-color: var(--shell-app-card-bg) !important;
 }
 
 [client-theme] .giz-app-card__content__image,
@@ -3614,11 +3795,77 @@ body {
 [client-theme] .giz-app-card__content__image img,
 [client-theme] .giz-app-card__content__image picture,
 [client-theme] .giz-app-card__content__image picture img,
-[client-theme] .giz-app-card__content__image .giz-image,
-[client-theme] .giz-app-card__content__image .giz-default-image {
+[client-theme] .giz-app-card__content__image .giz-image {
   border-radius: var(--shell-card-radius-inner) !important;
   overflow: hidden !important;
   clip-path: inset(0 round var(--shell-card-radius-inner)) !important;
+}
+
+[client-theme] .giz-app-card .giz-default-image,
+[client-theme] .giz-app-details-card .giz-default-image {
+  position: relative;
+  overflow: hidden !important;
+}
+
+[client-theme] .giz-app-card .giz-default-image img,
+[client-theme] .giz-app-details-card .giz-default-image img {
+  filter: brightness(0) saturate(100%) drop-shadow(400px 0 0 var(--shell-icon)) !important;
+  transform: translateX(-400px) !important;
+}
+
+[client-theme] .giz-app-card__content__image > .giz-default-image > img {
+  filter: none !important;
+  transform: none !important;
+  opacity: 0 !important;
+}
+
+[client-theme] .giz-app-card__content__image > .giz-default-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--shell-icon) !important;
+  -webkit-mask: url("${APP_PLACEHOLDER_MASK}") center / contain no-repeat;
+  mask: url("${APP_PLACEHOLDER_MASK}") center / contain no-repeat;
+}
+
+[client-theme] .giz-app-details__app__info__image {
+  background: var(--shell-bg-elevated) !important;
+  background-color: var(--shell-bg-elevated) !important;
+}
+
+[client-theme] .giz-app-details__app__info__image .giz-default-image,
+[client-theme] .giz-universal-executable__icon .giz-default-image {
+  position: relative;
+  overflow: hidden !important;
+}
+
+[client-theme] .giz-universal-executable__icon .giz-default-image {
+  background: var(--shell-button-inactive-bg) !important;
+  border-radius: var(--shell-input-radius-inner) !important;
+}
+
+[client-theme] .giz-app-details__app__info__image .giz-default-image > img,
+[client-theme] .giz-universal-executable__icon .giz-default-image > img {
+  filter: none !important;
+  transform: none !important;
+  opacity: 0 !important;
+}
+
+[client-theme] .giz-app-details__app__info__image .giz-default-image::after,
+[client-theme] .giz-universal-executable__icon .giz-default-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--shell-icon) !important;
+  -webkit-mask: url("${APP_PLACEHOLDER_MASK}") center / contain no-repeat;
+  mask: url("${APP_PLACEHOLDER_MASK}") center / contain no-repeat;
+}
+
+[client-theme] .giz-universal-executable__icon .giz-default-image::after {
+  -webkit-mask-image: url("${EXECUTABLE_PLACEHOLDER_MASK}");
+  mask-image: url("${EXECUTABLE_PLACEHOLDER_MASK}");
 }
 
 [client-theme] .giz-home__header__ads,
@@ -3637,17 +3884,18 @@ body {
   background-color: var(--shell-product-card-bg) !important;
 }
 
-[client-theme] .giz-product-card {
-  background-color: ${themeValues.productCardBg};
+[client-theme] .giz-app-card:hover .giz-app-card__content__image,
+[client-theme] .giz-app-card:hover .giz-app-card__content__image__hovered,
+[client-theme] .giz-app-card:hover .giz-app-card__content--hovered,
+[client-theme] .giz-app-card:hover .giz-exe-popup,
+[client-theme] .giz-product-card:hover .giz-product-card__content__image,
+[client-theme] .giz-product-card:hover .giz-product-card__content__image__hovered {
+  background: linear-gradient(155deg, ${hexToRgba(themeValues.appCardBg, 0.90)} 0%, ${hexToRgba(themeValues.shellAccent, 0.34)} 100%) !important;
 }
 
-[client-theme] .giz-product-card:hover {
-  background-color: ${themeValues.productCardBg};
-}
-
-[client-theme] .giz-product-card__content__image,
-[client-theme] .giz-product-card__content__image--time {
-  background-color: ${themeValues.productCardBg};
+[client-theme] .giz-product-card:hover .giz-product-card__content--hovered {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 [client-theme] .giz-multi-select__dropdown,
@@ -3823,6 +4071,16 @@ body {
   position: fixed !important;
   isolation: isolate !important;
   z-index: 2147483647 !important;
+}
+
+[client-theme] .giz-dock .giz-universal-executable__icon .giz-default-image {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+[client-theme] .giz-dock .giz-universal-executable::before {
+  background: transparent !important;
+  opacity: 0 !important;
 }
 
 .giz-client-tooltip,
@@ -4263,6 +4521,7 @@ function updateApplyState() {
 }
 
 function markPendingChanges() {
+  recordThemeHistory();
   hasPendingChanges = true;
   updateApplyState();
   if (liveApplyFrame !== null) return;
@@ -4365,6 +4624,13 @@ function extractThemeOverridesFromCss(cssText) {
     }
   }
 
+  const sharedCardSurface = overrides.shellBgElevated ?? overrides.appCardBg ?? overrides.productCardBg;
+  if (sharedCardSurface) {
+    overrides.shellBgElevated = sharedCardSurface;
+    overrides.appCardBg = sharedCardSurface;
+    overrides.productCardBg = sharedCardSurface;
+  }
+
   const wallpaperMatch = cssText.match(
     /--shell-wallpaper-image\s*:\s*(none|url\(\s*["']?(data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+)["']?\s*\))\s*;/i,
   );
@@ -4403,6 +4669,7 @@ async function importPreviewCss(file) {
   if (Object.keys(importedThemeOverrides).length > 0) {
     draftTheme = deriveThemeColors({ ...draftTheme, ...importedThemeOverrides });
     appliedTheme = deriveThemeColors({ ...appliedTheme, ...importedThemeOverrides });
+    recordThemeHistory();
     hasPendingChanges = false;
     syncControlValues();
     renderPreview();
@@ -4424,6 +4691,7 @@ function clearImportedPreviewCss() {
   if (draftThemeBeforeImport && appliedThemeBeforeImport) {
     draftTheme = structuredClone(draftThemeBeforeImport);
     appliedTheme = structuredClone(appliedThemeBeforeImport);
+    recordThemeHistory();
     draftThemeBeforeImport = null;
     appliedThemeBeforeImport = null;
     hasPendingChanges = false;
@@ -4847,7 +5115,9 @@ resetThemeBtn.addEventListener('click', () => {
     updateImportedCssState();
   }
   draftTheme = structuredClone(DEFAULT_THEME);
-  renderAll(true, true);
+  controlBaselineTheme = structuredClone(DEFAULT_THEME);
+  syncControlValues();
+  markPendingChanges();
 });
 
 copyCssBtn.addEventListener('click', copyCss);
@@ -4860,10 +5130,50 @@ cssDialog?.addEventListener('click', (event) => {
   if (event.target === cssDialog) cssDialog.close();
 });
 
+toggleEditorActionsBtn?.addEventListener('click', () => {
+  const isOpen = editorToolbar?.classList.toggle('is-actions-open') ?? false;
+  toggleEditorActionsBtn.setAttribute('aria-expanded', String(isOpen));
+});
+
+undoThemeBtn?.addEventListener('click', () => restoreThemeHistory(themeHistoryIndex - 1));
+redoThemeBtn?.addEventListener('click', () => restoreThemeHistory(themeHistoryIndex + 1));
+
+controlSearchInput?.addEventListener('input', applyControlVisibility);
+settingsModeButtons.forEach((button) => button.addEventListener('click', () => {
+  const mode = button.dataset.settingsMode;
+  if (mode !== 'quick' && mode !== 'advanced') return;
+  settingsMode = mode;
+  applyControlVisibility();
+}));
+
+controlsPanel?.addEventListener('click', (event) => {
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target) return;
+  const resetButton = target.closest('[data-reset-control]');
+  if (resetButton instanceof HTMLButtonElement) {
+    resetThemeControls(String(resetButton.dataset.resetControl || '').split(' ').filter(Boolean));
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (!event.ctrlKey && !event.metaKey) return;
+  if (event.key.toLowerCase() !== 'z') return;
+  const target = event.target;
+  if (target instanceof HTMLInputElement && target.matches('#controlSearchInput, #fileNameInput')) return;
+  if (target instanceof HTMLTextAreaElement) return;
+  const nextIndex = event.shiftKey ? themeHistoryIndex + 1 : themeHistoryIndex - 1;
+  if (nextIndex < 0 || nextIndex >= themeHistory.length) return;
+  event.preventDefault();
+  restoreThemeHistory(nextIndex);
+});
+
 createPresetOptions();
+upgradeSettingsSections();
 createColorControls();
 createFontControls();
 createRangeControls();
+updateSettingsSectionCounts();
+applyControlVisibility();
 hydratePreviewPartials();
 replacePreviewGlyphsWithSvg();
 applyPreviewStyleHints();
@@ -4871,3 +5181,4 @@ setPreviewMode(activePreviewMode);
 setPreviewSurface(activePreviewSurface);
 updateImportedCssState();
 renderAll(true, true);
+resetThemeHistory();

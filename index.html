@@ -41,15 +41,20 @@
           <svg class="editor-brand__icon" aria-hidden="true"><use href="#icon-clock"></use></svg>
           <strong>Gizmo Theme Configurator</strong>
         </div>
-        <div class="editor-toolbar" aria-label="Инструменты темы">
+        <div id="editorToolbar" class="editor-toolbar" aria-label="Инструменты темы">
           <label class="preset-picker" for="presetSelect">
             <span>Preset</span>
             <select id="presetSelect" aria-label="Выбрать пресет темы"></select>
           </label>
-          <button id="resetThemeBtn" class="toolbar-button" type="button">↻ Сбросить</button>
-          <button id="importCssBtn" class="toolbar-button" type="button">↑ Импорт CSS</button>
-          <button id="downloadCssBtn" class="toolbar-button" type="button">↓ Скачать CSS</button>
-          <button id="toggleCssOutputBtn" class="toolbar-button toolbar-button--primary" type="button">Просмотр CSS Shell</button>
+          <div id="editorToolbarActions" class="editor-toolbar__actions">
+            <button id="undoThemeBtn" class="toolbar-button toolbar-button--icon" type="button" title="Отменить изменение (Ctrl+Z)" aria-label="Отменить изменение" disabled>↶</button>
+            <button id="redoThemeBtn" class="toolbar-button toolbar-button--icon" type="button" title="Повторить изменение (Ctrl+Shift+Z)" aria-label="Повторить изменение" disabled>↷</button>
+            <button id="resetThemeBtn" class="toolbar-button" type="button">↻ Сбросить</button>
+            <button id="importCssBtn" class="toolbar-button" type="button">↑ Импорт CSS</button>
+            <button id="downloadCssBtn" class="toolbar-button" type="button">↓ Скачать CSS</button>
+            <button id="toggleCssOutputBtn" class="toolbar-button toolbar-button--primary" type="button">Просмотр CSS Shell</button>
+          </div>
+          <button id="toggleEditorActionsBtn" class="toolbar-button editor-toolbar__more" type="button" aria-expanded="false" aria-controls="editorToolbarActions">⋯</button>
         </div>
       </header>
 
@@ -62,12 +67,23 @@
             </div>
             <p id="applyState" class="apply-state">Preview синхронизирован</p>
           </div>
+          <div class="settings-discovery" aria-label="Навигация по настройкам">
+            <label class="control-search" for="controlSearchInput">
+              <span>Поиск</span>
+              <input id="controlSearchInput" type="search" placeholder="Найти настройку…" autocomplete="off" />
+            </label>
+            <div class="settings-mode-switch" role="group" aria-label="Режим настроек">
+              <button type="button" class="settings-mode-switch__button is-active" data-settings-mode="quick" aria-pressed="true">Быстро</button>
+              <button type="button" class="settings-mode-switch__button" data-settings-mode="advanced" aria-pressed="false">Расширенно</button>
+            </div>
+            <p id="controlSearchStatus" class="settings-discovery__status" aria-live="polite">Показаны основные настройки</p>
+          </div>
 
           <section class="control-section wallpaper-section" aria-labelledby="wallpaperHeading">
             <div class="control-section__heading">
               <h2 id="wallpaperHeading">① Обои клиента</h2>
             </div>
-            <p>Загрузите JPG, PNG или WebP до 8 МБ. Изображение встраивается в CSS и применяется к настоящему Host.Web.</p>
+            <p>Загрузите JPG, PNG или WebP до 8 МБ. Обои сразу применяются к настоящему Host.Web preview; CSS экспорт сохраняет палитру, а не сам файл изображения.</p>
             <div class="wallpaper-control">
               <div id="wallpaperPreview" class="wallpaper-control__preview" role="img" aria-label="Предпросмотр стандартных обоев Gizmo"></div>
               <div class="wallpaper-control__actions">
@@ -76,6 +92,7 @@
                 <button id="resetWallpaperBtn" class="toolbar-button" type="button" disabled>Вернуть стандартные</button>
               </div>
               <p id="wallpaperStatus" class="wallpaper-control__status" role="status" aria-live="polite">Стандартные обои Gizmo</p>
+              <p id="wallpaperActionHint" class="wallpaper-control__hint">Сначала загрузите обои, затем можно создать палитру.</p>
               <input id="wallpaperInput" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden />
             </div>
           </section>
@@ -85,7 +102,7 @@
               <h2 id="surfacesHeading">② Поверхности</h2>
               <span>10</span>
             </div>
-            <p>Фон клиента, панели, карточки, popup, sort/filter utility, glass и неактивные поверхности.</p>
+            <p>Фон клиента, панели, карточки, диалоговые окна, панель фильтров, стеклянные и неактивные поверхности.</p>
             <div class="control-grid" id="surfaceColorControls"></div>
           </section>
 
@@ -94,7 +111,7 @@
               <h2 id="typographyHeading">③ Типографика</h2>
               <span>12</span>
             </div>
-            <p>Шрифты, размеры, заголовки, body text, вторичный текст, ссылки и ghost-текст.</p>
+            <p>Шрифты, размеры, заголовки, основной и вторичный текст, ссылки и приглушённый текст.</p>
             <div class="control-grid" id="fontControls"></div>
             <div class="control-grid" id="typographyColorControls"></div>
           </section>
@@ -113,7 +130,7 @@
               <h2 id="accentHeading">⑤ Акцент и статусы</h2>
               <span>6</span>
             </div>
-            <p>CTA-gradient, hover, success, warning, danger, Timeline и Expiration.</p>
+            <p>Акцентные кнопки, наведение, статусы, таймлайн и срок действия пакета.</p>
             <div class="control-grid" id="accentColorControls"></div>
           </section>
 
@@ -122,7 +139,7 @@
               <h2 id="bordersHeading">⑥ Обводка</h2>
               <span>9</span>
             </div>
-            <p>Цвет, прозрачность и ширина обводки для controls, карточек, окон и focus-состояний.</p>
+            <p>Цвет, прозрачность и ширина обводки для полей, карточек, окон и состояния фокуса.</p>
             <div class="control-grid" id="borderColorControls"></div>
             <div class="range-grid" id="borderRangeControls"></div>
           </section>
@@ -132,7 +149,7 @@
               <h2 id="radiusHeading">⑦ Скругления</h2>
               <span>7</span>
             </div>
-            <p>Внешние радиусы панелей, карточек, controls и окон. Внутренние радиусы считаются автоматически.</p>
+            <p>Внешние радиусы панелей, карточек, полей и окон. Внутренние радиусы считаются автоматически.</p>
             <div class="range-grid" id="radiusRangeControls"></div>
           </section>
 
@@ -141,7 +158,7 @@
               <h2 id="shadowHeading">⑧ Тени</h2>
               <span>9</span>
             </div>
-            <p>Цвет, прозрачность, offset, blur и spread для обычных карточек и popup/window.</p>
+            <p>Цвет, прозрачность, смещение, размытие и размах тени для карточек и диалоговых окон.</p>
             <div class="control-grid" id="shadowColorControls"></div>
             <div class="range-grid" id="shadowRangeControls"></div>
           </section>
@@ -151,7 +168,7 @@
               <h2 id="loginHeading">⑨ Экран входа</h2>
               <span>7</span>
             </div>
-            <p>Отдельные поверхности и текст login layout: hero, panel, card, overlay, QR и separator.</p>
+            <p>Отдельные поверхности и текст экрана входа: фон, панель, карточка, затемнение, QR-код и разделитель.</p>
             <div class="control-grid" id="loginColorControls"></div>
           </section>
 
@@ -160,16 +177,16 @@
               <h2 id="componentsHeading">⑩ Компоненты</h2>
               <span>5</span>
             </div>
-            <p>Специальные компоненты Gizmo: user links, timeline, selected states, product expiration, app/product cards.</p>
+            <p>Специальные элементы Gizmo: ссылки пользователя, таймлайн, выбранные состояния, срок действия пакета и карточки.</p>
             <div class="control-grid" id="componentColorControls"></div>
           </section>
 
           <section class="control-section" aria-labelledby="layoutHeading">
             <div class="control-section__heading">
-              <h2 id="layoutHeading">⑪ Layout</h2>
+              <h2 id="layoutHeading">⑪ Макет</h2>
               <span>2</span>
             </div>
-            <p>Высота header и blur фоновых/glass-поверхностей.</p>
+            <p>Высота шапки и размытие фоновых и стеклянных поверхностей.</p>
             <div class="range-grid" id="layoutRangeControls"></div>
           </section>
 

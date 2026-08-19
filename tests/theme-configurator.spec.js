@@ -20,8 +20,6 @@ const visibleColorKeys = [
   'shellBgSoft',
   'popupBg',
   'popupTextColor',
-  'appCardBg',
-  'productCardBg',
   'filterUtilityBg',
   'buttonInactiveBg',
   'shellText',
@@ -76,8 +74,29 @@ test('color picker swatches use a 1px outline', async ({ page }) => {
 });
 
 async function fillColor(page, key, value) {
+  const mode = page.locator('[data-settings-mode="advanced"]');
+  if (await mode.getAttribute('aria-pressed') !== 'true') await mode.click();
   const input = page.locator(`[data-color-text="${key}"]`);
+  await input.evaluate((element) => {
+    const group = element.closest('details.color-settings-group');
+    const section = element.closest('details.settings-section');
+    if (group) group.open = true;
+    if (section) section.open = true;
+  });
   await input.fill(value);
+}
+
+async function revealField(page, selector) {
+  const mode = page.locator('[data-settings-mode="advanced"]');
+  if (await mode.getAttribute('aria-pressed') !== 'true') await mode.click();
+  const field = page.locator(selector);
+  await field.evaluate((element) => {
+    const group = element.closest('details.color-settings-group');
+    const section = element.closest('details.settings-section');
+    if (group) group.open = true;
+    if (section) section.open = true;
+  });
+  return field;
 }
 
 test('compact palette derives legacy tokens and Windows taskbar color', async ({ page }) => {
@@ -104,6 +123,8 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   await fillColor(page, 'selectedStateBg', '#445566');
   await fillColor(page, 'selectedStateTextColor', '#F1E2D3');
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-time-product-expiration-bg: rgba\(10, 20, 30, 0\.4\);/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-selected-bg: #445566;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-selected-text: #F1E2D3;/);
 
   const css = await page.locator('#cssOutput').inputValue();
   expect(css).toContain('--shell-bg: #112233;');
@@ -265,12 +286,14 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
 
 test('color, font and effect controls update preview and CSS automatically', async ({ page }) => {
   await fillColor(page, 'shellBg', '#264057');
-  await page.locator('[data-font-select="uiFontFamily"]').selectOption("'Inter', system-ui, sans-serif");
-  await page.locator('[data-range-input="cardRadiusOuter"]').fill('20');
-  await page.locator('[data-range-number="buttonRadiusOuter"]').fill('22');
-  await page.locator('[data-range-number="buttonRadiusOuter"]').blur();
-  await page.locator('[data-range-number="inputRadiusOuter"]').fill('18');
-  await page.locator('[data-range-number="inputRadiusOuter"]').blur();
+  await (await revealField(page, '[data-font-select="uiFontFamily"]')).selectOption("'Inter', system-ui, sans-serif");
+  await (await revealField(page, '[data-range-input="cardRadiusOuter"]')).fill('20');
+  const buttonRadius = await revealField(page, '[data-range-number="buttonRadiusOuter"]');
+  await buttonRadius.fill('22');
+  await buttonRadius.blur();
+  const inputRadius = await revealField(page, '[data-range-number="inputRadiusOuter"]');
+  await inputRadius.fill('18');
+  await inputRadius.blur();
 
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #264057;/);
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-font-ui: 'Inter', system-ui, sans-serif;/);
@@ -334,13 +357,27 @@ test('generated CSS round-trips through Import without expanding the palette', a
   await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue('#152637');
 });
 
+test('legacy card-surface imports map to the shared panels and cards color', async ({ page }) => {
+  await page.locator('#importCssInput').setInputFiles({
+    name: 'legacy-card-surface.css',
+    mimeType: 'text/css',
+    buffer: Buffer.from(':root { --shell-product-card-bg: #102030; }'),
+  });
+
+  await expect(page.locator('[data-color-text="shellBgElevated"]')).toHaveValue('#102030');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-app-card-bg: #102030;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-product-card-bg: #102030;/);
+});
+
 test('Real Host.Web is the only preview and auxiliary header blocks are omitted', async ({ page }) => {
   await expect(page.locator('[data-preview-surface]')).toHaveCount(0);
   await expect(page.locator('#previewModeTabs')).toHaveCount(0);
   await expect(page.locator('.preview-panel > .panel__header')).toHaveCount(0);
   await expect(page.locator('.export-panel > .panel__header')).toHaveCount(0);
   await expect(page.locator('.export-summary-group')).toHaveCount(0);
-  await expect(page.locator('.preset-card, .settings-tab, details.color-settings-group')).toHaveCount(0);
+  await expect(page.locator('details.settings-section')).toHaveCount(11);
+  await expect(page.locator('details.color-settings-group')).toHaveCount(10);
+  await expect(page.locator('.preview-coverage, [data-preview-coverage], [data-highlight-control]')).toHaveCount(0);
   await expect(page.locator('#previewRoot')).toBeHidden();
   await expect(page.locator('#realPreviewShell')).toBeVisible();
   await expect(page.locator('#realPreviewFrame')).toHaveAttribute('data-src', './real-client/');
@@ -371,7 +408,8 @@ test('desktop layout keeps the real preview visible beside the settings', async 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-test('all control sections stay available in one scrollable sidebar and CSS opens in a dialog', async ({ page }) => {
+test('all control sections stay discoverable in advanced mode and CSS opens in a dialog', async ({ page }) => {
+  await page.locator('[data-settings-mode="advanced"]').click();
   const expectedSectionHosts = [
     '#surfaceColorControls',
     '#fontControls',
@@ -388,10 +426,10 @@ test('all control sections stay available in one scrollable sidebar and CSS open
     '#layoutRangeControls',
   ];
   for (const selector of expectedSectionHosts) {
-    await expect(page.locator(selector)).toBeVisible();
+    await expect(page.locator(selector)).toBeAttached();
   }
 
-  const groups = page.locator('section.color-settings-group');
+  const groups = page.locator('details.color-settings-group');
   await expect(groups).toHaveCount(10);
   await expect(page.locator('[data-font-select]')).toHaveCount(2);
   await expect(page.locator('[data-font-range]')).toHaveCount(2);
@@ -399,7 +437,7 @@ test('all control sections stay available in one scrollable sidebar and CSS open
   await expect(page.locator('[data-range-input]')).toHaveCount(19);
   await expect(page.locator('[data-range-number]')).toHaveCount(19);
   await expect(page.locator('#loginColorControls [data-color-text]')).toHaveCount(7);
-  await expect(page.locator('#surfaceColorControls [data-color-text]')).toHaveCount(11);
+  await expect(page.locator('#surfaceColorControls [data-color-text]')).toHaveCount(9);
   await expect(page.locator('#iconColorControls [data-color-text]')).toHaveCount(6);
   await expect(page.locator('#borderColorControls [data-color-text]')).toHaveCount(6);
   await expect(page.locator('#borderRangeControls [data-range-input]')).toHaveCount(3);
@@ -408,10 +446,10 @@ test('all control sections stay available in one scrollable sidebar and CSS open
   await expect(page.locator('#shadowRangeControls [data-range-input]')).toHaveCount(8);
   await expect(page.locator('#componentColorControls [data-color-text]')).toHaveCount(7);
   await expect(page.locator('#layoutRangeControls [data-range-input]')).toHaveCount(2);
-  expect(await groups.evaluateAll((items) => items.every((item) => getComputedStyle(item).display !== 'none'))).toBe(true);
+  expect(await groups.evaluateAll((items) => items.every((item) => !item.hidden))).toBe(true);
   expect(await groups.evaluateAll((items) => items.every((item) => item.scrollWidth <= item.clientWidth))).toBe(true);
   expect(await page.locator('.controls-panel').evaluate((panel) => panel.scrollWidth <= panel.clientWidth)).toBe(true);
-  await groups.nth(1).locator('[data-color-text="shellText"]').fill('#EAEAEA');
+  await fillColor(page, 'shellText', '#EAEAEA');
   await expect(page.locator('#cssOutput')).toHaveValue(/--shell-text: #EAEAEA;/);
 
   await page.locator('#toggleCssOutputBtn').click();
@@ -420,6 +458,56 @@ test('all control sections stay available in one scrollable sidebar and CSS open
   await expect(page.locator('#copyCssBtn')).toBeVisible();
   await page.locator('#closeCssDialogBtn').click();
   await expect(page.locator('#cssDialog')).not.toBeVisible();
+});
+
+test('quick settings, search and section accordions reduce the control wall', async ({ page }) => {
+  await expect(page.locator('[data-settings-mode="quick"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-color-text="selectedStateBg"]')).not.toBeVisible();
+  await expect(page.locator('details.settings-section[open]')).toHaveCount(2);
+
+  await page.locator('[data-settings-mode="advanced"]').click();
+  await expect(page.locator('[data-color-text="selectedStateBg"]')).toBeAttached();
+
+  await page.locator('#controlSearchInput').fill('таймлайн');
+  await expect(page.locator('#controlSearchStatus')).toContainText('Найдено настроек:');
+  await expect(page.locator('[data-color-text="timelineItemColor"]')).toBeVisible();
+  await expect(page.locator('[data-color-text="shellBg"]')).not.toBeVisible();
+});
+
+test('theme history and per-control reset recover live changes', async ({ page }) => {
+  const defaultBackground = await page.locator('[data-color-text="shellBg"]').inputValue();
+  await fillColor(page, 'shellBg', '#123456');
+  await expect(page.locator('#undoThemeBtn')).toBeEnabled();
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-bg: #123456;/);
+
+  await page.keyboard.press('Control+z');
+  await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue(defaultBackground);
+  await expect(page.locator('#redoThemeBtn')).toBeEnabled();
+
+  await page.keyboard.press('Control+Shift+z');
+  await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue('#123456');
+  await page.locator('.theme-control-card[data-control-keys~="shellBg"] [data-reset-control]').click();
+  await expect(page.locator('[data-color-text="shellBg"]')).toHaveValue(defaultBackground);
+});
+
+test('mobile layout keeps controls in the document scroll and actions under an explicit menu', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+
+  const mobileLayout = await page.locator('.controls-panel').evaluate((panel) => ({
+    panelScrolls: panel.scrollHeight > panel.clientHeight,
+    pageScrolls: document.documentElement.scrollHeight > document.documentElement.clientHeight,
+    documentWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }));
+  expect(mobileLayout.panelScrolls).toBe(false);
+  expect(mobileLayout.pageScrolls).toBe(true);
+  expect(mobileLayout.documentWidth).toBe(mobileLayout.viewportWidth);
+
+  await expect(page.locator('#toggleEditorActionsBtn')).toBeVisible();
+  await expect(page.locator('#importCssBtn')).not.toBeVisible();
+  await page.locator('#toggleEditorActionsBtn').click();
+  await expect(page.locator('#importCssBtn')).toBeVisible();
 });
 
 test('wallpaper controls can create a theme palette from the uploaded image', async ({ page }) => {
@@ -438,6 +526,7 @@ test('wallpaper controls can create a theme palette from the uploaded image', as
 
   await expect(page.locator('#createThemeFromWallpaperBtn')).toBeVisible();
   await expect(page.locator('#createThemeFromWallpaperBtn')).toBeDisabled();
+  await expect(page.locator('#wallpaperActionHint')).toContainText('Сначала загрузите обои');
 
   await page.locator('#wallpaperInput').setInputFiles({
     name: 'palette-source.png',
@@ -446,6 +535,7 @@ test('wallpaper controls can create a theme palette from the uploaded image', as
   });
 
   await expect(page.locator('#createThemeFromWallpaperBtn')).toBeEnabled();
+  await expect(page.locator('#wallpaperActionHint')).toContainText('Обои готовы');
   await page.locator('#createThemeFromWallpaperBtn').click();
   await expect(page.locator('#wallpaperStatus')).toContainText('Тема создана из обоев: palette-source.png');
   await expect(page.locator('[data-color-text="shellAccent"]')).not.toHaveValue('#3F8CFF');
@@ -557,6 +647,63 @@ test('real Host.Web home uses the native news rotator without a configurator ove
   await expect(realPreview.locator('.giz-news-rotator')).toHaveCount(1);
 });
 
+test('Home quick launch and news panels share the main panels and cards color', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify Home panel theming.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+  const quickLaunch = realPreview.locator('.giz-home-apps__header__quick-launch');
+  const newsPanel = realPreview.locator('.giz-home-apps__header__ads');
+  await expect(quickLaunch).toBeVisible();
+  await expect(newsPanel).toBeVisible();
+
+  await fillColor(page, 'shellBgElevated', '#123456');
+  await expect(page.locator('#cssOutput')).toHaveValue(/\.giz-home-apps__header__quick-launch,[\s\S]*?\.giz-home-apps__header__ads \{[\s\S]*?background: var\(--shell-bg-elevated\) !important;/);
+  await expect.poll(async () => quickLaunch.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(18, 52, 86)');
+  await expect.poll(async () => newsPanel.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(18, 52, 86)');
+});
+
+test('Quick Launch keeps the launcher glyph clean and the hover tooltip opaque', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify Quick Launch theming.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+  const dockItem = realPreview.locator('.giz-dock-item').first();
+  const launcherIcon = dockItem.locator('.giz-universal-executable__icon .giz-default-image');
+  await expect(dockItem).toBeVisible();
+  await expect.poll(async () => launcherIcon.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+
+  await dockItem.hover();
+  const hoverSurface = dockItem.locator('.giz-universal-executable');
+  const tooltip = dockItem.locator('.giz-dock-item-tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect.poll(async () => hoverSurface.evaluate((element) => getComputedStyle(element, '::before').opacity)).toBe('0');
+  await expect.poll(async () => tooltip.evaluate((element) => getComputedStyle(element).backgroundColor !== 'rgba(0, 0, 0, 0)')).toBe(true);
+});
+
+test('Product and time offer hover details keep their text background transparent', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify product hover theming.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+
+  const product = realPreview.locator('.giz-product-card.product').first();
+  await product.hover();
+  await expect.poll(async () => product.locator('.giz-product-card__content--hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toBe('none');
+
+  await realPreview.locator('a[href="shop"]').click();
+  const timeOffer = realPreview.locator('.giz-product-card.time').first();
+  await timeOffer.scrollIntoViewIfNeeded();
+  await timeOffer.hover();
+  await expect.poll(async () => timeOffer.locator('.giz-product-card__content--hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toBe('none');
+});
+
 test('text color controls recolor real Host.Web typography instead of only nearby icons', async ({ page }) => {
   test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify live Host.Web text bindings.');
   test.setTimeout(90_000);
@@ -583,6 +730,62 @@ test('text color controls recolor real Host.Web typography instead of only nearb
   await expect.poll(async () => realPreview.locator('.giz-profile-section__header').first().evaluate((element) => getComputedStyle(element).color)).toBe('rgb(255, 51, 102)');
   await expect.poll(async () => realPreview.locator('.giz-profile-section-item__info__title').first().evaluate((element) => getComputedStyle(element).color)).toBe('rgb(0, 204, 136)');
   await expect.poll(async () => realPreview.locator('.giz-header__user-menu-item__icon').first().evaluate((element) => getComputedStyle(element).color)).toBe('rgb(63, 140, 255)');
+});
+
+test('native app placeholders and app-card hover use the active theme colors', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify native app-card theming.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+  await realPreview.locator('a[href="apps"]').click();
+
+  await fillColor(page, 'shellAccent', '#FF00AA');
+  await fillColor(page, 'iconColor', '#FF00AA');
+  await fillColor(page, 'shellBgElevated', '#102030');
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-app-card-bg: #102030;/);
+  await expect(page.locator('#cssOutput')).toHaveValue(/--shell-product-card-bg: #102030;/);
+
+  const card = realPreview.locator('.giz-app-card').first();
+  const placeholder = card.locator('.giz-app-card__content__image > .giz-default-image > img');
+  await expect(placeholder).toBeVisible();
+  await expect.poll(async () => placeholder.evaluate((element) => getComputedStyle(element).opacity)).toBe('0');
+  await expect.poll(async () => placeholder.evaluate((element) => getComputedStyle(element.parentElement, '::after').webkitMaskImage)).toContain('data:image/svg+xml;base64');
+  await expect.poll(async () => placeholder.evaluate((element) => getComputedStyle(element.parentElement, '::after').backgroundColor)).toBe('rgb(255, 0, 170)');
+
+  await card.hover();
+  const hoverLauncherPlaceholder = card.locator('.giz-exe-popup .giz-universal-executable__icon .giz-default-image').first();
+  await expect.poll(async () => card.locator('.giz-app-card__content__image__hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('linear-gradient');
+  await expect.poll(async () => card.locator('.giz-app-card__content__image__hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('255, 0, 170');
+  await expect.poll(async () => card.evaluate((element) => getComputedStyle(element).boxShadow)).toContain('255, 0, 170');
+  await expect(hoverLauncherPlaceholder.locator('img')).toHaveCSS('opacity', '0');
+  await expect.poll(async () => hoverLauncherPlaceholder.evaluate((element) => getComputedStyle(element, '::after').backgroundColor)).toBe('rgb(255, 0, 170)');
+});
+
+test('App Details uses the active panel and icon colors for its placeholder and launcher', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify App Details theming.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+  await realPreview.locator('a[href="apps"]').click();
+
+  await fillColor(page, 'shellBgElevated', '#123456');
+  await fillColor(page, 'iconColor', '#FF00AA');
+  const valorantCard = realPreview.locator('.giz-app-card', { hasText: 'Valorant' });
+  await valorantCard.locator('button').click();
+  const appDetails = realPreview.locator('.giz-app-details');
+  await expect(appDetails).toBeVisible();
+
+  const appPlaceholder = appDetails.locator('.giz-app-details__app__info__image .giz-default-image > img');
+  const launcherPlaceholder = appDetails.locator('.giz-universal-executable__icon .giz-default-image > img').first();
+  await expect.poll(async () => appDetails.locator('.giz-app-details__app__info__image').evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(18, 52, 86)');
+  await expect(appPlaceholder).toHaveCSS('opacity', '0');
+  await expect.poll(async () => appPlaceholder.evaluate((element) => getComputedStyle(element.parentElement, '::after').backgroundColor)).toBe('rgb(255, 0, 170)');
+  await expect(launcherPlaceholder).toHaveCSS('opacity', '0');
+  await expect.poll(async () => launcherPlaceholder.evaluate((element) => getComputedStyle(element.parentElement, '::after').backgroundColor)).toBe('rgb(255, 0, 170)');
 });
 
 test('real Host.Web receives live CSS and exports the same theme without Gizmo Server', async ({ page }) => {
