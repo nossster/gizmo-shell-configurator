@@ -2326,7 +2326,7 @@ function buildComprehensiveOverrideCss() {
 [client-theme] [class*=" giz-icon"],
 [client-theme] .giz-preview-icon,
 [client-theme] svg.giz-icon,
-[client-theme] svg,
+[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg),
 [client-theme] .giz-filters-icon,
 [client-theme] .giz-button__icon-left,
 [client-theme] .giz-button__icon-right,
@@ -2344,7 +2344,7 @@ function buildComprehensiveOverrideCss() {
 [client-theme] [class*=" giz-icon"] [fill]:not([fill="none"]),
 [client-theme] .giz-preview-icon [fill]:not([fill="none"]),
 [client-theme] svg.giz-icon [fill]:not([fill="none"]),
-[client-theme] svg [fill]:not([fill="none"]),
+[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg) [fill]:not([fill="none"]),
 [client-theme] .giz-button svg [fill]:not([fill="none"]),
 [client-theme] .giz-input-root svg [fill]:not([fill="none"]),
 [client-theme] .giz-profile-section-item__icon svg [fill]:not([fill="none"]) {
@@ -2356,7 +2356,7 @@ function buildComprehensiveOverrideCss() {
 [client-theme] [class*=" giz-icon"] [stroke]:not([stroke="none"]),
 [client-theme] .giz-preview-icon [stroke]:not([stroke="none"]),
 [client-theme] svg.giz-icon [stroke]:not([stroke="none"]),
-[client-theme] svg [stroke]:not([stroke="none"]),
+[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg) [stroke]:not([stroke="none"]),
 [client-theme] .giz-button svg [stroke]:not([stroke="none"]),
 [client-theme] .giz-input-root svg [stroke]:not([stroke="none"]),
 [client-theme] .giz-profile-section-item__icon svg [stroke]:not([stroke="none"]) {
@@ -2654,6 +2654,38 @@ function buildComprehensiveOverrideCss() {
   background: var(--shell-popup-bg) !important;
   background-color: var(--shell-popup-bg) !important;
   color: var(--shell-popup-text) !important;
+}
+
+/* QR modules are payment data, not theme icons: preserve their own contrast
+   and keep the payload above surrounding dialog decorations. */
+[client-theme] .giz-user-online-deposit__submitted__qr__image {
+  position: relative !important;
+  isolation: isolate !important;
+  z-index: 1 !important;
+  color: #000000 !important;
+  background: #ffffff !important;
+}
+
+[client-theme] .giz-user-online-deposit__submitted__qr__image svg {
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+  color: inherit !important;
+}
+
+/* Gizmo emits one white background rect and a black module path. Header icon
+   recoloring reaches this nested dropdown, so restore the data SVG palette. */
+[client-theme] .giz-header__user-menu-item .giz-user-online-deposit__submitted__qr__image svg > rect[fill] {
+  fill: #ffffff !important;
+}
+
+[client-theme] .giz-header__user-menu-item .giz-user-online-deposit__submitted__qr__image svg > path {
+  fill: #000000 !important;
+}
+
+[client-theme] .giz-user-online-deposit__submitted__qr__label {
+  z-index: 0 !important;
+  pointer-events: none;
 }
 
 [client-theme] .giz-dialog > .giz-card,
