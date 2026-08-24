@@ -2693,9 +2693,10 @@ function buildComprehensiveOverrideCss() {
 }
 
 [client-theme] .giz-login__login {
-  background:
-    radial-gradient(circle at top, var(--shell-bg-accent-glow), transparent 34%),
-    linear-gradient(180deg, var(--shell-login-panel-bg) 0%, var(--shell-bg) 100%) !important;
+  /* The login drawer auto-hides after inactivity. Keep its idle host clear so
+     the wallpaper remains fully visible until the drawer content is shown. */
+  background: transparent !important;
+  background-color: transparent !important;
   color: var(--shell-body-text) !important;
 }
 

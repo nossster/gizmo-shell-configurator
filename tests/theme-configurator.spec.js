@@ -152,7 +152,7 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('--shell-input-radius-inner:');
   expect(css).toContain('--shell-login-panel-bg:');
   expect(css).toContain('--shell-login-overlay-bg:');
-  expect(css).toContain('.giz-login__login');
+  expect(css).toMatch(/\[client-theme\] \.giz-login__login \{[\s\S]*?background: transparent !important;[\s\S]*?background-color: transparent !important;/);
   expect(css).toContain('.giz-icon [fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-dropdown-menu {');
   expect(css).toContain('background: transparent !important;');
