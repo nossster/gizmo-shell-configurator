@@ -175,8 +175,10 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('[client-theme] .giz-app-details-card svg path[fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-profile-section-item__icon svg path[fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-header__user-menu-item svg path[stroke]:not([stroke="none"])');
-  expect(css).toContain('[client-theme] svg [fill]:not([fill="none"])');
-  expect(css).toContain('[client-theme] svg [stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg) [fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg) [stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] .giz-user-online-deposit__submitted__qr__image {');
+  expect(css).toContain('isolation: isolate !important;');
   expect(css).toContain('[client-theme] .giz-product-card__content__image svg path[fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-product-details__product__info__image svg path[fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-product-time-image-wrapper svg path[fill]:not([fill="none"])');
@@ -282,6 +284,48 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
     return sheet.cssRules.length;
   }, css);
   expect(ruleCount).toBeGreaterThan(100);
+});
+
+test('payment QR SVG keeps source colors above themed decoration', async ({ page }) => {
+  const css = await page.locator('#cssOutput').inputValue();
+  const qrStyle = await page.evaluate((generatedCss) => {
+    const style = document.createElement('style');
+    style.textContent = generatedCss;
+    const host = document.createElement('main');
+    host.setAttribute('client-theme', 'true');
+    host.innerHTML = `
+      <div class="giz-header__user-menu-item">
+        <div class="giz-user-online-deposit__submitted__qr">
+          <div class="giz-user-online-deposit__submitted__qr__image">
+            <svg viewBox="0 0 2 1" aria-label="Payment QR">
+              <rect id="qrLightModule" width="2" height="1" fill="#ffffff"></rect>
+              <path id="qrDarkModule" d="M1 0h1v1H1z"></path>
+            </svg>
+          </div>
+          <span class="giz-user-online-deposit__submitted__qr__label">QR-code for payment</span>
+        </div>
+      </div>`;
+    document.head.append(style);
+    document.body.append(host);
+    const image = host.querySelector('.giz-user-online-deposit__submitted__qr__image');
+    const svg = image.querySelector('svg');
+    const result = {
+      darkFill: getComputedStyle(host.querySelector('#qrDarkModule')).fill,
+      lightFill: getComputedStyle(host.querySelector('#qrLightModule')).fill,
+      imageZIndex: getComputedStyle(image).zIndex,
+      svgZIndex: getComputedStyle(svg).zIndex,
+    };
+    host.remove();
+    style.remove();
+    return result;
+  }, css);
+
+  expect(qrStyle).toEqual({
+    darkFill: 'rgb(0, 0, 0)',
+    lightFill: 'rgb(255, 255, 255)',
+    imageZIndex: '1',
+    svgZIndex: '1',
+  });
 });
 
 test('color, font and effect controls update preview and CSS automatically', async ({ page }) => {
@@ -663,6 +707,48 @@ test('Home quick launch and news panels share the main panels and cards color', 
   await expect(page.locator('#cssOutput')).toHaveValue(/\.giz-home-apps__header__quick-launch,[\s\S]*?\.giz-home-apps__header__ads \{[\s\S]*?background: var\(--shell-bg-elevated\) !important;/);
   await expect.poll(async () => quickLaunch.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(18, 52, 86)');
   await expect.poll(async () => newsPanel.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(18, 52, 86)');
+});
+
+test('real Host.Web keeps the online payment QR payload visible', async ({ page }) => {
+  test.skip(!hasDemoLoginRuntime, 'Run npm run sync:real-client with demoLogin=true to verify the payment QR.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('[client-theme]').first()).toBeAttached({ timeout: 40_000 });
+  await realPreview.getByRole('button', { name: 'Continue' }).click();
+
+  const depositToggle = realPreview.locator('.giz-user-online-deposit-dropdown > button');
+  await expect(depositToggle).toBeVisible();
+  await depositToggle.click();
+  await realPreview.getByRole('button', { name: '€35.00', exact: true }).click();
+  await realPreview.getByRole('button', { name: 'Place Next: Payment informaition', exact: true }).click();
+
+  const qrImage = realPreview.locator('.giz-user-online-deposit__submitted__qr__image');
+  await expect(qrImage).toBeVisible();
+  const qrState = await qrImage.evaluate((image) => {
+    const svg = image.querySelector('svg');
+    const rect = svg.querySelector('rect');
+    const path = svg.querySelector('path');
+    const bounds = svg.getBoundingClientRect();
+    const topNode = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+    return {
+      background: getComputedStyle(image).backgroundColor,
+      rectFill: getComputedStyle(rect).fill,
+      pathFill: getComputedStyle(path).fill,
+      imageZIndex: getComputedStyle(image).zIndex,
+      svgZIndex: getComputedStyle(svg).zIndex,
+      unobscured: image.contains(topNode),
+    };
+  });
+
+  expect(qrState).toEqual({
+    background: 'rgb(255, 255, 255)',
+    rectFill: 'rgb(255, 255, 255)',
+    pathFill: 'rgb(0, 0, 0)',
+    imageZIndex: '1',
+    svgZIndex: '1',
+    unobscured: true,
+  });
 });
 
 test('Quick Launch keeps the launcher glyph clean and the hover tooltip opaque', async ({ page }) => {
