@@ -175,9 +175,10 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('[client-theme] .giz-app-details-card svg path[fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-profile-section-item__icon svg path[fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-header__user-menu-item svg path[stroke]:not([stroke="none"])');
-  expect(css).toContain('[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg) [fill]:not([fill="none"])');
-  expect(css).toContain('[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg) [stroke]:not([stroke="none"])');
+  expect(css).toContain('[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg):not(.giz-alternative-login__qr svg) [fill]:not([fill="none"])');
+  expect(css).toContain('[client-theme] svg:not(.giz-user-online-deposit__submitted__qr__image svg):not(.giz-alternative-login__qr svg) [stroke]:not([stroke="none"])');
   expect(css).toContain('[client-theme] .giz-user-online-deposit__submitted__qr__image {');
+  expect(css).toContain('[client-theme] .giz-alternative-login__qr {');
   expect(css).toContain('isolation: isolate !important;');
   expect(css).toContain('[client-theme] .giz-product-card__content__image svg path[fill]:not([fill="none"])');
   expect(css).toContain('[client-theme] .giz-product-details__product__info__image svg path[fill]:not([fill="none"])');
@@ -324,6 +325,44 @@ test('payment QR SVG keeps source colors above themed decoration', async ({ page
     darkFill: 'rgb(0, 0, 0)',
     lightFill: 'rgb(255, 255, 255)',
     imageZIndex: '1',
+    svgZIndex: '1',
+  });
+});
+
+test('login QR SVG keeps source colors above themed decoration', async ({ page }) => {
+  const css = await page.locator('#cssOutput').inputValue();
+  const qrStyle = await page.evaluate((generatedCss) => {
+    const style = document.createElement('style');
+    style.textContent = generatedCss;
+    const host = document.createElement('main');
+    host.setAttribute('client-theme', 'true');
+    host.innerHTML = `
+      <div class="giz-alternative-login__qr">
+        <div class="giz-alternative-login__qr-description">Login with QR</div>
+        <svg viewBox="0 0 2 1" aria-label="Login QR">
+          <rect id="loginQrLightModule" width="2" height="1" fill="#ffffff"></rect>
+          <path id="loginQrDarkModule" d="M1 0h1v1H1z"></path>
+        </svg>
+      </div>`;
+    document.head.append(style);
+    document.body.append(host);
+    const qr = host.querySelector('.giz-alternative-login__qr');
+    const svg = qr.querySelector('svg');
+    const result = {
+      darkFill: getComputedStyle(host.querySelector('#loginQrDarkModule')).fill,
+      lightFill: getComputedStyle(host.querySelector('#loginQrLightModule')).fill,
+      qrZIndex: getComputedStyle(qr).zIndex,
+      svgZIndex: getComputedStyle(svg).zIndex,
+    };
+    host.remove();
+    style.remove();
+    return result;
+  }, css);
+
+  expect(qrStyle).toEqual({
+    darkFill: 'rgb(0, 0, 0)',
+    lightFill: 'rgb(255, 255, 255)',
+    qrZIndex: '1',
     svgZIndex: '1',
   });
 });
@@ -707,6 +746,37 @@ test('Home quick launch and news panels share the main panels and cards color', 
   await expect(page.locator('#cssOutput')).toHaveValue(/\.giz-home-apps__header__quick-launch,[\s\S]*?\.giz-home-apps__header__ads \{[\s\S]*?background: var\(--shell-bg-elevated\) !important;/);
   await expect.poll(async () => quickLaunch.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(18, 52, 86)');
   await expect.poll(async () => newsPanel.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(18, 52, 86)');
+});
+
+test('real Host.Web keeps the login QR payload visible', async ({ page }) => {
+  test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to verify the login QR.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  const qr = realPreview.locator('.giz-alternative-login__qr > svg');
+  await expect(qr).toBeVisible({ timeout: 40_000 });
+  const qrState = await qr.evaluate((svg) => {
+    const rect = svg.querySelector('rect');
+    const path = svg.querySelector('path');
+    const bounds = svg.getBoundingClientRect();
+    const topNode = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+    const container = svg.closest('.giz-alternative-login__qr');
+    return {
+      rectFill: getComputedStyle(rect).fill,
+      pathFill: getComputedStyle(path).fill,
+      qrZIndex: getComputedStyle(container).zIndex,
+      svgZIndex: getComputedStyle(svg).zIndex,
+      unobscured: container.contains(topNode),
+    };
+  });
+
+  expect(qrState).toEqual({
+    rectFill: 'rgb(255, 255, 255)',
+    pathFill: 'rgb(0, 0, 0)',
+    qrZIndex: '1',
+    svgZIndex: '1',
+    unobscured: true,
+  });
 });
 
 test('real Host.Web keeps the online payment QR payload visible', async ({ page }) => {
