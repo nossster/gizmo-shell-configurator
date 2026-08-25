@@ -2786,7 +2786,8 @@ function buildComprehensiveOverrideCss() {
 
 [client-theme] .giz-alternative-login__separator,
 [client-theme] .giz-alternative-login__separator > span {
-  background: var(--shell-bg) !important;
+  background: var(--shell-popup-bg) !important;
+  background-color: var(--shell-popup-bg) !important;
   color: var(--shell-login-qr-text) !important;
 }
 
@@ -4506,8 +4507,8 @@ body {
 
 [client-theme] .giz-login__login .giz-alternative-login__separator,
 [client-theme] .giz-login__login .giz-alternative-login__separator > span {
-  background: var(--shell-bg) !important;
-  background-color: var(--shell-bg) !important;
+  background: var(--shell-popup-bg) !important;
+  background-color: var(--shell-popup-bg) !important;
   color: var(--shell-text-soft);
 }
 

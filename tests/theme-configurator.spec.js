@@ -367,6 +367,34 @@ test('login QR SVG keeps source colors above themed decoration', async ({ page }
   });
 });
 
+test('login separator uses the same background as the login method switcher', async ({ page }) => {
+  const css = await page.locator('#cssOutput').inputValue();
+  const loginStyle = await page.evaluate((generatedCss) => {
+    const style = document.createElement('style');
+    style.textContent = generatedCss;
+    const host = document.createElement('main');
+    host.setAttribute('client-theme', 'true');
+    host.innerHTML = `
+      <div class="giz-login-method giz-button-group"><button class="giz-button">Username</button></div>
+      <div class="giz-alternative-login__separator"><span>Or</span></div>`;
+    document.head.append(style);
+    document.body.append(host);
+    const switcher = host.querySelector('.giz-login-method');
+    const separator = host.querySelector('.giz-alternative-login__separator');
+    const result = {
+      switcherBackground: getComputedStyle(switcher).backgroundColor,
+      separatorBackground: getComputedStyle(separator).backgroundColor,
+      separatorLabelBackground: getComputedStyle(separator.querySelector('span')).backgroundColor,
+    };
+    host.remove();
+    style.remove();
+    return result;
+  }, css);
+
+  expect(loginStyle.separatorBackground).toBe(loginStyle.switcherBackground);
+  expect(loginStyle.separatorLabelBackground).toBe(loginStyle.switcherBackground);
+});
+
 test('color, font and effect controls update preview and CSS automatically', async ({ page }) => {
   await fillColor(page, 'shellBg', '#264057');
   await (await revealField(page, '[data-font-select="uiFontFamily"]')).selectOption("'Inter', system-ui, sans-serif");
@@ -777,6 +805,29 @@ test('real Host.Web keeps the login QR payload visible', async ({ page }) => {
     svgZIndex: '1',
     unobscured: true,
   });
+});
+
+test('real Host.Web login separator matches the method switcher background', async ({ page }) => {
+  test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to verify the login separator.');
+  test.setTimeout(90_000);
+
+  const realPreview = page.frameLocator('#realPreviewFrame');
+  await expect(realPreview.locator('#gizmoConfiguratorTheme')).toBeAttached({ timeout: 40_000 });
+  const switcher = realPreview.locator('.giz-login-method.giz-button-group');
+  const separator = realPreview.locator('.giz-alternative-login__separator');
+  await expect(switcher).toBeVisible({ timeout: 40_000 });
+  await expect(separator).toBeVisible();
+  const loginColors = await separator.evaluate((separatorElement) => {
+    const switcherElement = document.querySelector('.giz-login-method.giz-button-group');
+    return {
+      switcher: getComputedStyle(switcherElement).backgroundColor,
+      separator: getComputedStyle(separatorElement).backgroundColor,
+      label: getComputedStyle(separatorElement.querySelector('span')).backgroundColor,
+    };
+  });
+
+  expect(loginColors.separator).toBe(loginColors.switcher);
+  expect(loginColors.label).toBe(loginColors.switcher);
 });
 
 test('real Host.Web keeps the online payment QR payload visible', async ({ page }) => {
