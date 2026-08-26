@@ -73,6 +73,15 @@ test('color picker swatches use a 1px outline', async ({ page }) => {
   await expect(page.locator('.color-picker-shell').first()).toHaveCSS('border-top-width', '1px');
 });
 
+test('editor brand uses the paint roller icon', async ({ page }) => {
+  const icon = page.locator('.editor-brand__icon');
+  await expect(icon).toHaveAttribute('viewBox', '0 0 24 24');
+  await expect(icon.locator('use')).toHaveCount(0);
+  await expect(icon.locator('rect')).toHaveCount(2);
+  await expect(icon).toHaveCSS('fill', 'none');
+  await expect(icon).toHaveCSS('stroke', 'rgb(67, 143, 255)');
+});
+
 async function fillColor(page, key, value) {
   const mode = page.locator('[data-settings-mode="advanced"]');
   if (await mode.getAttribute('aria-pressed') !== 'true') await mode.click();
@@ -238,10 +247,10 @@ test('compact palette derives legacy tokens and Windows taskbar color', async ({
   expect(css).toContain('[client-theme] .live-ad-card--monster');
   expect(css).toContain('background: var(--shell-product-card-bg) !important;');
   expect(css).toContain('[client-theme] .giz-app-card__content--hovered');
-  expect(css).toContain('border-radius: var(--shell-card-radius-inner) !important;');
+  expect(css).toMatch(/\[client-theme\] \.giz-app-card__content__image__hovered,[\s\S]*?\.giz-app-card__content--hovered \{[\s\S]*?border-radius: 0 !important;/);
   expect(css).toContain('[client-theme] .giz-app-card__content__image img');
   expect(css).toContain('[client-theme] .giz-app-card__content__image picture img');
-  expect(css).toContain('clip-path: inset(0 round var(--shell-card-radius-inner)) !important;');
+  expect(css).toMatch(/\[client-theme\] \.giz-app-card__content__image,[\s\S]*?border-radius: 0 !important;[\s\S]*?clip-path: none !important;/);
   expect(css).not.toMatch(/\.giz-product-card__content__image,\s*\n\[client-theme\] \.giz-product-card__content__image img\s*{\s*border-radius: var\(--shell-card-radius-inner\) !important;\s*overflow: hidden !important;\s*clip-path:/);
   expect(css).toContain('[client-theme] .giz-timeline-item {');
   expect(css).toContain('background: var(--shell-timeline-item-bg) !important;');
@@ -367,7 +376,7 @@ test('login QR SVG keeps source colors above themed decoration', async ({ page }
   });
 });
 
-test('login separator uses the same background as the login method switcher', async ({ page }) => {
+test('login separator uses the login card background', async ({ page }) => {
   const css = await page.locator('#cssOutput').inputValue();
   const loginStyle = await page.evaluate((generatedCss) => {
     const style = document.createElement('style');
@@ -375,14 +384,19 @@ test('login separator uses the same background as the login method switcher', as
     const host = document.createElement('main');
     host.setAttribute('client-theme', 'true');
     host.innerHTML = `
-      <div class="giz-login-method giz-button-group"><button class="giz-button">Username</button></div>
-      <div class="giz-alternative-login__separator"><span>Or</span></div>`;
+      <section class="giz-login-card">
+        <div class="giz-login-method giz-button-group">
+          <button class="giz-button selected">Username</button>
+          <button class="giz-button">Phone number</button>
+        </div>
+        <div class="giz-alternative-login__separator"><span>Or</span></div>
+      </section>`;
     document.head.append(style);
     document.body.append(host);
-    const switcher = host.querySelector('.giz-login-method');
+    const loginCard = host.querySelector('.giz-login-card');
     const separator = host.querySelector('.giz-alternative-login__separator');
     const result = {
-      switcherBackground: getComputedStyle(switcher).backgroundColor,
+      loginCardBackground: getComputedStyle(loginCard).backgroundColor,
       separatorBackground: getComputedStyle(separator).backgroundColor,
       separatorLabelBackground: getComputedStyle(separator.querySelector('span')).backgroundColor,
     };
@@ -391,8 +405,8 @@ test('login separator uses the same background as the login method switcher', as
     return result;
   }, css);
 
-  expect(loginStyle.separatorBackground).toBe(loginStyle.switcherBackground);
-  expect(loginStyle.separatorLabelBackground).toBe(loginStyle.switcherBackground);
+  expect(loginStyle.separatorBackground).toBe(loginStyle.loginCardBackground);
+  expect(loginStyle.separatorLabelBackground).toBe(loginStyle.loginCardBackground);
 });
 
 test('color, font and effect controls update preview and CSS automatically', async ({ page }) => {
@@ -436,8 +450,9 @@ test('preset dropdown applies every theme, exposes Custom and Reset selects Orig
     await expect(page.locator('#cssOutput')).toHaveValue(/--shell-button-radius-outer: 16px;/);
     await expect(page.locator('#cssOutput')).toHaveValue(/--shell-input-radius-outer: 16px;/);
     await expect(page.locator('#cssOutput')).toHaveValue(/--shell-timeline-item-bg: rgba\(\d+, \d+, \d+, 0\);/);
+    const css = await page.locator('#cssOutput').inputValue();
+    expect(css).toMatch(/\[client-theme\] \.giz-login__login \.giz-alternative-login__separator,[\s\S]*?background: var\(--shell-login-card-bg\) !important;/);
     if (value !== 'original-gizmo') {
-      const css = await page.locator('#cssOutput').inputValue();
       const accentHover = css.match(/--shell-accent-hover:\s*([^;]+);/)?.[1];
       const userLinksHover = css.match(/--shell-user-links-hover:\s*([^;]+);/)?.[1];
       expect(userLinksHover).toBe(accentHover);
@@ -807,27 +822,27 @@ test('real Host.Web keeps the login QR payload visible', async ({ page }) => {
   });
 });
 
-test('real Host.Web login separator matches the method switcher background', async ({ page }) => {
+test('real Host.Web login separator matches the login card background', async ({ page }) => {
   test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to verify the login separator.');
   test.setTimeout(90_000);
 
   const realPreview = page.frameLocator('#realPreviewFrame');
   await expect(realPreview.locator('#gizmoConfiguratorTheme')).toBeAttached({ timeout: 40_000 });
-  const switcher = realPreview.locator('.giz-login-method.giz-button-group');
+  const loginCard = realPreview.locator('.giz-login-card').first();
   const separator = realPreview.locator('.giz-alternative-login__separator');
-  await expect(switcher).toBeVisible({ timeout: 40_000 });
+  await expect(loginCard).toBeVisible({ timeout: 40_000 });
   await expect(separator).toBeVisible();
   const loginColors = await separator.evaluate((separatorElement) => {
-    const switcherElement = document.querySelector('.giz-login-method.giz-button-group');
+    const loginCardElement = document.querySelector('.giz-login-card');
     return {
-      switcher: getComputedStyle(switcherElement).backgroundColor,
+      loginCard: getComputedStyle(loginCardElement).backgroundColor,
       separator: getComputedStyle(separatorElement).backgroundColor,
       label: getComputedStyle(separatorElement.querySelector('span')).backgroundColor,
     };
   });
 
-  expect(loginColors.separator).toBe(loginColors.switcher);
-  expect(loginColors.label).toBe(loginColors.switcher);
+  expect(loginColors.separator).toBe(loginColors.loginCard);
+  expect(loginColors.label).toBe(loginColors.loginCard);
 });
 
 test('real Host.Web keeps the online payment QR payload visible', async ({ page }) => {
@@ -902,12 +917,14 @@ test('Product and time offer hover details keep their text background transparen
 
   const product = realPreview.locator('.giz-product-card.product').first();
   await product.hover();
+  await expect.poll(async () => product.evaluate((element) => getComputedStyle(element).transform)).toBe('matrix(1, 0, 0, 1, 0, -3)');
   await expect.poll(async () => product.locator('.giz-product-card__content--hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toBe('none');
 
   await realPreview.locator('a[href="shop"]').click();
   const timeOffer = realPreview.locator('.giz-product-card.time').first();
   await timeOffer.scrollIntoViewIfNeeded();
   await timeOffer.hover();
+  await expect.poll(async () => timeOffer.evaluate((element) => getComputedStyle(element).transform)).toBe('matrix(1, 0, 0, 1, 0, -3)');
   await expect.poll(async () => timeOffer.locator('.giz-product-card__content--hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toBe('none');
 });
 
@@ -956,12 +973,21 @@ test('native app placeholders and app-card hover use the active theme colors', a
 
   const card = realPreview.locator('.giz-app-card').first();
   const placeholder = card.locator('.giz-app-card__content__image > .giz-default-image > img');
+  const coverLayers = {
+    image: card.locator('.giz-app-card__content__image'),
+    hoverImage: card.locator('.giz-app-card__content__image__hovered'),
+  };
   await expect(placeholder).toBeVisible();
+  await expect.poll(async () => coverLayers.image.evaluate((element) => getComputedStyle(element).borderRadius)).toBe('0px');
+  await expect.poll(async () => coverLayers.image.evaluate((element) => getComputedStyle(element).clipPath)).toBe('none');
+  await expect.poll(async () => coverLayers.hoverImage.evaluate((element) => getComputedStyle(element).borderRadius)).toBe('0px');
+  await expect.poll(async () => coverLayers.hoverImage.evaluate((element) => getComputedStyle(element).clipPath)).toBe('none');
   await expect.poll(async () => placeholder.evaluate((element) => getComputedStyle(element).opacity)).toBe('0');
   await expect.poll(async () => placeholder.evaluate((element) => getComputedStyle(element.parentElement, '::after').webkitMaskImage)).toContain('data:image/svg+xml;base64');
   await expect.poll(async () => placeholder.evaluate((element) => getComputedStyle(element.parentElement, '::after').backgroundColor)).toBe('rgb(255, 0, 170)');
 
   await card.hover();
+  await expect.poll(async () => card.evaluate((element) => getComputedStyle(element).transform)).toBe('matrix(1, 0, 0, 1, 0, -3)');
   const hoverLauncherPlaceholder = card.locator('.giz-exe-popup .giz-universal-executable__icon .giz-default-image').first();
   await expect.poll(async () => card.locator('.giz-app-card__content__image__hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('linear-gradient');
   await expect.poll(async () => card.locator('.giz-app-card__content__image__hovered').evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('255, 0, 170');

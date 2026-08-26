@@ -2599,9 +2599,9 @@ function buildComprehensiveOverrideCss() {
 [client-theme] .giz-app-card__content__image picture,
 [client-theme] .giz-app-card__content__image picture img,
 [client-theme] .giz-app-card__content__image .giz-image {
-  border-radius: var(--shell-card-radius-inner) !important;
+  border-radius: 0 !important;
   overflow: hidden !important;
-  clip-path: inset(0 round var(--shell-card-radius-inner)) !important;
+  clip-path: none !important;
 }
 
 [client-theme] .giz-home__header__ads,
@@ -2786,8 +2786,8 @@ function buildComprehensiveOverrideCss() {
 
 [client-theme] .giz-alternative-login__separator,
 [client-theme] .giz-alternative-login__separator > span {
-  background: var(--shell-popup-bg) !important;
-  background-color: var(--shell-popup-bg) !important;
+  background: var(--shell-login-card-bg) !important;
+  background-color: var(--shell-login-card-bg) !important;
   color: var(--shell-login-qr-text) !important;
 }
 
@@ -3833,6 +3833,7 @@ body {
 [client-theme] .giz-app-card,
 [client-theme] .giz-product-card {
   background-color: var(--shell-app-card-bg) !important;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease !important;
 }
 
 [client-theme] .giz-app-card:hover,
@@ -3840,6 +3841,25 @@ body {
   background: linear-gradient(145deg, ${hexToRgba(themeValues.appCardBg, 0.98)} 0%, ${hexToRgba(themeValues.shellAccent, 0.20)} 100%) !important;
   border-color: var(--shell-border-hover) !important;
   box-shadow: var(--shell-shadow), 0 12px 28px ${hexToRgba(themeValues.shellAccent, 0.28)} !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [client-theme] .giz-app-card:hover,
+  [client-theme] .giz-product-card:hover {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [client-theme] .giz-app-card,
+  [client-theme] .giz-product-card {
+    transition: none !important;
+  }
+
+  [client-theme] .giz-app-card:hover,
+  [client-theme] .giz-product-card:hover {
+    transform: none !important;
+  }
 }
 
 [client-theme] .giz-app-card__content__image,
@@ -3854,9 +3874,9 @@ body {
 [client-theme] .giz-app-card__content__image picture,
 [client-theme] .giz-app-card__content__image picture img,
 [client-theme] .giz-app-card__content__image .giz-image {
-  border-radius: var(--shell-card-radius-inner) !important;
+  border-radius: 0 !important;
   overflow: hidden !important;
-  clip-path: inset(0 round var(--shell-card-radius-inner)) !important;
+  clip-path: none !important;
 }
 
 [client-theme] .giz-app-card .giz-default-image,
@@ -4222,12 +4242,16 @@ body {
 }
 
 [client-theme] .giz-app-card__content__image__hovered,
+[client-theme] .giz-app-card__content--hovered {
+  border-radius: 0 !important;
+  overflow: hidden !important;
+}
+
 [client-theme] .giz-product-card__content__image__hovered {
   border-radius: inherit !important;
   overflow: hidden !important;
 }
 
-[client-theme] .giz-app-card__content--hovered,
 [client-theme] .giz-product-card__content--hovered {
   border-radius: var(--shell-card-radius-inner) !important;
   overflow: hidden !important;
@@ -4507,8 +4531,8 @@ body {
 
 [client-theme] .giz-login__login .giz-alternative-login__separator,
 [client-theme] .giz-login__login .giz-alternative-login__separator > span {
-  background: var(--shell-popup-bg) !important;
-  background-color: var(--shell-popup-bg) !important;
+  background: var(--shell-login-card-bg) !important;
+  background-color: var(--shell-login-card-bg) !important;
   color: var(--shell-text-soft);
 }
 

@@ -4389,6 +4389,40 @@ input {
 .no-image-card__icon { width: 54px; height: 54px; color: var(--shell-icon); }
 .no-image-card small { color: var(--shell-accent); }
 
+.live-store-card,
+.live-app-card,
+.reference-product-poster,
+.no-image-card {
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .live-store-card:hover,
+  .live-app-card:hover,
+  .reference-product-poster:hover,
+  .no-image-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--shell-accent);
+    box-shadow: var(--shell-shadow), 0 12px 28px color-mix(in srgb, var(--shell-accent) 28%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-store-card,
+  .live-app-card,
+  .reference-product-poster,
+  .no-image-card {
+    transition: none;
+  }
+
+  .live-store-card:hover,
+  .live-app-card:hover,
+  .reference-product-poster:hover,
+  .no-image-card:hover {
+    transform: none;
+  }
+}
+
 .profile-route-preview { align-content: start; }
 .profile-route-preview .preview-profile-header { padding: 30px; border-radius: var(--shell-radius-xl); background: var(--shell-bg-glass); border: 1px solid var(--shell-border); }
 .profile-route-preview .giz-profile-navigation { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; border-bottom: 1px solid var(--shell-border); }
@@ -4647,7 +4681,8 @@ body {
   width: 24px;
   height: 24px;
   color: #438fff;
-  fill: currentColor;
+  fill: none;
+  stroke: currentColor;
 }
 
 .editor-toolbar {
