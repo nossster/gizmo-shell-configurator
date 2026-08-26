@@ -3,10 +3,11 @@ services:
     build:
       context: .
       args:
+        BUILD_VERSION: "1.4.5"
         GIZMO_CLIENT_UI_REPOSITORY: ${GIZMO_CLIENT_UI_REPOSITORY:-https://github.com/GAMP/Gizmo.Client.UI.git}
         GIZMO_CLIENT_UI_REF: ${GIZMO_CLIENT_UI_REF:-}
-    image: gizmo-shell-configurator:1.4.2
-    container_name: gizmo-shell-configurator
+    image: gizmo-shell-configurator:1.4.5
+    container_name: gizmo-css
     ports:
       - "${GIZMO_CONFIGURATOR_PORT:-8920}:8920"
     environment:
