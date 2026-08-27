@@ -4903,6 +4903,92 @@ body {
   cursor: not-allowed;
 }
 
+.wallpaper-analysis-focus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: 10px;
+  color: #aeb9ca;
+  font-size: 10px;
+}
+
+.wallpaper-analysis-focus > span {
+  font-weight: 700;
+}
+
+.wallpaper-analysis-focus select {
+  min-width: 0;
+  height: 34px;
+  padding: 0 9px;
+  color: #edf2fa;
+  background: #11151a;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.wallpaper-theme-candidates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.wallpaper-theme-candidate {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 8px 5px;
+  color: #b4bfce;
+  text-align: left;
+  background: #11151a;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.wallpaper-theme-candidate[aria-pressed='true'] {
+  color: #f4f8ff;
+  border-color: var(--candidate-accent, #438fff);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--candidate-accent, #438fff) 32%, transparent);
+}
+
+.wallpaper-theme-candidate__swatch {
+  width: 100%;
+  height: 5px;
+  background: var(--candidate-accent, #438fff);
+  border-radius: 999px;
+}
+
+.wallpaper-theme-candidate strong,
+.wallpaper-theme-candidate small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wallpaper-theme-candidate strong {
+  min-height: 24px;
+  overflow-wrap: anywhere;
+  font-size: 9px;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.wallpaper-theme-candidate small {
+  white-space: nowrap;
+}
+
+.wallpaper-theme-candidate small,
+.wallpaper-theme-audit {
+  color: #7f8ca0;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.wallpaper-theme-audit {
+  min-height: 13px;
+  margin: 0;
+}
+
 .wallpaper-control__status {
   min-height: 18px;
   margin: 0;

@@ -101,6 +101,16 @@
                 <button id="createThemeFromWallpaperBtn" class="toolbar-button toolbar-button--accent wallpaper-control__theme-button" type="button" disabled>Создать тему из обоев</button>
                 <button id="resetWallpaperBtn" class="toolbar-button" type="button" disabled>Вернуть стандартные</button>
               </div>
+              <label class="wallpaper-analysis-focus" for="wallpaperAnalysisFocus">
+                <span>Область анализа</span>
+                <select id="wallpaperAnalysisFocus" aria-label="Область анализа обоев">
+                  <option value="all">Всё изображение</option>
+                  <option value="center">Центр изображения</option>
+                  <option value="edges">Края и фон</option>
+                </select>
+              </label>
+              <div id="wallpaperThemeCandidates" class="wallpaper-theme-candidates" aria-label="Варианты темы из обоев" aria-live="polite" hidden></div>
+              <p id="wallpaperThemeAudit" class="wallpaper-theme-audit" aria-live="polite" hidden></p>
               <p id="wallpaperStatus" class="wallpaper-control__status" role="status" aria-live="polite">Стандартные обои Gizmo</p>
               <p id="wallpaperActionHint" class="wallpaper-control__hint">Сначала загрузите обои, затем можно создать палитру.</p>
               <input id="wallpaperInput" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden />

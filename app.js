@@ -811,6 +811,14 @@ const PREVIEW_MODE_META = {
 let hasPendingChanges = false;
 let liveApplyFrame = null;
 let activePresetKey = 'original-gizmo';
+let wallpaperAnalysisFocus = 'all';
+let wallpaperThemeCandidates = [];
+let activeWallpaperThemeCandidate = '';
+const WALLPAPER_THEME_VARIANTS = Object.freeze([
+  { key: 'balanced', label: 'Сбалансированная', description: 'Баланс сюжета и цвета' },
+  { key: 'vivid', label: 'Яркая', description: 'Больше насыщенности' },
+  { key: 'calm', label: 'Спокойная', description: 'Мягкие поверхности' },
+]);
 const activePreviewSurface = 'real';
 let realPreviewState = 'idle';
 let realPreviewResizeObserver = null;
@@ -860,6 +868,9 @@ const resetWallpaperBtn = document.getElementById('resetWallpaperBtn');
 const wallpaperPreview = document.getElementById('wallpaperPreview');
 const wallpaperStatus = document.getElementById('wallpaperStatus');
 const wallpaperActionHint = document.getElementById('wallpaperActionHint');
+const wallpaperAnalysisFocusSelect = document.getElementById('wallpaperAnalysisFocus');
+const wallpaperThemeCandidatesHost = document.getElementById('wallpaperThemeCandidates');
+const wallpaperThemeAudit = document.getElementById('wallpaperThemeAudit');
 
 const importedPreviewStyle = document.createElement('style');
 importedPreviewStyle.id = 'importedPreviewCss';
@@ -1066,8 +1077,60 @@ function rgbToHsl({ r, g, b }) {
   return { h: hue / 6, s: saturation, l: lightness };
 }
 
+function hslToRgb({ h, s, l }) {
+  if (s === 0) {
+    const channel = clampChannel(l * 255);
+    return { r: channel, g: channel, b: channel };
+  }
+  const hueToChannel = (p, q, value) => {
+    let channel = value;
+    if (channel < 0) channel += 1;
+    if (channel > 1) channel -= 1;
+    if (channel < 1 / 6) return p + (q - p) * 6 * channel;
+    if (channel < 1 / 2) return q;
+    if (channel < 2 / 3) return p + (q - p) * (2 / 3 - channel) * 6;
+    return p;
+  };
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  return {
+    r: clampChannel(hueToChannel(p, q, h + 1 / 3) * 255),
+    g: clampChannel(hueToChannel(p, q, h) * 255),
+    b: clampChannel(hueToChannel(p, q, h - 1 / 3) * 255),
+  };
+}
+
 function colorLuminance({ r, g, b }) {
-  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  const linearize = (channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b);
+}
+
+function colorContrastRatio(left, right) {
+  const lighter = Math.max(colorLuminance(left), colorLuminance(right));
+  const darker = Math.min(colorLuminance(left), colorLuminance(right));
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function rgbToOklab({ r, g, b }) {
+  const linear = [r, g, b].map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  const l = Math.cbrt(0.4122214708 * linear[0] + 0.5363325363 * linear[1] + 0.0514459929 * linear[2]);
+  const m = Math.cbrt(0.2119034982 * linear[0] + 0.6806995451 * linear[1] + 0.1073969566 * linear[2]);
+  const s = Math.cbrt(0.0883024619 * linear[0] + 0.2817188376 * linear[1] + 0.6299787005 * linear[2]);
+  return {
+    l: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    a: 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  };
+}
+
+function oklabDistance(left, right) {
+  return ((left.l - right.l) ** 2) + ((left.a - right.a) ** 2) + ((left.b - right.b) ** 2);
 }
 
 function clampChannel(value) {
@@ -1105,61 +1168,197 @@ function alphaRgb(color, alpha) {
 
 function averageColors(colors, fallback) {
   if (!colors.length) return fallback;
-  const total = colors.reduce((acc, color) => ({
-    r: acc.r + color.r,
-    g: acc.g + color.g,
-    b: acc.b + color.b,
-  }), { r: 0, g: 0, b: 0 });
-  return {
-    r: total.r / colors.length,
-    g: total.g / colors.length,
-    b: total.b / colors.length,
-  };
+  const totalWeight = colors.reduce((sum, color) => sum + Number(color.weight ?? 1), 0);
+  return colors.reduce((total, color) => {
+    const weight = Number(color.weight ?? 1) / totalWeight;
+    return {
+      r: total.r + color.r * weight,
+      g: total.g + color.g * weight,
+      b: total.b + color.b * weight,
+    };
+  }, { r: 0, g: 0, b: 0 });
 }
 
-async function createWallpaperPalette(dataUrl) {
+function isWallpaperPixelInFocus(x, y, width, height, focus) {
+  if (focus === 'all') return true;
+  const horizontal = (x + 0.5) / width;
+  const vertical = (y + 0.5) / height;
+  if (focus === 'center') return horizontal >= 0.2 && horizontal <= 0.8 && vertical >= 0.2 && vertical <= 0.8;
+  return horizontal <= 0.22 || horizontal >= 0.78 || vertical <= 0.22 || vertical >= 0.78;
+}
+
+async function readWallpaperPixels(dataUrl, focus) {
   const image = await loadWallpaperImage(dataUrl);
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d', { willReadFrequently: true });
   if (!context) throw new Error('Не удалось создать тему: canvas недоступен.');
 
-  const maxSide = 96;
+  const maxSide = 128;
   const ratio = Math.min(1, maxSide / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
   canvas.width = Math.max(1, Math.round((image.naturalWidth || image.width) * ratio));
   canvas.height = Math.max(1, Math.round((image.naturalHeight || image.height) * ratio));
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
   const raw = context.getImageData(0, 0, canvas.width, canvas.height).data;
-  const colors = [];
-  for (let index = 0; index < raw.length; index += 4) {
-    if (raw[index + 3] < 96) continue;
-    const color = { r: raw[index], g: raw[index + 1], b: raw[index + 2] };
-    const hsl = rgbToHsl(color);
-    colors.push({
-      ...color,
-      luminance: colorLuminance(color),
-      saturation: hsl.s,
+  const allPixels = [];
+  const focusedPixels = [];
+  for (let y = 0; y < canvas.height; y += 1) {
+    for (let x = 0; x < canvas.width; x += 1) {
+      const index = (y * canvas.width + x) * 4;
+      if (raw[index + 3] < 96) continue;
+      const color = { r: raw[index], g: raw[index + 1], b: raw[index + 2] };
+      allPixels.push(color);
+      if (isWallpaperPixelInFocus(x, y, canvas.width, canvas.height, focus)) focusedPixels.push(color);
+    }
+  }
+  if (!allPixels.length) throw new Error('Не удалось создать тему: в изображении нет непрозрачных пикселей.');
+  return focusedPixels.length >= Math.max(64, Math.floor(allPixels.length * 0.02)) ? focusedPixels : allPixels;
+}
+
+function clusterWallpaperColors(colors, clusterCount = 8) {
+  const step = Math.max(1, Math.ceil(colors.length / 4096));
+  const samples = colors.filter((_, index) => index % step === 0).map((color) => ({ ...color, lab: rgbToOklab(color) }));
+  if (!samples.length) return [];
+
+  const centers = [{ ...averageColors(samples, samples[0]) }];
+  centers[0].lab = rgbToOklab(centers[0]);
+  while (centers.length < Math.min(clusterCount, samples.length)) {
+    let farthest = samples[0];
+    let farthestDistance = -1;
+    samples.forEach((sample) => {
+      const nearest = Math.min(...centers.map((center) => oklabDistance(sample.lab, center.lab)));
+      if (nearest > farthestDistance) {
+        farthest = sample;
+        farthestDistance = nearest;
+      }
+    });
+    centers.push({ r: farthest.r, g: farthest.g, b: farthest.b, lab: farthest.lab });
+  }
+
+  let groups = [];
+  for (let iteration = 0; iteration < 7; iteration += 1) {
+    groups = centers.map(() => []);
+    samples.forEach((sample) => {
+      let nearestIndex = 0;
+      let nearestDistance = Infinity;
+      centers.forEach((center, index) => {
+        const currentDistance = oklabDistance(sample.lab, center.lab);
+        if (currentDistance < nearestDistance) {
+          nearestIndex = index;
+          nearestDistance = currentDistance;
+        }
+      });
+      groups[nearestIndex].push(sample);
+    });
+    groups.forEach((group, index) => {
+      if (!group.length) return;
+      const center = averageColors(group, centers[index]);
+      centers[index] = { ...center, lab: rgbToOklab(center) };
     });
   }
-  if (!colors.length) throw new Error('Не удалось создать тему: в изображении нет непрозрачных пикселей.');
 
-  const sortedByLuminance = [...colors].sort((left, right) => left.luminance - right.luminance);
-  const darkest = sortedByLuminance.slice(0, Math.max(1, Math.floor(sortedByLuminance.length * 0.38)));
-  const base = averageColors(darkest, colors[0]);
-  const accent = [...colors]
-    .filter((color) => color.luminance > 0.16 && color.luminance < 0.86)
-    .sort((left, right) => (
-      (right.saturation * 1.6 + right.luminance * 0.4)
-      - (left.saturation * 1.6 + left.luminance * 0.4)
-    ))[0] || sortedByLuminance[Math.floor(sortedByLuminance.length * 0.7)] || colors[0];
+  return centers.map((center, index) => {
+    const hsl = rgbToHsl(center);
+    return {
+      ...center,
+      hsl,
+      luminance: colorLuminance(center),
+      weight: groups[index].length / samples.length,
+    };
+  }).filter((entry) => entry.weight > 0).sort((left, right) => right.weight - left.weight);
+}
 
+function selectWallpaperBase(clusters) {
+  const darkClusters = clusters.filter((cluster) => cluster.luminance <= 0.48);
+  return averageColors(darkClusters.length ? darkClusters : clusters, clusters[0] ?? { r: 12, g: 15, b: 17 });
+}
+
+function selectWallpaperAccent(clusters, mode) {
+  const scoring = {
+    balanced: { saturation: 0.48, weight: 0.36, midtone: 0.16, minimumWeight: 0.02, saturationScale: 1, lightnessShift: 0 },
+    vivid: { saturation: 0.61, weight: 0.22, midtone: 0.17, minimumWeight: 0.012, saturationScale: 1.16, lightnessShift: 0.04 },
+    calm: { saturation: 0.31, weight: 0.53, midtone: 0.16, minimumWeight: 0.03, saturationScale: 0.72, lightnessShift: -0.02 },
+  }[mode] ?? { saturation: 0.48, weight: 0.36, midtone: 0.16, minimumWeight: 0.02, saturationScale: 1, lightnessShift: 0 };
+  const candidates = clusters.filter((cluster) => (
+    cluster.weight >= scoring.minimumWeight
+    && cluster.hsl.s >= 0.14
+    && cluster.hsl.l >= 0.08
+    && cluster.hsl.l <= 0.9
+  ));
+  const selected = (candidates.length ? candidates : clusters).reduce((best, cluster) => {
+    const middle = Math.max(0, 1 - Math.abs(cluster.hsl.l - 0.5) * 1.6);
+    const score = cluster.hsl.s * scoring.saturation + cluster.weight * scoring.weight + middle * scoring.midtone;
+    return !best || score > best.score ? { cluster, score } : best;
+  }, null)?.cluster;
+  const source = selected ?? { hsl: { h: 0.575, s: 0.65, l: 0.48 } };
+  return {
+    h: source.hsl.h,
+    s: Math.max(0.42, Math.min(0.9, source.hsl.s * scoring.saturationScale)),
+    l: Math.max(0.34, Math.min(0.62, source.hsl.l + scoring.lightnessShift)),
+  };
+}
+
+function selectAccessibleAccent(hsl, background) {
+  const candidates = [];
+  for (let lightness = 0.24; lightness <= 0.68; lightness += 0.01) {
+    const rgb = hslToRgb({ h: hsl.h, s: hsl.s, l: lightness });
+    const whiteRatio = colorContrastRatio({ r: 255, g: 255, b: 255 }, rgb);
+    const backgroundRatio = colorContrastRatio(rgb, background);
+    candidates.push({ rgb, whiteRatio, backgroundRatio, distance: Math.abs(lightness - hsl.l) });
+  }
+  const readable = candidates.filter((candidate) => candidate.whiteRatio >= 4.5 && candidate.backgroundRatio >= 3);
+  return (readable.length ? readable : candidates).sort((left, right) => {
+    const leftScore = Math.min(left.whiteRatio / 4.5, left.backgroundRatio / 3) - left.distance * 0.06;
+    const rightScore = Math.min(right.whiteRatio / 4.5, right.backgroundRatio / 3) - right.distance * 0.06;
+    return rightScore - leftScore;
+  })[0].rgb;
+}
+
+function selectReadableText(background) {
+  const options = [{ r: 250, g: 250, b: 250 }, { r: 17, g: 24, b: 39 }];
+  return options.sort((left, right) => colorContrastRatio(right, background) - colorContrastRatio(left, background))[0];
+}
+
+function selectMutedText(text, background) {
+  let selected = text;
+  for (let weight = 0.96; weight >= 0.35; weight -= 0.02) {
+    const candidate = mixRgb(background, text, weight);
+    if (colorContrastRatio(candidate, background) >= 4.5) selected = candidate;
+  }
+  return selected;
+}
+
+function createWallpaperContrastAudit(theme) {
+  const checks = [
+    ['Основной текст', theme.shellText, theme.shellBg, 4.5],
+    ['Вторичный текст', theme.shellTextSoft, theme.shellBgElevated, 4.5],
+    ['Текст primary', '#FFFFFF', theme.shellAccent, 4.5],
+    ['Акцент на фоне', theme.shellAccent, theme.shellBg, 3],
+  ].map(([label, foreground, background, minimum]) => {
+    const foregroundColor = parseColorToken(foreground);
+    const backgroundColor = parseColorToken(background);
+    const ratio = foregroundColor && backgroundColor ? colorContrastRatio(foregroundColor, backgroundColor) : 0;
+    return { label, ratio, minimum, pass: ratio >= minimum };
+  });
+  return { checks, passed: checks.filter((check) => check.pass).length, total: checks.length };
+}
+
+function buildWallpaperTheme(base, accentHsl, mode) {
+  const surfaceWeights = {
+    balanced: [0.17, 0.27],
+    vivid: [0.2, 0.33],
+    calm: [0.13, 0.21],
+  }[mode] ?? [0.17, 0.27];
   const bg = mixRgb(scaleRgb(base, 0.42), { r: 6, g: 9, b: 12 }, 0.48);
-  const elevated = mixRgb(bg, accent, 0.18);
-  const elevated2 = mixRgb(bg, accent, 0.28);
-  const accentSoft = mixRgb(accent, { r: 255, g: 255, b: 255 }, 0.18);
+  const accent = selectAccessibleAccent(accentHsl, bg);
+  const elevated = mixRgb(bg, accent, surfaceWeights[0]);
+  const elevated2 = mixRgb(bg, accent, surfaceWeights[1]);
+  const accentSoft = mixRgb(accent, { r: 255, g: 255, b: 255 }, mode === 'vivid' ? 0.12 : 0.18);
   const accentDeep = mixRgb(accent, { r: 0, g: 0, b: 0 }, 0.28);
-  const text = colorLuminance(bg) > 0.45 ? '#111827' : '#FAFAFA';
-  const textRgb = parseColorToken(text);
+  const textRgb = selectReadableText(bg);
+  const textSoftRgb = selectMutedText(textRgb, elevated);
+  const text = colorToHex(textRgb);
+  const textSoft = colorToHex(textSoftRgb);
 
   return {
     shellBg: colorToHex(bg),
@@ -1173,15 +1372,15 @@ async function createWallpaperPalette(dataUrl) {
     shellBorder: alphaRgb(accentSoft, 0.22),
     shellBorderStrong: alphaRgb(accentSoft, 0.42),
     shellText: text,
-    shellTextSoft: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.shellTextSoft,
-    shellTextGhost: textRgb ? alphaRgb(textRgb, 0.36) : DEFAULT_THEME.shellTextGhost,
+    shellTextSoft: textSoft,
+    shellTextGhost: alphaRgb(textSoftRgb, 0.58),
     bodyTextColor: text,
     headingColor: text,
-    headingTextSoft: textRgb ? alphaRgb(textRgb, 0.76) : DEFAULT_THEME.headingTextSoft,
+    headingTextSoft: textSoft,
     linkColor: colorToHex(accentSoft),
     linkHoverColor: colorToHex(accent),
     iconColor: text,
-    iconMutedColor: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.iconMutedColor,
+    iconMutedColor: textSoft,
     iconActiveColor: colorToHex(accent),
     timelineItemColor: colorToHex(accentSoft),
     timelineItemBg: alphaRgb(accent, 0),
@@ -1197,11 +1396,11 @@ async function createWallpaperPalette(dataUrl) {
     loginOverlayBg: alphaRgb(elevated, 0.9),
     loginSeparatorColor: alphaRgb(accentSoft, 0.24),
     loginQrTitleColor: text,
-    loginQrTextColor: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.loginQrTextColor,
+    loginQrTextColor: textSoft,
     appCardBg: colorToHex(elevated),
-    productCardBg: colorToHex(elevated2),
+    productCardBg: colorToHex(elevated),
     popupBg: colorToHex(mixRgb(elevated2, bg, 0.18)),
-    popupTextColor: textRgb ? alphaRgb(textRgb, 0.68) : DEFAULT_THEME.popupTextColor,
+    popupTextColor: textSoft,
     filterUtilityBg: colorToHex(mixRgb(elevated2, bg, 0.32)),
     buttonInactiveBg: colorToHex(mixRgb(elevated2, accent, 0.18)),
     selectedStateBg: colorToHex(accent),
@@ -1211,10 +1410,80 @@ async function createWallpaperPalette(dataUrl) {
   };
 }
 
+async function createWallpaperThemeCandidates(dataUrl, focus) {
+  const pixels = await readWallpaperPixels(dataUrl, focus);
+  const clusters = clusterWallpaperColors(pixels);
+  if (!clusters.length) throw new Error('Не удалось создать тему: палитра изображения пуста.');
+  const base = selectWallpaperBase(clusters);
+  return WALLPAPER_THEME_VARIANTS.map((variant) => {
+    const theme = buildWallpaperTheme(base, selectWallpaperAccent(clusters, variant.key), variant.key);
+    return {
+      ...variant,
+      theme,
+      audit: createWallpaperContrastAudit(theme),
+      accent: theme.shellAccent,
+      clusterCount: clusters.length,
+    };
+  });
+}
+
 function setWallpaperStatus(message, isError = false) {
   if (!wallpaperStatus) return;
   wallpaperStatus.textContent = message;
   wallpaperStatus.classList.toggle('is-error', isError);
+}
+
+function clearWallpaperThemeCandidates() {
+  wallpaperThemeCandidates = [];
+  activeWallpaperThemeCandidate = '';
+  renderWallpaperThemeCandidates();
+}
+
+function renderWallpaperThemeCandidates() {
+  if (!(wallpaperThemeCandidatesHost instanceof HTMLElement)) return;
+  wallpaperThemeCandidatesHost.replaceChildren();
+  const activeCandidate = wallpaperThemeCandidates.find((candidate) => candidate.key === activeWallpaperThemeCandidate);
+  wallpaperThemeCandidatesHost.hidden = !activeCandidate;
+  if (wallpaperThemeAudit instanceof HTMLElement) {
+    wallpaperThemeAudit.hidden = !activeCandidate;
+    wallpaperThemeAudit.textContent = activeCandidate
+      ? `Контраст: ${activeCandidate.audit.passed}/${activeCandidate.audit.total} · ${activeCandidate.clusterCount} цветовых кластеров`
+      : '';
+  }
+  if (!activeCandidate) return;
+
+  wallpaperThemeCandidates.forEach((candidate) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'wallpaper-theme-candidate';
+    button.dataset.wallpaperCandidate = candidate.key;
+    button.setAttribute('aria-pressed', String(candidate.key === activeWallpaperThemeCandidate));
+    button.style.setProperty('--candidate-accent', candidate.accent);
+
+    const swatch = document.createElement('span');
+    swatch.className = 'wallpaper-theme-candidate__swatch';
+    const title = document.createElement('strong');
+    title.textContent = candidate.label;
+    const description = document.createElement('small');
+    description.textContent = candidate.description;
+    button.append(swatch, title, description);
+    wallpaperThemeCandidatesHost.append(button);
+  });
+}
+
+function applyWallpaperThemeCandidate(candidateKey) {
+  const candidate = wallpaperThemeCandidates.find((entry) => entry.key === candidateKey);
+  if (!candidate) return;
+  draftTheme = deriveThemeColors({
+    ...draftTheme,
+    ...candidate.theme,
+  });
+  activeWallpaperThemeCandidate = candidate.key;
+  syncControlValues();
+  markPendingChanges();
+  setWallpaperStatus(
+    `Тема создана из обоев: ${draftTheme.wallpaperName || 'Пользовательские обои'} · ${candidate.label} · контраст ${candidate.audit.passed}/${candidate.audit.total}`,
+  );
 }
 
 function syncWallpaperControls() {
@@ -1231,13 +1500,17 @@ function syncWallpaperControls() {
     );
   }
 
+  if (wallpaperAnalysisFocusSelect instanceof HTMLSelectElement) wallpaperAnalysisFocusSelect.value = wallpaperAnalysisFocus;
   if (resetWallpaperBtn instanceof HTMLButtonElement) resetWallpaperBtn.disabled = !dataUrl;
   if (createThemeFromWallpaperBtn instanceof HTMLButtonElement) createThemeFromWallpaperBtn.disabled = !dataUrl;
   if (wallpaperActionHint instanceof HTMLElement) {
-    wallpaperActionHint.textContent = dataUrl
-      ? 'Обои готовы — можно создать палитру из изображения.'
-      : 'Сначала загрузите обои, затем можно создать палитру.';
+    wallpaperActionHint.textContent = !dataUrl
+      ? 'Сначала загрузите обои, затем можно создать палитру.'
+      : wallpaperThemeCandidates.length
+        ? 'Выберите один из трёх вариантов или измените область анализа и создайте палитру заново.'
+        : 'Обои готовы — можно создать палитру из изображения.';
   }
+  renderWallpaperThemeCandidates();
   setWallpaperStatus(dataUrl ? `Пользовательские обои: ${fileName}` : 'Стандартные обои Gizmo');
 }
 
@@ -1257,6 +1530,7 @@ async function setWallpaperFromFile(file) {
 
   draftTheme.wallpaperImage = dataUrl;
   draftTheme.wallpaperName = file.name;
+  clearWallpaperThemeCandidates();
   syncWallpaperControls();
   markPendingChanges();
 }
@@ -5132,9 +5406,29 @@ wallpaperInput?.addEventListener('change', async (event) => {
   }
 });
 
+wallpaperAnalysisFocusSelect?.addEventListener('change', () => {
+  const focus = wallpaperAnalysisFocusSelect.value;
+  if (!['all', 'center', 'edges'].includes(focus)) return;
+  wallpaperAnalysisFocus = focus;
+  clearWallpaperThemeCandidates();
+  syncWallpaperControls();
+  if (normalizeWallpaperDataUrl(draftTheme.wallpaperImage) && wallpaperActionHint instanceof HTMLElement) {
+    wallpaperActionHint.textContent = 'Область анализа изменена — создайте палитру заново для выбранной области анализа.';
+  }
+});
+
+wallpaperThemeCandidatesHost?.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const button = target.closest('[data-wallpaper-candidate]');
+  if (!(button instanceof HTMLButtonElement)) return;
+  applyWallpaperThemeCandidate(button.dataset.wallpaperCandidate || '');
+});
+
 resetWallpaperBtn?.addEventListener('click', () => {
   draftTheme.wallpaperImage = '';
   draftTheme.wallpaperName = '';
+  clearWallpaperThemeCandidates();
   syncWallpaperControls();
   markPendingChanges();
 });
@@ -5144,20 +5438,17 @@ createThemeFromWallpaperBtn?.addEventListener('click', async () => {
   if (!dataUrl) return;
 
   if (createThemeFromWallpaperBtn instanceof HTMLButtonElement) createThemeFromWallpaperBtn.disabled = true;
-  setWallpaperStatus('Создаю тему из обоев...');
+  if (wallpaperAnalysisFocusSelect instanceof HTMLSelectElement) wallpaperAnalysisFocusSelect.disabled = true;
+  setWallpaperStatus('Создаю варианты темы из обоев...');
   try {
-    const palette = await createWallpaperPalette(dataUrl);
-    draftTheme = deriveThemeColors({
-      ...draftTheme,
-      ...palette,
-    });
-    syncControlValues();
-    markPendingChanges();
-    setWallpaperStatus(`Тема создана из обоев: ${draftTheme.wallpaperName || 'Пользовательские обои'}`);
+    wallpaperThemeCandidates = await createWallpaperThemeCandidates(dataUrl, wallpaperAnalysisFocus);
+    activeWallpaperThemeCandidate = 'balanced';
+    applyWallpaperThemeCandidate(activeWallpaperThemeCandidate);
   } catch (error) {
     setWallpaperStatus(error instanceof Error ? error.message : 'Не удалось создать тему из обоев.', true);
   } finally {
     if (createThemeFromWallpaperBtn instanceof HTMLButtonElement) createThemeFromWallpaperBtn.disabled = false;
+    if (wallpaperAnalysisFocusSelect instanceof HTMLSelectElement) wallpaperAnalysisFocusSelect.disabled = false;
   }
 });
 
