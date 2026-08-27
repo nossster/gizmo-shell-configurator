@@ -674,6 +674,44 @@ test('wallpaper controls can create a theme palette from the uploaded image', as
   await expect(page.locator('#createThemeFromWallpaperBtn')).toBeDisabled();
 });
 
+test('wallpaper generation offers focus-aware, contrast-audited theme candidates', async ({ page }) => {
+  const wallpaperPngDataUrl = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 96;
+    canvas.height = 96;
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#06111A';
+    context.fillRect(0, 0, 96, 96);
+    context.fillStyle = '#F97316';
+    context.fillRect(28, 24, 48, 48);
+    context.fillStyle = '#FF00FF';
+    context.fillRect(1, 1, 1, 1);
+    return canvas.toDataURL('image/png');
+  });
+
+  await page.locator('#wallpaperInput').setInputFiles({
+    name: 'focus-aware-source.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(wallpaperPngDataUrl.split(',')[1], 'base64'),
+  });
+  await page.locator('#wallpaperAnalysisFocus').selectOption('center');
+  await page.locator('#createThemeFromWallpaperBtn').click();
+
+  const candidates = page.locator('[data-wallpaper-candidate]');
+  await expect(candidates).toHaveCount(3);
+  await expect(page.locator('[data-wallpaper-candidate="balanced"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#wallpaperThemeAudit')).toContainText('Контраст: 4/4');
+  await expect(page.locator('[data-color-text="shellAccent"]')).not.toHaveValue('#FF00FF');
+
+  await page.locator('[data-wallpaper-candidate="vivid"]').click();
+  await expect(page.locator('[data-wallpaper-candidate="vivid"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#wallpaperStatus')).toContainText('Яркая');
+
+  await page.locator('#wallpaperAnalysisFocus').selectOption('edges');
+  await expect(candidates).toHaveCount(0);
+  await expect(page.locator('#wallpaperActionHint')).toContainText(/область анализа/i);
+});
+
 test('wallpaper upload applies to real Host.Web preview without embedding in exported CSS', async ({ page }) => {
   test.skip(!hasRealHostRuntime, 'Run npm run sync:real-client to verify wallpaper integration.');
   test.setTimeout(90_000);
